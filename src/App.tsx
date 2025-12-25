@@ -27,6 +27,8 @@ import CRMRooms from "./pages/crm/CRMRooms";
 import PatientConsentForm from "./pages/crm/PatientConsentForm";
 import AppointmentConfirm from "./pages/AppointmentConfirm";
 import TherapistProfile from "./pages/TherapistProfile";
+import InstallApp from "./pages/InstallApp";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -59,6 +61,7 @@ const App = () => (
                 <Route path="/crm/patients/:patientId/consent" element={<PatientConsentForm />} />
                 <Route path="/confirm" element={<AppointmentConfirm />} />
                 <Route path="/therapist-profile" element={<TherapistProfile />} />
+                <Route path="/install" element={<InstallApp />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
