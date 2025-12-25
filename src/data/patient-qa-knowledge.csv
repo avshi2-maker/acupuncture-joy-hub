@@ -1,0 +1,37 @@
+Stage,Question,Notes,Treatment_Suggestions
+Before Treatment,What is your primary reason for seeking acupuncture?,Helps identify chief complaint,"Use 6–10 needles; focus on affected meridians"
+Before Treatment,When did your symptoms begin?,Timeline of condition,"Choose acute vs chronic protocol; adjust needle retention time"
+Before Treatment,What makes your symptoms better or worse?,Triggers and relief factors,"Target reactive points; consider distal and local points"
+Before Treatment,Are you under physician's care or other therapies?,Coordination with other treatments,"Avoid overlapping modalities; gentle stimulation"
+Before Treatment,"Do you have allergies, chronic conditions, or surgeries?",Safety and history,"Avoid sensitive areas; use fewer needles if fragile"
+Before Treatment,What medications or supplements are you taking?,Possible interactions,"Avoid herbs that conflict; use harmonizing points"
+Before Treatment,"How is your sleep, digestion, and energy?",General wellness indicators,"SP6, ST36, LI4; 8–12 needles"
+Before Treatment,"Do you experience stress, anxiety, or mood swings?",Emotional health,"GV20, HT7, PC6; calming points"
+Before Treatment,What is your diet and exercise routine?,Lifestyle factors,"Support digestion: ST36, CV12; use 6–10 needles"
+Before Treatment,History of trauma (physical/emotional)?,May affect treatment approach,"Gentle needling; use grounding points like KD1, ST36"
+Before Treatment,Regular bowel movements? Any issues?,TCM diagnostic relevance,"ST25, CV6, SP15; 6–8 needles"
+Before Treatment,Menstrual cycle regularity and symptoms?,Hormonal balance,"SP6, CV4, LV3; cycle-based protocol"
+Before Treatment,"Night sweats, chills, hot flashes?",Yin/Yang imbalance indicators,"KD3, LI11, GV14; 8–10 needles"
+Before Treatment,Do you dream often? Are they vivid/disturbing?,Emotional and mental health,"HT7, Anmian, PC6; calming protocol"
+Before Treatment,Time of day you feel most energetic/fatigued?,Qi flow patterns,"Adjust treatment time; use circadian-based points"
+Before Treatment,Have you had acupuncture before?,Experience level,Start with fewer needles if new
+Before Treatment,Comfortable with needles and process?,Consent and comfort,"Explain technique; use shallow insertion"
+Before Treatment,Insurance coverage for acupuncture?,Administrative,N/A
+During Treatment,How are you feeling today vs last visit?,Progress tracking,Adjust needle count or location based on feedback
+During Treatment,Changes in symptoms?,Treatment effectiveness,"Reinforce effective points; rotate others"
+During Treatment,New concerns or discomforts?,Adjustments needed,"Add or remove points; consider cupping or moxa"
+During Treatment,How did you feel after last treatment?,Post-treatment response,Adjust retention time or stimulation
+During Treatment,Followed aftercare instructions?,Compliance,"Reinforce importance; suggest hydration and rest"
+During Treatment,"Tingling, heaviness, warmth during needling?",Needle response,"Adjust depth or technique; check for De Qi"
+During Treatment,"Want cupping, moxibustion, or herbs today?",Optional modalities,"Add based on condition; explain benefits"
+During Treatment,Areas to focus more on?,Patient preferences,"Prioritize those zones; use local and distal points"
+Ongoing Meetings,How has your condition evolved?,Long-term progress,Reduce frequency or maintain protocol
+Ongoing Meetings,Fewer flare-ups or episodes?,Symptom reduction,Consider maintenance plan
+Ongoing Meetings,"Sleep, mood, energy now?",Overall wellness,Adjust points to support balance
+Ongoing Meetings,Able to perform daily activities more easily?,Functional improvement,Reinforce musculoskeletal points
+Ongoing Meetings,"Lifestyle changes (diet, exercise, stress)?",Supportive habits,"Encourage supportive points; offer herbs"
+Ongoing Meetings,"Need support with herbs, nutrition, mindfulness?",Holistic care,Recommend adjunct therapies
+Ongoing Meetings,Feel informed and supported?,Patient satisfaction,"Offer education; adjust communication"
+Ongoing Meetings,Want educational materials or wellness tips?,Engagement,Provide handouts or links
+Ongoing Meetings,Satisfied with communication style/frequency?,Service quality,Adjust follow-up method
+Ongoing Meetings,Would you recommend acupuncture to others?,Feedback and referrals,Ask for testimonial or referral
