@@ -11,12 +11,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useTier } from '@/hooks/useTier';
 import { useAuth } from '@/hooks/useAuth';
 import { TierBadge } from '@/components/layout/TierBadge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { 
   Users, 
   Plus, 
@@ -36,7 +39,8 @@ import {
   X,
   ChevronLeft,
   Filter,
-  ChevronDown
+  ChevronDown,
+  Download
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
@@ -518,6 +522,91 @@ export default function CRM() {
     return matchesSearch && matchesGender && matchesDateRange && matchesCondition;
   });
 
+  const genderLabel = (gender: string | null) => {
+    switch (gender) {
+      case 'male': return 'זכר';
+      case 'female': return 'נקבה';
+      case 'other': return 'אחר';
+      default: return '';
+    }
+  };
+
+  const exportToCSV = () => {
+    if (filteredPatients.length === 0) {
+      toast.error('אין מטופלים לייצוא');
+      return;
+    }
+
+    const headers = ['שם מלא', 'טלפון', 'אימייל', 'תאריך לידה', 'מין', 'כתובת', 'איש קשר לחירום', 'טלפון חירום', 'היסטוריה רפואית', 'אלרגיות', 'תרופות', 'הערות'];
+    
+    const rows = filteredPatients.map(p => [
+      p.full_name,
+      p.phone || '',
+      p.email || '',
+      p.date_of_birth || '',
+      genderLabel(p.gender),
+      p.address || '',
+      p.emergency_contact || '',
+      p.emergency_phone || '',
+      p.medical_history || '',
+      p.allergies || '',
+      p.medications || '',
+      p.notes || ''
+    ]);
+
+    // Add BOM for Hebrew support in Excel
+    const BOM = '\uFEFF';
+    const csvContent = BOM + [headers, ...rows]
+      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `patients_${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success('קובץ CSV הורד בהצלחה');
+  };
+
+  const exportToPDF = () => {
+    if (filteredPatients.length === 0) {
+      toast.error('אין מטופלים לייצוא');
+      return;
+    }
+
+    const doc = new jsPDF({ orientation: 'landscape' });
+    
+    // Title
+    doc.setFontSize(18);
+    doc.text('Patient List', 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Exported: ${format(new Date(), 'yyyy-MM-dd HH:mm')}`, 14, 30);
+    doc.text(`Total: ${filteredPatients.length} patients`, 14, 36);
+
+    const tableData = filteredPatients.map(p => [
+      p.full_name,
+      p.phone || '-',
+      p.email || '-',
+      p.date_of_birth || '-',
+      genderLabel(p.gender) || '-',
+      p.allergies || '-',
+      p.medications || '-'
+    ]);
+
+    autoTable(doc, {
+      startY: 42,
+      head: [['Name', 'Phone', 'Email', 'DOB', 'Gender', 'Allergies', 'Medications']],
+      body: tableData,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [34, 139, 87] },
+    });
+
+    doc.save(`patients_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+    toast.success('קובץ PDF הורד בהצלחה');
+  };
+
   if (!tier || !hasFeature('crm')) return null;
 
   return (
@@ -545,6 +634,24 @@ export default function CRM() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Download className="h-4 w-4" />
+                    <span className="hidden sm:inline">ייצוא</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="text-right">
+                  <DropdownMenuItem onClick={exportToCSV} className="gap-2 cursor-pointer">
+                    <FileText className="h-4 w-4" />
+                    ייצוא ל-CSV
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={exportToPDF} className="gap-2 cursor-pointer">
+                    <FileText className="h-4 w-4" />
+                    ייצוא ל-PDF
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <TierBadge />
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" />
