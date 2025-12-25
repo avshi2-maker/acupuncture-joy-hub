@@ -64,21 +64,21 @@ type QuickNavSection = 'chat' | 'voice' | 'history' | 'feedback';
 
 // Feature tabs configuration
 const featureTabs = [
-  { id: 'chat', icon: Sparkles, label: 'שאל AI' },
-  { id: 'symptoms', icon: FileText, label: 'סימפטומים' },
-  { id: 'diagnosis', icon: ClipboardList, label: 'אבחון' },
-  { id: 'treatment', icon: Pill, label: 'טיפול' },
-  { id: 'herbs', icon: Leaf, label: 'עשבים' },
-  { id: 'points', icon: MapPin, label: 'נקודות' },
-  { id: 'conditions', icon: Stethoscope, label: 'מצבים' },
-  { id: 'nutrition', icon: Apple, label: 'תזונה' },
-  { id: 'mental', icon: Heart, label: 'מנטלי' },
-  { id: 'sleep', icon: Moon, label: 'שינה' },
-  { id: 'worklife', icon: Briefcase, label: 'איזון' },
-  { id: 'bazi', icon: Compass, label: 'באזי' },
-  { id: 'wellness', icon: Activity, label: 'רווחה' },
-  { id: 'sports', icon: Dumbbell, label: 'ספורט' },
-  { id: 'astro', icon: Star, label: 'אסטרולוגיה' },
+  { id: 'chat', icon: Sparkles, label: 'Ask AI' },
+  { id: 'symptoms', icon: FileText, label: 'Symptoms' },
+  { id: 'diagnosis', icon: ClipboardList, label: 'Diagnosis' },
+  { id: 'treatment', icon: Pill, label: 'Treatment' },
+  { id: 'herbs', icon: Leaf, label: 'Herbs' },
+  { id: 'points', icon: MapPin, label: 'Points' },
+  { id: 'conditions', icon: Stethoscope, label: 'Conditions' },
+  { id: 'nutrition', icon: Apple, label: 'Nutrition' },
+  { id: 'mental', icon: Heart, label: 'Mental' },
+  { id: 'sleep', icon: Moon, label: 'Sleep' },
+  { id: 'worklife', icon: Briefcase, label: 'Balance' },
+  { id: 'bazi', icon: Compass, label: 'Bazi' },
+  { id: 'wellness', icon: Activity, label: 'Wellness' },
+  { id: 'sports', icon: Dumbbell, label: 'Sports' },
+  { id: 'astro', icon: Star, label: 'Astrology' },
 ];
 
 // Symptom Analysis Questions (50)
@@ -220,9 +220,34 @@ const treatmentQuestions = [
 ];
 
 const quickQuestions = [
-  { icon: Leaf, text: 'מהם העשבים הטובים לחיזוק הטחול?', textEn: 'Best herbs for Spleen Qi deficiency?' },
-  { icon: MapPin, text: 'נקודות לכאבי ראש מסוג שאו יאנג', textEn: 'Points for Shao Yang headache?' },
-  { icon: Stethoscope, text: 'דפוסי TCM לנדודי שינה', textEn: 'TCM patterns for insomnia?' },
+  { icon: Leaf, text: 'Best herbs for Spleen Qi deficiency?' },
+  { icon: MapPin, text: 'Points for Shao Yang headache?' },
+  { icon: Stethoscope, text: 'TCM patterns for insomnia?' },
+];
+
+// Main query categories for first page
+const mainQueryCategories = [
+  { 
+    id: 'symptoms', 
+    icon: FileText, 
+    title: 'Symptoms Analysis', 
+    description: 'Analyze patient symptoms and complaints',
+    questions: symptomQuestions
+  },
+  { 
+    id: 'diagnosis', 
+    icon: ClipboardList, 
+    title: 'TCM Diagnosis', 
+    description: 'Pattern identification and assessment',
+    questions: diagnosisQuestions
+  },
+  { 
+    id: 'treatment', 
+    icon: Pill, 
+    title: 'Treatment Planning', 
+    description: 'Treatment principles and protocols',
+    questions: treatmentQuestions
+  },
 ];
 
 export default function TcmBrain() {
@@ -250,6 +275,7 @@ export default function TcmBrain() {
   const [selectedSportsQuestion, setSelectedSportsQuestion] = useState('');
   const [selectedAstroQuestion, setSelectedAstroQuestion] = useState('');
   const [activeNavSection, setActiveNavSection] = useState<QuickNavSection>('chat');
+  const [showDetailedView, setShowDetailedView] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -498,17 +524,17 @@ export default function TcmBrain() {
     const categories = [...new Set(questions.map(q => q.category))];
     
     return (
-      <div className="space-y-6 p-4" dir="rtl">
-        <div className="text-right">
+      <div className="space-y-6 p-4">
+        <div className="text-left">
           <h3 className="font-display text-xl mb-2">{title}</h3>
-          <p className="text-muted-foreground text-sm">בחרו שאלה מהרשימה או כתבו שאלה משלכם</p>
+          <p className="text-muted-foreground text-sm">Select a question from the list or write your own</p>
         </div>
         
         <div className="grid gap-4">
           {categories.map(category => (
             <Card key={category} className="bg-card">
               <CardHeader className="py-3">
-                <CardTitle className="text-sm font-medium text-jade text-right">{category}</CardTitle>
+                <CardTitle className="text-sm font-medium text-jade text-left">{category}</CardTitle>
               </CardHeader>
               <CardContent className="py-2">
                 <Select
@@ -517,16 +543,15 @@ export default function TcmBrain() {
                     onSelect(value);
                     handleQAQuestionSelect(value);
                   }}
-                  dir="rtl"
                 >
-                  <SelectTrigger className="text-right" dir="rtl">
-                    <SelectValue placeholder="בחרו שאלה..." />
+                  <SelectTrigger className="text-left">
+                    <SelectValue placeholder="Select a question..." />
                   </SelectTrigger>
-                  <SelectContent className="bg-card border-border z-50 max-h-60" dir="rtl">
+                  <SelectContent className="bg-card border-border z-50 max-h-60">
                     {questions
                       .filter(q => q.category === category)
                       .map(q => (
-                        <SelectItem key={q.id} value={q.question} className="text-right">
+                        <SelectItem key={q.id} value={q.question} className="text-left">
                           {q.question}
                         </SelectItem>
                       ))}
@@ -540,27 +565,26 @@ export default function TcmBrain() {
         {/* Custom Prompt Section */}
         <Card className="bg-jade-light/20 border-jade/30">
           <CardHeader className="py-3">
-            <CardTitle className="text-sm font-medium flex items-center justify-end gap-2 text-right">
-              כתבו שאלה משלכם
+            <CardTitle className="text-sm font-medium flex items-center gap-2 text-left">
               <FileText className="h-4 w-4" />
+              Write your own question
             </CardTitle>
           </CardHeader>
           <CardContent className="py-2 space-y-3">
             <Textarea
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
-              placeholder="הקלידו את השאלה שלכם כאן..."
-              className="min-h-[100px] text-right"
-              dir="rtl"
+              placeholder="Type your question here..."
+              className="min-h-[100px] text-left"
             />
-            <div className="flex gap-2 flex-row-reverse">
+            <div className="flex gap-2">
               <Button
                 onClick={handleCustomPromptSubmit}
                 disabled={!customPrompt.trim() || isLoading}
                 className="flex-1"
               >
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-                שלח שאלה
+                Send Question
               </Button>
               <Button
                 variant="outline"
@@ -580,17 +604,17 @@ export default function TcmBrain() {
     <>
       <Helmet>
         <title>TCM Brain | TCM Clinic</title>
-        <meta name="description" content="מאגר ידע מקיף ברפואה סינית עם AI" />
+        <meta name="description" content="Comprehensive TCM knowledge base with AI" />
       </Helmet>
 
-      <div className="min-h-screen bg-background flex flex-col" dir="rtl">
+      <div className="min-h-screen bg-background flex flex-col">
         {/* Header */}
         <header className="bg-card border-b border-border sticky top-0 z-50">
           <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Link to="/dashboard" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-                <ArrowRight className="h-4 w-4" />
-                <span className="text-sm">חזרה</span>
+                <ArrowRight className="h-4 w-4 rotate-180" />
+                <span className="text-sm">Back</span>
               </Link>
               <div className="h-4 w-px bg-border" />
               <div className="flex items-center gap-2">
@@ -601,6 +625,24 @@ export default function TcmBrain() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <Button
+                variant={showDetailedView ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowDetailedView(!showDetailedView)}
+                className="text-xs gap-1.5"
+              >
+                {showDetailedView ? (
+                  <>
+                    <ClipboardList className="h-3.5 w-3.5" />
+                    Main Queries
+                  </>
+                ) : (
+                  <>
+                    <Leaf className="h-3.5 w-3.5" />
+                    All Topics
+                  </>
+                )}
+              </Button>
               <TierBadge />
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" />
@@ -612,7 +654,7 @@ export default function TcmBrain() {
         {/* Sticky Quick Navigation */}
         <nav className="sticky top-14 z-40 bg-background/95 backdrop-blur-sm border-b border-border/50">
           <div className="max-w-6xl mx-auto px-4">
-            <div className="flex items-center justify-center gap-2 py-2" dir="rtl">
+            <div className="flex items-center justify-center gap-2 py-2">
               <Button
                 variant={activeNavSection === 'chat' ? 'default' : 'ghost'}
                 size="sm"
@@ -634,7 +676,7 @@ export default function TcmBrain() {
                 }}
               >
                 <MessageCircle className="h-3.5 w-3.5" />
-                צ'אט
+                Chat
               </Button>
               <Button
                 variant={activeNavSection === 'voice' ? 'default' : 'ghost'}
@@ -657,7 +699,7 @@ export default function TcmBrain() {
                 }}
               >
                 <MicIcon className="h-3.5 w-3.5" />
-                קולי
+                Voice
               </Button>
               <Button
                 variant={activeNavSection === 'history' ? 'default' : 'ghost'}
@@ -674,7 +716,7 @@ export default function TcmBrain() {
                 }}
               >
                 <History className="h-3.5 w-3.5" />
-                היסטוריה
+                History
               </Button>
               <Button
                 variant={activeNavSection === 'feedback' ? 'default' : 'ghost'}
@@ -689,27 +731,197 @@ export default function TcmBrain() {
               >
                 <Link to="/feedback">
                   <MessageSquare className="h-3.5 w-3.5" />
-                  פידבק
+                  Feedback
                 </Link>
               </Button>
             </div>
           </div>
         </nav>
 
-
         {/* Main Content */}
         <main className="flex-1 flex flex-col max-w-6xl mx-auto w-full">
-          <Tabs defaultValue="chat" className="flex-1 flex flex-col">
-            <div className="px-4 pt-4 overflow-x-auto">
-              <TabsList className="w-max min-w-full justify-start gap-1">
-                {featureTabs.map(tab => (
-                  <TabsTrigger key={tab.id} value={tab.id} className="gap-1 text-xs px-2 whitespace-nowrap">
-                    <tab.icon className="h-3 w-3" />
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+          {!showDetailedView ? (
+            /* Main Queries View - First Page */
+            <div className="flex-1 p-4 space-y-6">
+              <div className="text-center py-8">
+                <div className="relative w-20 h-20 mx-auto mb-4">
+                  <div className="absolute inset-0 bg-jade/20 rounded-full animate-pulse-soft" />
+                  <div className="absolute inset-2 bg-gradient-to-br from-jade-light to-gold-light rounded-full flex items-center justify-center border-2 border-jade/30">
+                    <Brain className="h-8 w-8 text-jade" />
+                  </div>
+                </div>
+                <h2 className="font-display text-2xl mb-2 bg-gradient-to-r from-jade to-jade-dark bg-clip-text text-transparent">
+                  TCM Brain Assistant
+                </h2>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Select a query category below or use the chat for custom questions
+                </p>
+              </div>
+
+              {/* 3 Main Query Categories */}
+              <div className="grid md:grid-cols-3 gap-4">
+                {mainQueryCategories.map((category) => {
+                  const categories = [...new Set(category.questions.map(q => q.category))];
+                  return (
+                    <Card key={category.id} className="bg-card border-border hover:border-jade/50 transition-colors">
+                      <CardHeader className="pb-3">
+                        <div className="w-12 h-12 rounded-xl bg-jade-light flex items-center justify-center mb-3">
+                          <category.icon className="h-6 w-6 text-jade" />
+                        </div>
+                        <CardTitle className="text-lg">{category.title}</CardTitle>
+                        <p className="text-sm text-muted-foreground">{category.description}</p>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {categories.slice(0, 3).map(cat => (
+                          <Select
+                            key={cat}
+                            onValueChange={(value) => handleQAQuestionSelect(value)}
+                          >
+                            <SelectTrigger className="text-left text-sm">
+                              <SelectValue placeholder={cat} />
+                            </SelectTrigger>
+                            <SelectContent className="bg-card border-border z-50 max-h-60">
+                              {category.questions
+                                .filter(q => q.category === cat)
+                                .map(q => (
+                                  <SelectItem key={q.id} value={q.question} className="text-left text-sm">
+                                    {q.question}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        ))}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-jade hover:text-jade-dark"
+                          onClick={() => setShowDetailedView(true)}
+                        >
+                          View all {category.title.toLowerCase()} questions →
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              {/* Quick Questions */}
+              <div className="pt-4">
+                <h3 className="text-sm font-medium text-muted-foreground mb-3 text-center">Quick Questions</h3>
+                <div className="grid sm:grid-cols-3 gap-3">
+                  {quickQuestions.map((q, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleQuickQuestion(q.text)}
+                      className="p-4 bg-card border border-border rounded-xl text-left hover:border-jade hover:shadow-elevated transition-all group"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-jade-light flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                        <q.icon className="h-4 w-4 text-jade" />
+                      </div>
+                      <p className="text-sm font-medium leading-relaxed">{q.text}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Chat Input at bottom */}
+              <div className="pt-4 border-t border-border/50">
+                <form onSubmit={handleSubmit} className="flex gap-2" data-section="chat-input-section">
+                  <div className="flex-1 relative" data-section="voice-btn-section">
+                    <Input
+                      ref={chatInputRef}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder="Ask any TCM question..."
+                      disabled={isLoading}
+                      className="text-left pr-12 h-12 rounded-xl border-border/80 focus:border-jade transition-colors"
+                      onFocus={() => setActiveNavSection('chat')}
+                    />
+                    <Button
+                      ref={voiceBtnRef}
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={toggleRecording}
+                      data-voice-btn
+                      className={`absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 rounded-lg ${
+                        isRecording ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20' : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                      onFocus={() => setActiveNavSection('voice')}
+                    >
+                      {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  <Button 
+                    type="submit" 
+                    disabled={isLoading || !input.trim()}
+                    className="h-12 w-12 rounded-xl bg-jade hover:bg-jade/90"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <Send className="h-5 w-5" />
+                    )}
+                  </Button>
+                </form>
+              </div>
+
+              {/* Chat History Section */}
+              {messages.length > 0 && (
+                <div className="pt-4" data-section="chat-history-section">
+                  <div className="flex items-center justify-between pb-3 border-b border-border/50 mb-3">
+                    <span className="text-sm font-medium">Chat History</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">
+                        {messages.length} messages
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setMessages([])}
+                        className="text-muted-foreground hover:text-destructive text-xs gap-1"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                        Clear
+                      </Button>
+                    </div>
+                  </div>
+                  <ScrollArea className="max-h-96" ref={scrollRef}>
+                    <div className="space-y-4 pb-4">
+                      {messages.map((msg, i) => {
+                        const userMessage = msg.role === 'assistant' && i > 0 
+                          ? messages.slice(0, i).reverse().find(m => m.role === 'user')?.content
+                          : undefined;
+                        return (
+                          <ChatMessage 
+                            key={i} 
+                            role={msg.role} 
+                            content={msg.content} 
+                            userMessage={userMessage}
+                          />
+                        );
+                      })}
+                      {isLoading && messages[messages.length - 1]?.role === 'user' && (
+                        <ChatTypingIndicator />
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
+              )}
             </div>
+          ) : (
+            /* Detailed View - All Topics Tabs */
+            <Tabs defaultValue="chat" className="flex-1 flex flex-col">
+              <div className="px-4 pt-4 overflow-x-auto">
+                <TabsList className="w-max min-w-full justify-start gap-1">
+                  {featureTabs.map(tab => (
+                    <TabsTrigger key={tab.id} value={tab.id} className="gap-1 text-xs px-2 whitespace-nowrap">
+                      <tab.icon className="h-3 w-3" />
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
 
             {/* Chat Tab */}
             <TabsContent value="chat" className="flex-1 flex flex-col p-4 pt-2">
@@ -723,29 +935,29 @@ export default function TcmBrain() {
                     className="text-muted-foreground hover:text-destructive text-xs gap-1"
                   >
                     <Trash2 className="h-3 w-3" />
-                    נקה שיחה
+                    Clear chat
                   </Button>
                   <span className="text-xs text-muted-foreground">
-                    {messages.length} הודעות
+                    {messages.length} messages
                   </span>
                 </div>
               )}
 
               <ScrollArea className="flex-1 pl-4" ref={scrollRef} data-section="chat-history-section">
-                <div className="space-y-4 pb-4" dir="rtl">
+                <div className="space-y-4 pb-4">
                   {messages.length === 0 && (
-                    <div className="text-right py-12">
+                    <div className="text-center py-12">
                       <div className="relative w-24 h-24 mx-auto mb-6">
                         <div className="absolute inset-0 bg-jade/20 rounded-full animate-pulse-soft" />
                         <div className="absolute inset-2 bg-gradient-to-br from-jade-light to-gold-light rounded-full flex items-center justify-center border-2 border-jade/30">
                           <Brain className="h-10 w-10 text-jade" />
                         </div>
                       </div>
-                      <h2 className="font-display text-3xl mb-3 text-center bg-gradient-to-l from-jade to-jade-dark bg-clip-text text-transparent">
-                        ברוכים הבאים ל-TCM Brain
+                      <h2 className="font-display text-3xl mb-3 text-center bg-gradient-to-r from-jade to-jade-dark bg-clip-text text-transparent">
+                        Welcome to TCM Brain
                       </h2>
                       <p className="text-muted-foreground mb-8 text-center max-w-md mx-auto">
-                        העוזר האישי שלכם ברפואה סינית מסורתית. שאלו כל שאלה על עשבים, נקודות דיקור, אבחון ועוד.
+                        Your personal assistant for Traditional Chinese Medicine. Ask any question about herbs, acupuncture points, diagnosis, and more.
                       </p>
                       
                       <div className="grid sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
@@ -753,14 +965,13 @@ export default function TcmBrain() {
                           <button
                             key={i}
                             onClick={() => handleQuickQuestion(q.text)}
-                            className="p-5 bg-gradient-to-br from-card to-card/80 border border-border/80 rounded-xl text-right hover:border-jade hover:shadow-elevated transition-all group relative overflow-hidden"
-                            dir="rtl"
+                            className="p-5 bg-gradient-to-br from-card to-card/80 border border-border/80 rounded-xl text-left hover:border-jade hover:shadow-elevated transition-all group relative overflow-hidden"
                           >
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-jade/0 via-jade/50 to-jade/0 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            <div className="w-10 h-10 rounded-lg bg-jade-light flex items-center justify-center mb-3 mr-auto group-hover:scale-110 transition-transform">
+                            <div className="w-10 h-10 rounded-lg bg-jade-light flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                               <q.icon className="h-5 w-5 text-jade" />
                             </div>
-                            <p className="text-sm font-medium text-right leading-relaxed">{q.text}</p>
+                            <p className="text-sm font-medium leading-relaxed">{q.text}</p>
                           </button>
                         ))}
                       </div>
@@ -795,10 +1006,9 @@ export default function TcmBrain() {
                     ref={chatInputRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="שאלו שאלה ברפואה סינית..."
+                    placeholder="Ask a TCM question..."
                     disabled={isLoading}
-                    className="text-right pr-4 pl-12 h-12 rounded-xl border-border/80 focus:border-jade transition-colors"
-                    dir="rtl"
+                    className="text-left pr-12 h-12 rounded-xl border-border/80 focus:border-jade transition-colors"
                     onFocus={() => setActiveNavSection('chat')}
                   />
                   <Button
@@ -833,7 +1043,7 @@ export default function TcmBrain() {
             {/* Symptoms Tab */}
             <TabsContent value="symptoms" className="flex-1 overflow-auto">
               {renderQASection(
-                'ניתוח סימפטומים',
+                'Symptom Analysis',
                 symptomQuestions,
                 selectedSymptomQuestion,
                 setSelectedSymptomQuestion
@@ -843,7 +1053,7 @@ export default function TcmBrain() {
             {/* Diagnosis Tab */}
             <TabsContent value="diagnosis" className="flex-1 overflow-auto">
               {renderQASection(
-                'אבחון TCM',
+                'TCM Diagnosis',
                 diagnosisQuestions,
                 selectedDiagnosisQuestion,
                 setSelectedDiagnosisQuestion
@@ -853,7 +1063,7 @@ export default function TcmBrain() {
             {/* Treatment Tab */}
             <TabsContent value="treatment" className="flex-1 overflow-auto">
               {renderQASection(
-                'תכנית טיפול',
+                'Treatment Planning',
                 treatmentQuestions,
                 selectedTreatmentQuestion,
                 setSelectedTreatmentQuestion
@@ -863,7 +1073,7 @@ export default function TcmBrain() {
             {/* Herbs Tab */}
             <TabsContent value="herbs" className="flex-1 overflow-auto">
               {renderQASection(
-                'מאגר עשבים סיניים',
+                'Chinese Herbal Medicine',
                 herbsQuestions,
                 selectedHerbsQuestion,
                 setSelectedHerbsQuestion
@@ -873,7 +1083,7 @@ export default function TcmBrain() {
             {/* Points Tab */}
             <TabsContent value="points" className="flex-1 overflow-auto">
               {renderQASection(
-                'נקודות דיקור',
+                'Acupuncture Points',
                 pointsQuestions,
                 selectedPointsQuestion,
                 setSelectedPointsQuestion
@@ -883,7 +1093,7 @@ export default function TcmBrain() {
             {/* Conditions Tab */}
             <TabsContent value="conditions" className="flex-1 overflow-auto">
               {renderQASection(
-                'מצבים ודפוסי TCM',
+                'TCM Conditions & Patterns',
                 conditionsQuestions,
                 selectedConditionsQuestion,
                 setSelectedConditionsQuestion
@@ -893,7 +1103,7 @@ export default function TcmBrain() {
             {/* Nutrition Tab */}
             <TabsContent value="nutrition" className="flex-1 overflow-auto">
               {renderQASection(
-                'תזונה לפי TCM',
+                'TCM Nutrition',
                 nutritionQuestions,
                 selectedNutritionQuestion,
                 setSelectedNutritionQuestion
@@ -903,7 +1113,7 @@ export default function TcmBrain() {
             {/* Mental Tab */}
             <TabsContent value="mental" className="flex-1 overflow-auto">
               {renderQASection(
-                'בריאות מנטלית ב-TCM',
+                'Mental Health in TCM',
                 mentalQuestions,
                 selectedMentalQuestion,
                 setSelectedMentalQuestion
@@ -913,7 +1123,7 @@ export default function TcmBrain() {
             {/* Sleep Tab */}
             <TabsContent value="sleep" className="flex-1 overflow-auto">
               {renderQASection(
-                'איכות שינה ב-TCM',
+                'Sleep Quality in TCM',
                 sleepQuestions,
                 selectedSleepQuestion,
                 setSelectedSleepQuestion
@@ -923,7 +1133,7 @@ export default function TcmBrain() {
             {/* Work-Life Tab */}
             <TabsContent value="worklife" className="flex-1 overflow-auto">
               {renderQASection(
-                'איזון עבודה-חיים',
+                'Work-Life Balance',
                 worklifeQuestions,
                 selectedWorklifeQuestion,
                 setSelectedWorklifeQuestion
@@ -933,7 +1143,7 @@ export default function TcmBrain() {
             {/* Bazi Tab */}
             <TabsContent value="bazi" className="flex-1 overflow-auto">
               {renderQASection(
-                'באזי - 4 עמודים',
+                'Bazi - Four Pillars',
                 baziQuestions,
                 selectedBaziQuestion,
                 setSelectedBaziQuestion
@@ -943,7 +1153,7 @@ export default function TcmBrain() {
             {/* Wellness Tab */}
             <TabsContent value="wellness" className="flex-1 overflow-auto">
               {renderQASection(
-                'רווחה כללית',
+                'General Wellness',
                 wellnessQuestions,
                 selectedWellnessQuestion,
                 setSelectedWellnessQuestion
@@ -953,7 +1163,7 @@ export default function TcmBrain() {
             {/* Sports Tab */}
             <TabsContent value="sports" className="flex-1 overflow-auto">
               {renderQASection(
-                'רפואת ספורט סינית',
+                'Chinese Sports Medicine',
                 sportsQuestions,
                 selectedSportsQuestion,
                 setSelectedSportsQuestion
@@ -963,13 +1173,14 @@ export default function TcmBrain() {
             {/* Astrology Tab */}
             <TabsContent value="astro" className="flex-1 overflow-auto">
               {renderQASection(
-                'אסטרולוגיה סינית',
+                'Chinese Astrology',
                 astroQuestions,
                 selectedAstroQuestion,
                 setSelectedAstroQuestion
               )}
             </TabsContent>
-          </Tabs>
+            </Tabs>
+          )}
         </main>
       </div>
     </>
