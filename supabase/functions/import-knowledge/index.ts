@@ -166,6 +166,16 @@ serve(async (req) => {
               `Treatment Principle: ${treatment}\n` +
               `Body System: ${bodySystem}\n` +
               `Q: ${question}\nA: ${answer}`;
+          } else if (row.Stage && row.Question) {
+            // Patient Q&A format (Acupuncture_Patient_QA_Updated.xlsx)
+            const stage = row.Stage || '';
+            const questionText = row.Question || '';
+            const notes = row.Notes || '';
+            const treatmentSuggestions = row.Treatment_Suggestions || row['Treatment Suggestions'] || '';
+            
+            question = questionText;
+            answer = `Stage: ${stage}\nNotes: ${notes}\nTreatment Suggestions: ${treatmentSuggestions}`;
+            content = `Patient Q&A - ${stage}\nQ: ${questionText}\nNotes: ${notes}\nTreatment: ${treatmentSuggestions}`;
           } else {
             // Generic: join all values
             content = Object.values(row).filter(Boolean).join(' | ');

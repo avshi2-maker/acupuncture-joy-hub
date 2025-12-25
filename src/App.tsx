@@ -31,6 +31,7 @@ import TherapistProfile from "./pages/TherapistProfile";
 import InstallApp from "./pages/InstallApp";
 import AdminFeedback from "./pages/AdminFeedback";
 import KnowledgeRegistry from "./pages/KnowledgeRegistry";
+import BaziCalculator from "./pages/BaziCalculator";
 import { FeedbackWidget } from "./components/feedback/FeedbackWidget";
 
 const queryClient = new QueryClient();
@@ -69,6 +70,7 @@ const App = () => (
                   <Route path="/install" element={<InstallApp />} />
                   <Route path="/admin/feedback" element={<AdminFeedback />} />
                   <Route path="/admin/knowledge" element={<KnowledgeRegistry />} />
+                  <Route path="/bazi-calculator" element={<BaziCalculator />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <FeedbackWidget />
