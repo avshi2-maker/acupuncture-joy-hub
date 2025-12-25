@@ -20,6 +20,7 @@ export const translations: Translations = {
   contact: { en: "Contact", he: "צור קשר", ru: "Контакты" },
   bookSession: { en: "Book Session", he: "קביעת תור", ru: "Записаться" },
   therapistRegister: { en: "Therapist Registration", he: "הרשמה למטפלים", ru: "Регистрация терапевта" },
+  therapistLogin: { en: "Therapist Login", he: "כניסת מטפלים", ru: "Вход для терапевтов" },
   dashboard: { en: "Dashboard", he: "לוח בקרה", ru: "Панель управления" },
   
   // Hero
