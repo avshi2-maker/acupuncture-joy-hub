@@ -29,7 +29,7 @@ interface FeatureCardProps {
 
 function FeatureCard({ title, description, icon, available, href }: FeatureCardProps) {
   const content = (
-    <Card className={`transition-all duration-300 ${available ? 'hover:shadow-elevated cursor-pointer' : 'opacity-60'}`}>
+    <Card className={`transition-all duration-300 h-full ${available ? 'hover:shadow-elevated cursor-pointer' : 'opacity-60'}`}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${available ? 'bg-jade-light' : 'bg-muted'}`}>
@@ -51,11 +51,15 @@ function FeatureCard({ title, description, icon, available, href }: FeatureCardP
     return <Link to={href}>{content}</Link>;
   }
 
-  return (
-    <div onClick={() => !available && toast.info('שדרגו את התוכנית שלכם לגישה לפיצ׳ר זה')}>
-      {content}
-    </div>
-  );
+  if (!available) {
+    return (
+      <div onClick={() => toast.info('שדרגו את התוכנית שלכם לגישה לפיצ׳ר זה')}>
+        {content}
+      </div>
+    );
+  }
+
+  return content;
 }
 
 export default function Dashboard() {
@@ -81,6 +85,7 @@ export default function Dashboard() {
       description: 'מאגר ידע מקיף ברפואה סינית',
       icon: <Brain className={`h-6 w-6 ${hasFeature('tcm_brain') ? 'text-jade' : 'text-muted-foreground'}`} />,
       feature: 'tcm_brain' as const,
+      href: '/tcm-brain',
     },
     {
       id: 'calendar',

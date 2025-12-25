@@ -82,6 +82,147 @@ export type Database = {
           },
         ]
       }
+      acupuncture_points: {
+        Row: {
+          actions: string[] | null
+          code: string
+          contraindications: string[] | null
+          created_at: string
+          depth: string | null
+          id: string
+          indications: string[] | null
+          location: string
+          meridian: string
+          name_chinese: string
+          name_english: string
+          name_pinyin: string
+          notes: string | null
+        }
+        Insert: {
+          actions?: string[] | null
+          code: string
+          contraindications?: string[] | null
+          created_at?: string
+          depth?: string | null
+          id?: string
+          indications?: string[] | null
+          location: string
+          meridian: string
+          name_chinese: string
+          name_english: string
+          name_pinyin: string
+          notes?: string | null
+        }
+        Update: {
+          actions?: string[] | null
+          code?: string
+          contraindications?: string[] | null
+          created_at?: string
+          depth?: string | null
+          id?: string
+          indications?: string[] | null
+          location?: string
+          meridian?: string
+          name_chinese?: string
+          name_english?: string
+          name_pinyin?: string
+          notes?: string | null
+        }
+        Relationships: []
+      }
+      conditions: {
+        Row: {
+          created_at: string
+          id: string
+          lifestyle_advice: string[] | null
+          name_chinese: string | null
+          name_english: string
+          notes: string | null
+          recommended_herbs: string[] | null
+          recommended_points: string[] | null
+          symptoms: string[] | null
+          tcm_patterns: string[] | null
+          treatment_principles: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lifestyle_advice?: string[] | null
+          name_chinese?: string | null
+          name_english: string
+          notes?: string | null
+          recommended_herbs?: string[] | null
+          recommended_points?: string[] | null
+          symptoms?: string[] | null
+          tcm_patterns?: string[] | null
+          treatment_principles?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lifestyle_advice?: string[] | null
+          name_chinese?: string | null
+          name_english?: string
+          notes?: string | null
+          recommended_herbs?: string[] | null
+          recommended_points?: string[] | null
+          symptoms?: string[] | null
+          tcm_patterns?: string[] | null
+          treatment_principles?: string[] | null
+        }
+        Relationships: []
+      }
+      herbs: {
+        Row: {
+          actions: string[] | null
+          category: string
+          contraindications: string[] | null
+          created_at: string
+          dosage: string | null
+          flavor: string[] | null
+          id: string
+          indications: string[] | null
+          meridians: string[] | null
+          name_chinese: string
+          name_english: string
+          name_pinyin: string
+          nature: string | null
+          notes: string | null
+        }
+        Insert: {
+          actions?: string[] | null
+          category: string
+          contraindications?: string[] | null
+          created_at?: string
+          dosage?: string | null
+          flavor?: string[] | null
+          id?: string
+          indications?: string[] | null
+          meridians?: string[] | null
+          name_chinese: string
+          name_english: string
+          name_pinyin: string
+          nature?: string | null
+          notes?: string | null
+        }
+        Update: {
+          actions?: string[] | null
+          category?: string
+          contraindications?: string[] | null
+          created_at?: string
+          dosage?: string | null
+          flavor?: string[] | null
+          id?: string
+          indications?: string[] | null
+          meridians?: string[] | null
+          name_chinese?: string
+          name_english?: string
+          name_pinyin?: string
+          nature?: string | null
+          notes?: string | null
+        }
+        Relationships: []
+      }
       therapist_registrations: {
         Row: {
           created_at: string

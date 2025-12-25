@@ -15,6 +15,7 @@ import Gate from "./pages/Gate";
 import Admin from "./pages/Admin";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
+import TcmBrain from "./pages/TcmBrain";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/tcm-brain" element={<TcmBrain />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
