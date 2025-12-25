@@ -62,12 +62,9 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tcm-chat`;
 
 type QuickNavSection = 'chat' | 'voice' | 'history' | 'feedback';
 
-// Feature tabs configuration
+// Feature tabs configuration (excluding symptoms/diagnosis/treatment which are on main page)
 const featureTabs = [
   { id: 'chat', icon: Sparkles, label: 'Ask AI' },
-  { id: 'symptoms', icon: FileText, label: 'Symptoms' },
-  { id: 'diagnosis', icon: ClipboardList, label: 'Diagnosis' },
-  { id: 'treatment', icon: Pill, label: 'Treatment' },
   { id: 'herbs', icon: Leaf, label: 'Herbs' },
   { id: 'points', icon: MapPin, label: 'Points' },
   { id: 'conditions', icon: Stethoscope, label: 'Conditions' },
