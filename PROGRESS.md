@@ -67,12 +67,33 @@
 
 ---
 
-## Next Phases (Planned)
+## Phase 1: TCM Brain ✅
 
-### Phase 1: TCM Brain
-- Knowledge base with search
-- Categories: herbs, acupuncture points, conditions
-- AI-powered suggestions
+### Database Tables
+| Table | Description |
+|-------|-------------|
+| `herbs` | Chinese herbs with properties, meridians, actions, dosages |
+| `acupuncture_points` | Points with locations, meridians, indications |
+| `conditions` | Health conditions with TCM patterns and treatments |
+
+### Features
+- **AI Chat**: Powered by Lovable AI (Gemini 2.5 Flash) with TCM-specialized system prompt
+- **Streaming responses**: Real-time token-by-token display
+- **Quick questions**: Pre-built common TCM queries
+- **Tabs**: Chat, Herbs, Points, Conditions (browsable database coming soon)
+
+### Routes
+| Route | Purpose |
+|-------|---------|
+| `/tcm-brain` | TCM Brain knowledge base with AI chat |
+
+### Files Created
+- `supabase/functions/tcm-chat/index.ts` - Edge function for AI chat
+- `src/pages/TcmBrain.tsx` - TCM Brain interface
+
+---
+
+## Next Phases (Planned)
 
 ### Phase 2: Calendar & Booking
 - Appointment scheduling
