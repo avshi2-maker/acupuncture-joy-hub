@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,11 +13,12 @@ import {
   Mail, 
   MessageCircle,
   Video,
-  ChevronDown,
   Sparkles,
   UserPlus,
   Calendar,
-  VideoIcon
+  VideoIcon,
+  Settings,
+  Users
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { saveSessionReport, printReport, LocalSessionReport } from '@/utils/localDataStorage';
@@ -25,45 +26,72 @@ import { AnxietyQADialog } from './AnxietyQADialog';
 import { QuickPatientDialog } from './QuickPatientDialog';
 import { QuickAppointmentDialog } from './QuickAppointmentDialog';
 import { ZoomInviteDialog } from './ZoomInviteDialog';
+import { TherapistSettingsDialog } from './TherapistSettingsDialog';
+import { useSessionPersistence } from '@/hooks/useSessionPersistence';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
-type SessionStatus = 'idle' | 'running' | 'paused' | 'ended';
+interface Patient {
+  id: string;
+  full_name: string;
+  phone: string | null;
+}
 
 interface VideoSessionPanelProps {
-  selectedPatientId?: string;
-  selectedPatientName?: string;
-  selectedPatientPhone?: string;
   onSessionEnd?: (report: LocalSessionReport) => void;
 }
 
-export function VideoSessionPanel({ 
-  selectedPatientId, 
-  selectedPatientName,
-  selectedPatientPhone,
-  onSessionEnd 
-}: VideoSessionPanelProps) {
-  const [sessionStatus, setSessionStatus] = useState<SessionStatus>('idle');
-  const [sessionNotes, setSessionNotes] = useState('');
-  const [sessionDuration, setSessionDuration] = useState(0);
+export function VideoSessionPanel({ onSessionEnd }: VideoSessionPanelProps) {
+  const { user } = useAuth();
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loadingPatients, setLoadingPatients] = useState(true);
   const [showAnxietyQA, setShowAnxietyQA] = useState(false);
   const [showQuickPatient, setShowQuickPatient] = useState(false);
   const [showQuickAppointment, setShowQuickAppointment] = useState(false);
   const [showZoomInvite, setShowZoomInvite] = useState(false);
-  const [anxietyConversation, setAnxietyConversation] = useState<string[]>([]);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
 
-  // Timer logic
+  const {
+    status: sessionStatus,
+    duration: sessionDuration,
+    notes: sessionNotes,
+    patientId: selectedPatientId,
+    patientName: selectedPatientName,
+    patientPhone: selectedPatientPhone,
+    anxietyConversation,
+    startSession,
+    pauseSession,
+    resumeSession,
+    endSession,
+    resetSession,
+    setNotes,
+    setPatient,
+    setAnxietyConversation,
+  } = useSessionPersistence();
+
+  // Fetch patients
   useEffect(() => {
-    if (sessionStatus === 'running') {
-      timerRef.current = setInterval(() => {
-        setSessionDuration(d => d + 1);
-      }, 1000);
-    } else if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+    const fetchPatients = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('patients')
+          .select('id, full_name, phone')
+          .eq('therapist_id', user.id)
+          .order('full_name');
+        
+        if (error) throw error;
+        setPatients(data || []);
+      } catch (err) {
+        console.error('Error fetching patients:', err);
+      } finally {
+        setLoadingPatients(false);
+      }
     };
-  }, [sessionStatus]);
+
+    fetchPatients();
+  }, [user]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -72,30 +100,27 @@ export function VideoSessionPanel({
   };
 
   const handleStart = () => {
-    setSessionStatus('running');
+    startSession();
     toast.success('פגישת וידאו התחילה');
   };
 
   const handlePause = () => {
-    setSessionStatus('paused');
+    pauseSession();
     toast.info('הפגישה הושהתה');
   };
 
   const handleResume = () => {
-    setSessionStatus('running');
+    resumeSession();
     toast.info('הפגישה ממשיכה');
   };
 
   const handleRepeat = () => {
-    setSessionDuration(0);
-    setSessionStatus('idle');
-    setSessionNotes('');
-    setAnxietyConversation([]);
+    resetSession();
     toast.info('הפגישה אופסה');
   };
 
   const handleEnd = () => {
-    setSessionStatus('ended');
+    endSession();
     
     // Save report locally
     if (selectedPatientId && selectedPatientName) {
@@ -114,6 +139,21 @@ export function VideoSessionPanel({
       onSessionEnd?.(report);
     } else {
       toast.warning('לא נבחר מטופל - הדוח לא נשמר');
+    }
+  };
+
+  const handlePatientSelect = (patientId: string) => {
+    if (patientId === 'none') {
+      setPatient(null);
+      return;
+    }
+    const patient = patients.find(p => p.id === patientId);
+    if (patient) {
+      setPatient({
+        id: patient.id,
+        name: patient.full_name,
+        phone: patient.phone || undefined,
+      });
     }
   };
 
@@ -136,7 +176,6 @@ export function VideoSessionPanel({
   };
 
   const handleSendEmail = () => {
-    // Would integrate with email service
     toast.info('שליחת דוח באימייל - בקרוב');
   };
 
@@ -156,14 +195,47 @@ export function VideoSessionPanel({
 
   return (
     <div className="flex flex-col h-full">
+      {/* Patient Selection */}
+      <Card className="mb-4">
+        <CardContent className="p-3">
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            <Select
+              value={selectedPatientId || 'none'}
+              onValueChange={handlePatientSelect}
+              disabled={loadingPatients}
+            >
+              <SelectTrigger className="flex-1 bg-background">
+                <SelectValue placeholder={loadingPatients ? "טוען..." : "בחר מטופל"} />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border shadow-lg z-50">
+                <SelectItem value="none">ללא מטופל</SelectItem>
+                {patients.map((patient) => (
+                  <SelectItem key={patient.id} value={patient.id}>
+                    {patient.full_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setShowSettings(true)}
+              title="הגדרות"
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Video Area */}
       <Card className="flex-1 bg-muted/50">
         <CardContent className="p-0 h-full flex items-center justify-center relative">
-          {/* Placeholder for Google Meet / Video embed */}
           <div className="w-full h-full min-h-[300px] bg-gradient-to-br from-jade/10 to-jade/5 rounded-lg flex flex-col items-center justify-center">
             <Video className="h-16 w-16 text-jade/40 mb-4" />
             <p className="text-muted-foreground text-lg">אזור וידאו</p>
-            <p className="text-sm text-muted-foreground mt-1">Google Meet / שיחת וידאו</p>
+            <p className="text-sm text-muted-foreground mt-1">Zoom / Google Meet</p>
             
             {/* Session Status Badge */}
             {sessionStatus !== 'idle' && (
@@ -184,6 +256,13 @@ export function VideoSessionPanel({
             <p className="text-2xl font-mono mt-4 text-jade">
               {formatDuration(sessionDuration)}
             </p>
+            
+            {/* Active patient indicator */}
+            {selectedPatientName && sessionStatus === 'running' && (
+              <Badge variant="outline" className="mt-2">
+                {selectedPatientName}
+              </Badge>
+            )}
           </div>
           
           {/* Quick Action Buttons */}
@@ -291,7 +370,7 @@ export function VideoSessionPanel({
             <label className="text-sm font-medium mb-2 block">הערות פגישה:</label>
             <Textarea
               value={sessionNotes}
-              onChange={(e) => setSessionNotes(e.target.value)}
+              onChange={(e) => setNotes(e.target.value)}
               placeholder="רשום הערות במהלך הפגישה..."
               rows={3}
             />
@@ -330,15 +409,20 @@ export function VideoSessionPanel({
       <QuickAppointmentDialog
         open={showQuickAppointment}
         onOpenChange={setShowQuickAppointment}
-        patientId={selectedPatientId}
-        patientName={selectedPatientName}
+        patientId={selectedPatientId || undefined}
+        patientName={selectedPatientName || undefined}
       />
       
       <ZoomInviteDialog
         open={showZoomInvite}
         onOpenChange={setShowZoomInvite}
-        patientName={selectedPatientName}
-        patientPhone={selectedPatientPhone}
+        patientName={selectedPatientName || undefined}
+        patientPhone={selectedPatientPhone || undefined}
+      />
+      
+      <TherapistSettingsDialog
+        open={showSettings}
+        onOpenChange={setShowSettings}
       />
     </div>
   );
