@@ -268,6 +268,43 @@ export default function TcmBrain() {
     }
   }, [messages]);
 
+  // Scroll-spy: detect which section is in view
+  useEffect(() => {
+    const sections = [
+      { id: 'chat-input-section', nav: 'chat' as QuickNavSection },
+      { id: 'voice-btn-section', nav: 'voice' as QuickNavSection },
+      { id: 'chat-history-section', nav: 'history' as QuickNavSection },
+    ];
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -60% 0px',
+      threshold: 0
+    };
+
+    const observerCallback: IntersectionObserverCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const sectionId = entry.target.getAttribute('data-section');
+          const section = sections.find(s => s.id === sectionId);
+          if (section) {
+            setActiveNavSection(section.nav);
+          }
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    // Observe all sections
+    sections.forEach(({ id }) => {
+      const element = document.querySelector(`[data-section="${id}"]`);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('therapist_tier');
     localStorage.removeItem('therapist_expires_at');
@@ -686,7 +723,7 @@ export default function TcmBrain() {
                 </div>
               )}
 
-              <ScrollArea className="flex-1 pl-4" ref={scrollRef}>
+              <ScrollArea className="flex-1 pl-4" ref={scrollRef} data-section="chat-history-section">
                 <div className="space-y-4 pb-4" dir="rtl">
                   {messages.length === 0 && (
                     <div className="text-right py-12">
@@ -744,8 +781,8 @@ export default function TcmBrain() {
               </ScrollArea>
 
               {/* Enhanced Input */}
-              <form onSubmit={handleSubmit} className="flex gap-2 pt-4 border-t border-border/50 bg-background/50 backdrop-blur-sm -mx-4 px-4 -mb-4 pb-4">
-                <div className="flex-1 relative">
+              <form onSubmit={handleSubmit} className="flex gap-2 pt-4 border-t border-border/50 bg-background/50 backdrop-blur-sm -mx-4 px-4 -mb-4 pb-4" data-section="chat-input-section">
+                <div className="flex-1 relative" data-section="voice-btn-section">
                   <Input
                     ref={chatInputRef}
                     value={input}
