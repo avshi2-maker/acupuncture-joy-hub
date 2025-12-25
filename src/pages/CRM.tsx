@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { VisitStatistics } from '@/components/crm/VisitStatistics';
 import { 
   Users, 
   Plus, 
@@ -40,7 +41,8 @@ import {
   ChevronLeft,
   Filter,
   ChevronDown,
-  Download
+  Download,
+  BarChart3
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
@@ -100,10 +102,13 @@ export default function CRM() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+  const [showStatistics, setShowStatistics] = useState(false);
   const [filterGender, setFilterGender] = useState<string>('all');
   const [filterDateFrom, setFilterDateFrom] = useState('');
   const [filterDateTo, setFilterDateTo] = useState('');
   const [filterCondition, setFilterCondition] = useState('');
+  const [allVisits, setAllVisits] = useState<Visit[]>([]);
+  const [allFollowUps, setAllFollowUps] = useState<FollowUp[]>([]);
   const [showAddPatient, setShowAddPatient] = useState(false);
   const [showEditPatient, setShowEditPatient] = useState(false);
   const [showAddVisit, setShowAddVisit] = useState(false);
@@ -157,6 +162,7 @@ export default function CRM() {
   useEffect(() => {
     if (user) {
       fetchPatients();
+      fetchAllVisitsAndFollowUps();
     }
   }, [user]);
 
@@ -182,6 +188,18 @@ export default function CRM() {
       setPatients(data || []);
     }
     setIsLoading(false);
+  };
+
+  const fetchAllVisitsAndFollowUps = async () => {
+    if (!user) return;
+    
+    const [visitsResult, followUpsResult] = await Promise.all([
+      supabase.from('visits').select('*').order('visit_date', { ascending: false }),
+      supabase.from('follow_ups').select('*').order('scheduled_date', { ascending: true })
+    ]);
+    
+    if (!visitsResult.error) setAllVisits(visitsResult.data || []);
+    if (!followUpsResult.error) setAllFollowUps(followUpsResult.data || []);
   };
 
   const fetchVisits = async (patientId: string) => {
@@ -652,6 +670,18 @@ export default function CRM() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Button 
+                variant={showStatistics ? "default" : "outline"} 
+                size="sm" 
+                className="gap-2"
+                onClick={() => {
+                  setShowStatistics(!showStatistics);
+                  if (!showStatistics) setSelectedPatient(null);
+                }}
+              >
+                <BarChart3 className="h-4 w-4" />
+                <span className="hidden sm:inline">סטטיסטיקות</span>
+              </Button>
               <TierBadge />
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" />
@@ -662,6 +692,17 @@ export default function CRM() {
 
         {/* Main Content */}
         <main className="flex-1 flex max-w-6xl mx-auto w-full">
+          {/* Statistics View */}
+          {showStatistics ? (
+            <div className="flex-1 overflow-auto">
+              <VisitStatistics 
+                patients={patients} 
+                allVisits={allVisits} 
+                allFollowUps={allFollowUps} 
+              />
+            </div>
+          ) : (
+            <>
           {/* Patient List Sidebar */}
           <div className={`${selectedPatient ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-l border-border bg-card`}>
             <div className="p-4 border-b border-border space-y-3">
@@ -1654,6 +1695,8 @@ export default function CRM() {
               </div>
             )}
           </div>
+            </>
+          )}
         </main>
       </div>
     </>
