@@ -60,6 +60,8 @@ interface Message {
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tcm-chat`;
 
+type QuickNavSection = 'chat' | 'voice' | 'history' | 'feedback';
+
 // Feature tabs configuration
 const featureTabs = [
   { id: 'chat', icon: Sparkles, label: 'שאל AI' },
@@ -247,9 +249,12 @@ export default function TcmBrain() {
   const [selectedWellnessQuestion, setSelectedWellnessQuestion] = useState('');
   const [selectedSportsQuestion, setSelectedSportsQuestion] = useState('');
   const [selectedAstroQuestion, setSelectedAstroQuestion] = useState('');
+  const [activeNavSection, setActiveNavSection] = useState<QuickNavSection>('chat');
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chatInputRef = useRef<HTMLInputElement>(null);
+  const voiceBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!tier) {
@@ -572,40 +577,53 @@ export default function TcmBrain() {
           <div className="max-w-6xl mx-auto px-4">
             <div className="flex items-center justify-center gap-2 py-2" dir="rtl">
               <Button
-                variant="ghost"
+                variant={activeNavSection === 'chat' ? 'default' : 'ghost'}
                 size="sm"
-                className="text-xs gap-1.5"
+                className={`text-xs gap-1.5 transition-all ${
+                  activeNavSection === 'chat' 
+                    ? 'bg-jade text-jade-foreground shadow-sm' 
+                    : ''
+                }`}
                 onClick={() => {
+                  setActiveNavSection('chat');
                   const tabsList = document.querySelector('[role="tablist"]');
                   const chatTab = tabsList?.querySelector('[value="chat"]') as HTMLButtonElement;
                   chatTab?.click();
+                  setTimeout(() => chatInputRef.current?.focus(), 100);
                 }}
               >
                 <MessageCircle className="h-3.5 w-3.5" />
                 צ'אט
               </Button>
               <Button
-                variant="ghost"
+                variant={activeNavSection === 'voice' ? 'default' : 'ghost'}
                 size="sm"
-                className="text-xs gap-1.5"
+                className={`text-xs gap-1.5 transition-all ${
+                  activeNavSection === 'voice' 
+                    ? 'bg-jade text-jade-foreground shadow-sm' 
+                    : ''
+                }`}
                 onClick={() => {
+                  setActiveNavSection('voice');
                   const tabsList = document.querySelector('[role="tablist"]');
                   const chatTab = tabsList?.querySelector('[value="chat"]') as HTMLButtonElement;
                   chatTab?.click();
-                  setTimeout(() => {
-                    const micBtn = document.querySelector('[data-voice-btn]') as HTMLButtonElement;
-                    micBtn?.focus();
-                  }, 100);
+                  setTimeout(() => voiceBtnRef.current?.focus(), 100);
                 }}
               >
                 <MicIcon className="h-3.5 w-3.5" />
                 קולי
               </Button>
               <Button
-                variant="ghost"
+                variant={activeNavSection === 'history' ? 'default' : 'ghost'}
                 size="sm"
-                className="text-xs gap-1.5"
+                className={`text-xs gap-1.5 transition-all ${
+                  activeNavSection === 'history' 
+                    ? 'bg-jade text-jade-foreground shadow-sm' 
+                    : ''
+                }`}
                 onClick={() => {
+                  setActiveNavSection('history');
                   const scrollArea = scrollRef.current;
                   if (scrollArea) scrollArea.scrollTop = 0;
                 }}
@@ -614,10 +632,15 @@ export default function TcmBrain() {
                 היסטוריה
               </Button>
               <Button
-                variant="ghost"
+                variant={activeNavSection === 'feedback' ? 'default' : 'ghost'}
                 size="sm"
-                className="text-xs gap-1.5"
+                className={`text-xs gap-1.5 transition-all ${
+                  activeNavSection === 'feedback' 
+                    ? 'bg-jade text-jade-foreground shadow-sm' 
+                    : ''
+                }`}
                 asChild
+                onClick={() => setActiveNavSection('feedback')}
               >
                 <Link to="/feedback">
                   <MessageSquare className="h-3.5 w-3.5" />
@@ -627,6 +650,7 @@ export default function TcmBrain() {
             </div>
           </div>
         </nav>
+
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col max-w-6xl mx-auto w-full">
@@ -723,14 +747,17 @@ export default function TcmBrain() {
               <form onSubmit={handleSubmit} className="flex gap-2 pt-4 border-t border-border/50 bg-background/50 backdrop-blur-sm -mx-4 px-4 -mb-4 pb-4">
                 <div className="flex-1 relative">
                   <Input
+                    ref={chatInputRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="שאלו שאלה ברפואה סינית..."
                     disabled={isLoading}
                     className="text-right pr-4 pl-12 h-12 rounded-xl border-border/80 focus:border-jade transition-colors"
                     dir="rtl"
+                    onFocus={() => setActiveNavSection('chat')}
                   />
                   <Button
+                    ref={voiceBtnRef}
                     type="button"
                     variant="ghost"
                     size="icon"
@@ -739,6 +766,7 @@ export default function TcmBrain() {
                     className={`absolute left-1 top-1/2 -translate-y-1/2 h-10 w-10 rounded-lg ${
                       isRecording ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20' : 'text-muted-foreground hover:text-foreground'
                     }`}
+                    onFocus={() => setActiveNavSection('voice')}
                   >
                     {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                   </Button>
