@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
+import { Mail, MessageCircle, MapPin, Clock, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -17,26 +17,27 @@ const Contact = () => {
     setFormData({ name: "", email: "", phone: "", message: "" });
   };
 
+  const whatsappNumber = "972544634923";
+  const whatsappLink = `https://wa.me/${whatsappNumber}`;
+
   const contactInfo = [
     {
-      icon: MapPin,
-      title: "Visit Us",
-      lines: ["123 Harmony Lane, Suite 200", "New York, NY 10001"],
-    },
-    {
-      icon: Phone,
-      title: "Call Us",
-      lines: ["+1 (888) 555-HEAL", "+1 (212) 555-0199"],
+      icon: MessageCircle,
+      title: "WhatsApp Only",
+      lines: ["054-4634923", "Messages only - No phone calls please"],
+      isWhatsApp: true,
     },
     {
       icon: Mail,
       title: "Email Us",
-      lines: ["info@harmonytcm.com", "bookings@harmonytcm.com"],
+      lines: ["ronisapir61@gmail.com"],
+      isWhatsApp: false,
     },
     {
       icon: Clock,
-      title: "Hours",
-      lines: ["Mon-Fri: 9:00 AM - 7:00 PM", "Sat: 10:00 AM - 5:00 PM"],
+      title: "Response Time",
+      lines: ["We reply within 24 hours", "Leave a message anytime"],
+      isWhatsApp: false,
     },
   ];
 
@@ -60,23 +61,34 @@ const Contact = () => {
             </p>
 
             {/* Contact Cards */}
-            <div className="grid sm:grid-cols-2 gap-6">
+            <div className="grid sm:grid-cols-3 gap-6">
               {contactInfo.map((item) => (
                 <div
                   key={item.title}
-                  className="bg-background rounded-xl p-5 shadow-soft"
+                  className={`bg-background rounded-xl p-5 shadow-soft ${item.isWhatsApp ? 'ring-2 ring-green-500/30' : ''}`}
                 >
-                  <div className="w-10 h-10 bg-jade/10 rounded-lg flex items-center justify-center mb-3">
-                    <item.icon className="w-5 h-5 text-jade" />
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${item.isWhatsApp ? 'bg-green-500/10' : 'bg-jade/10'}`}>
+                    <item.icon className={`w-5 h-5 ${item.isWhatsApp ? 'text-green-600' : 'text-jade'}`} />
                   </div>
                   <h3 className="font-display text-lg font-semibold text-foreground mb-2">
                     {item.title}
                   </h3>
                   {item.lines.map((line, i) => (
-                    <p key={i} className="font-body text-sm text-muted-foreground">
+                    <p key={i} className={`font-body text-sm ${i === 1 && item.isWhatsApp ? 'text-amber-600 font-medium' : 'text-muted-foreground'}`}>
                       {line}
                     </p>
                   ))}
+                  {item.isWhatsApp && (
+                    <a
+                      href={whatsappLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Send WhatsApp Message
+                    </a>
+                  )}
                 </div>
               ))}
             </div>
