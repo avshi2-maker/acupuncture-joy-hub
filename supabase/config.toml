@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.create-zoom-meeting]
 verify_jwt = true
+
+[functions.notify-payment-proof]
+verify_jwt = false

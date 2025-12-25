@@ -140,9 +140,17 @@ export default function Gate() {
         .upload(fileName, proofFile);
 
       if (uploadError) {
-        // If bucket doesn't exist, just show success message anyway
         console.log('Upload notice:', uploadError.message);
       }
+
+      // Send email notification to Dr. Roni
+      const tierName = selectedTier === 'standard' ? 'סטנדרט' : 'פרימיום';
+      await supabase.functions.invoke('notify-payment-proof', {
+        body: { 
+          tierName, 
+          fileName: proofFile.name,
+        },
+      });
 
       toast.success('אישור התשלום נשלח בהצלחה! תקבלו סיסמה בוואטסאפ בקרוב.');
       setCurrentStep('password');
