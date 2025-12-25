@@ -320,7 +320,7 @@ export default function CRMPatientDetail() {
                     Consent Status
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
                   {patient.consent_signed ? (
                     <div className="space-y-2">
                       <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/30">
@@ -333,9 +333,17 @@ export default function CRMPatientDetail() {
                       )}
                     </div>
                   ) : (
-                    <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/30">
-                      Pending Consent
-                    </Badge>
+                    <div className="space-y-3">
+                      <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/30">
+                        Pending Consent
+                      </Badge>
+                      <Button size="sm" variant="outline" asChild className="w-full">
+                        <Link to={`/crm/patients/${id}/consent`}>
+                          <FileText className="h-4 w-4 mr-2" />
+                          Open Consent Form
+                        </Link>
+                      </Button>
+                    </div>
                   )}
                 </CardContent>
               </Card>
