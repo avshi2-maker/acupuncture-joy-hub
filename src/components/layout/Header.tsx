@@ -40,9 +40,10 @@ const Header = () => {
           <div className={`p-2 rounded-full transition-all duration-300 flex-shrink-0 ${isScrolled || !isHomePage ? 'bg-jade/10' : 'bg-primary-foreground/10'}`}>
             <Leaf className={`w-6 h-6 transition-colors duration-300 ${isScrolled || !isHomePage ? 'text-jade' : 'text-primary-foreground'}`} />
           </div>
-          <div className={`font-display font-bold tracking-wide transition-colors duration-300 ${isScrolled || !isHomePage ? 'text-foreground' : 'text-primary-foreground'} hidden sm:flex flex-col leading-tight`}>
-            <span className="text-sm lg:text-base">Dr Roni Sapir</span>
-            <span className="text-xs lg:text-sm opacity-90">Complementary Medicine</span>
+          <div className={`font-display tracking-wide transition-colors duration-300 ${isScrolled || !isHomePage ? 'text-foreground' : 'text-primary-foreground'} hidden sm:flex flex-col leading-tight`}>
+            <span className="text-sm lg:text-base font-bold">Dr Roni Sapir</span>
+            <span className="text-xs lg:text-sm font-semibold opacity-90">Complementary Medicine</span>
+            <span className="text-[10px] lg:text-xs font-normal opacity-70 italic">Healing Through Balance with AI</span>
           </div>
         </Link>
 
