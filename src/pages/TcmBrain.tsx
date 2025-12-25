@@ -38,6 +38,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { MessageCircle, Mic as MicIcon, History, MessageSquare } from 'lucide-react';
 import {
   herbsQuestions,
   pointsQuestions,
@@ -566,6 +567,67 @@ export default function TcmBrain() {
           </div>
         </header>
 
+        {/* Sticky Quick Navigation */}
+        <nav className="sticky top-14 z-40 bg-background/95 backdrop-blur-sm border-b border-border/50">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="flex items-center justify-center gap-2 py-2" dir="rtl">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs gap-1.5"
+                onClick={() => {
+                  const tabsList = document.querySelector('[role="tablist"]');
+                  const chatTab = tabsList?.querySelector('[value="chat"]') as HTMLButtonElement;
+                  chatTab?.click();
+                }}
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                צ'אט
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs gap-1.5"
+                onClick={() => {
+                  const tabsList = document.querySelector('[role="tablist"]');
+                  const chatTab = tabsList?.querySelector('[value="chat"]') as HTMLButtonElement;
+                  chatTab?.click();
+                  setTimeout(() => {
+                    const micBtn = document.querySelector('[data-voice-btn]') as HTMLButtonElement;
+                    micBtn?.focus();
+                  }, 100);
+                }}
+              >
+                <MicIcon className="h-3.5 w-3.5" />
+                קולי
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs gap-1.5"
+                onClick={() => {
+                  const scrollArea = scrollRef.current;
+                  if (scrollArea) scrollArea.scrollTop = 0;
+                }}
+              >
+                <History className="h-3.5 w-3.5" />
+                היסטוריה
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs gap-1.5"
+                asChild
+              >
+                <Link to="/feedback">
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  פידבק
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </nav>
+
         {/* Main Content */}
         <main className="flex-1 flex flex-col max-w-6xl mx-auto w-full">
           <Tabs defaultValue="chat" className="flex-1 flex flex-col">
@@ -673,6 +735,7 @@ export default function TcmBrain() {
                     variant="ghost"
                     size="icon"
                     onClick={toggleRecording}
+                    data-voice-btn
                     className={`absolute left-1 top-1/2 -translate-y-1/2 h-10 w-10 rounded-lg ${
                       isRecording ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20' : 'text-muted-foreground hover:text-foreground'
                     }`}
