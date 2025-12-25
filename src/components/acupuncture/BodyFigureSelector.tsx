@@ -1,0 +1,467 @@
+import { useState, useEffect, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { ArrowLeft, MapPin, Info, ZoomIn, ZoomOut } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+// Import all body figure images
+import armImg from '@/assets/body-figures/arm.png';
+import armInnerImg from '@/assets/body-figures/arm_inner.png';
+import bodyFrontImg from '@/assets/body-figures/body_front.png';
+import bodyMainImg from '@/assets/body-figures/body_main.png';
+import bodybackImg from '@/assets/body-figures/bodyback.png';
+import chestImg from '@/assets/body-figures/chest.png';
+import childBackImg from '@/assets/body-figures/child_back.png';
+import childFrontImg from '@/assets/body-figures/child_front.png';
+import earImg from '@/assets/body-figures/ear.png';
+import footImg from '@/assets/body-figures/foot.png';
+import footSoleImg from '@/assets/body-figures/foot_sole.png';
+import handImg from '@/assets/body-figures/hand.png';
+import headFrontImg from '@/assets/body-figures/head_front.png';
+import headSideImg from '@/assets/body-figures/head_side.png';
+import legFrontImg from '@/assets/body-figures/leg_front.png';
+import legInnerImg from '@/assets/body-figures/leg_inner.png';
+import legOuterImg from '@/assets/body-figures/leg_outer.png';
+import spineImg from '@/assets/body-figures/spine.png';
+import tongueImg from '@/assets/body-figures/tongue.png';
+import wristImg from '@/assets/body-figures/wrist.png';
+
+// Map image names to imports
+const imageMap: Record<string, string> = {
+  'arm.png': armImg,
+  'arm_inner.png': armInnerImg,
+  'body_front.png': bodyFrontImg,
+  'body_main.png': bodyMainImg,
+  'bodyback.png': bodybackImg,
+  'chest.png': chestImg,
+  'child_back.png': childBackImg,
+  'child_front.png': childFrontImg,
+  'ear.png': earImg,
+  'foot.png': footImg,
+  'foot_sole.png': footSoleImg,
+  'hand.png': handImg,
+  'head_front.png': headFrontImg,
+  'head_side.png': headSideImg,
+  'leg_front.png': legFrontImg,
+  'leg_inner.png': legInnerImg,
+  'leg_outer.png': legOuterImg,
+  'spine.png': spineImg,
+  'tongue.png': tongueImg,
+  'wrist.png': wristImg,
+};
+
+// Body figure categories for better organization
+const figureCategories = [
+  {
+    name: 'Full Body',
+    figures: ['body_front.png', 'bodyback.png', 'body_main.png', 'spine.png']
+  },
+  {
+    name: 'Head & Face',
+    figures: ['head_front.png', 'head_side.png', 'ear.png', 'tongue.png']
+  },
+  {
+    name: 'Upper Limbs',
+    figures: ['arm.png', 'arm_inner.png', 'wrist.png', 'hand.png']
+  },
+  {
+    name: 'Lower Limbs',
+    figures: ['leg_front.png', 'leg_inner.png', 'leg_outer.png', 'foot.png', 'foot_sole.png']
+  },
+  {
+    name: 'Torso',
+    figures: ['chest.png']
+  },
+  {
+    name: 'Pediatric',
+    figures: ['child_front.png', 'child_back.png']
+  }
+];
+
+// Point coordinates data
+const pointCoordinates = [
+  { point_code: 'LI4', image_name: 'hand.png', x: 1400, y: 800 },
+  { point_code: 'LI11', image_name: 'arm.png', x: 1500, y: 900 },
+  { point_code: 'PC6', image_name: 'arm_inner.png', x: 1400, y: 1000 },
+  { point_code: 'HT7', image_name: 'wrist.png', x: 1400, y: 700 },
+  { point_code: 'LU7', image_name: 'arm_inner.png', x: 1300, y: 800 },
+  { point_code: 'ST36', image_name: 'leg_front.png', x: 1200, y: 1000 },
+  { point_code: 'ST41', image_name: 'foot.png', x: 1400, y: 900 },
+  { point_code: 'SP6', image_name: 'leg_inner.png', x: 1500, y: 1100 },
+  { point_code: 'SP9', image_name: 'leg_inner.png', x: 1450, y: 950 },
+  { point_code: 'LV3', image_name: 'foot.png', x: 1350, y: 1000 },
+  { point_code: 'KI3', image_name: 'foot.png', x: 1300, y: 1050 },
+  { point_code: 'KI1', image_name: 'foot_sole.png', x: 1400, y: 900 },
+  { point_code: 'BL40', image_name: 'leg_outer.png', x: 1400, y: 950 },
+  { point_code: 'BL60', image_name: 'foot.png', x: 1250, y: 1100 },
+  { point_code: 'GB34', image_name: 'leg_outer.png', x: 1350, y: 1000 },
+  { point_code: 'GB20', image_name: 'head_side.png', x: 1400, y: 600 },
+  { point_code: 'GV20', image_name: 'head_front.png', x: 1400, y: 400 },
+  { point_code: 'CV12', image_name: 'body_front.png', x: 1400, y: 650 },
+  { point_code: 'CV6', image_name: 'body_front.png', x: 1400, y: 800 },
+  { point_code: 'GV14', image_name: 'bodyback.png', x: 1400, y: 500 },
+];
+
+interface AcuPoint {
+  id: string;
+  code: string;
+  name_english: string;
+  name_chinese: string;
+  name_pinyin: string;
+  meridian: string;
+  location: string;
+  indications: string[];
+  actions: string[];
+}
+
+interface SelectedPoint {
+  code: string;
+  x: number;
+  y: number;
+  details?: AcuPoint | null;
+}
+
+export function BodyFigureSelector() {
+  const [selectedFigure, setSelectedFigure] = useState<string | null>(null);
+  const [selectedPoint, setSelectedPoint] = useState<SelectedPoint | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [acuPoints, setAcuPoints] = useState<AcuPoint[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch acupuncture points from database
+  useEffect(() => {
+    const fetchPoints = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('acupuncture_points')
+        .select('*');
+      
+      if (!error && data) {
+        setAcuPoints(data.map(p => ({
+          id: p.id,
+          code: p.code,
+          name_english: p.name_english,
+          name_chinese: p.name_chinese,
+          name_pinyin: p.name_pinyin,
+          meridian: p.meridian,
+          location: p.location,
+          indications: p.indications || [],
+          actions: p.actions || [],
+        })));
+      }
+      setLoading(false);
+    };
+    fetchPoints();
+  }, []);
+
+  // Get points for selected figure
+  const figurePoints = useMemo(() => {
+    if (!selectedFigure) return [];
+    return pointCoordinates.filter(p => p.image_name === selectedFigure);
+  }, [selectedFigure]);
+
+  // Get point details from database
+  const getPointDetails = (code: string): AcuPoint | undefined => {
+    return acuPoints.find(p => p.code === code);
+  };
+
+  // Handle point click
+  const handlePointClick = (point: typeof pointCoordinates[0]) => {
+    const details = getPointDetails(point.point_code);
+    setSelectedPoint({
+      code: point.point_code,
+      x: point.x,
+      y: point.y,
+      details: details || null,
+    });
+  };
+
+  // Get figure display name
+  const getFigureName = (filename: string) => {
+    return filename
+      .replace('.png', '')
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  // Count points per figure
+  const getPointCount = (filename: string) => {
+    return pointCoordinates.filter(p => p.image_name === filename).length;
+  };
+
+  if (selectedFigure) {
+    return (
+      <div className="space-y-4">
+        {/* Header with back button */}
+        <div className="flex items-center justify-between">
+          <Button 
+            variant="ghost" 
+            onClick={() => {
+              setSelectedFigure(null);
+              setSelectedPoint(null);
+              setZoom(1);
+            }}
+            className="gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Body Parts
+          </Button>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setZoom(z => Math.max(0.5, z - 0.25))}
+              disabled={zoom <= 0.5}
+            >
+              <ZoomOut className="h-4 w-4" />
+            </Button>
+            <span className="text-sm text-muted-foreground min-w-[4rem] text-center">
+              {Math.round(zoom * 100)}%
+            </span>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setZoom(z => Math.min(2, z + 0.25))}
+              disabled={zoom >= 2}
+            >
+              <ZoomIn className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Image with points */}
+          <Card className="lg:col-span-2 overflow-hidden">
+            <CardHeader className="py-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-primary" />
+                {getFigureName(selectedFigure)}
+                <Badge variant="secondary" className="ml-2">
+                  {figurePoints.length} points
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <ScrollArea className="h-[500px]">
+                <div 
+                  className="relative inline-block"
+                  style={{ 
+                    transform: `scale(${zoom})`,
+                    transformOrigin: 'top left',
+                  }}
+                >
+                  <img
+                    src={imageMap[selectedFigure]}
+                    alt={getFigureName(selectedFigure)}
+                    className="max-w-none"
+                    style={{ maxWidth: '100%', height: 'auto' }}
+                  />
+                  
+                  {/* Acupuncture point markers */}
+                  {figurePoints.map((point) => {
+                    const isSelected = selectedPoint?.code === point.point_code;
+                    // Convert coordinates to percentages (assuming image is ~2800x1400)
+                    const xPercent = (point.x / 2800) * 100;
+                    const yPercent = (point.y / 1400) * 100;
+                    
+                    return (
+                      <button
+                        key={point.point_code}
+                        onClick={() => handlePointClick(point)}
+                        className={`absolute w-6 h-6 -ml-3 -mt-3 rounded-full border-2 transition-all duration-200 flex items-center justify-center text-xs font-bold ${
+                          isSelected 
+                            ? 'bg-primary border-primary text-primary-foreground scale-125 ring-4 ring-primary/30' 
+                            : 'bg-destructive/80 border-destructive text-destructive-foreground hover:scale-110 hover:bg-destructive'
+                        }`}
+                        style={{
+                          left: `${xPercent}%`,
+                          top: `${yPercent}%`,
+                        }}
+                        title={point.point_code}
+                      >
+                        <span className="sr-only">{point.point_code}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+
+          {/* Point details panel */}
+          <Card>
+            <CardHeader className="py-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Info className="h-5 w-5 text-primary" />
+                Point Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {selectedPoint ? (
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-2xl font-bold text-primary">
+                      {selectedPoint.code}
+                    </h3>
+                    {selectedPoint.details ? (
+                      <>
+                        <p className="text-lg">{selectedPoint.details.name_english}</p>
+                        <p className="text-muted-foreground">
+                          {selectedPoint.details.name_pinyin} • {selectedPoint.details.name_chinese}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Point data not found in database
+                      </p>
+                    )}
+                  </div>
+
+                  {selectedPoint.details && (
+                    <>
+                      <div>
+                        <Badge variant="outline" className="mb-2">
+                          {selectedPoint.details.meridian} Meridian
+                        </Badge>
+                      </div>
+
+                      <div>
+                        <h4 className="font-semibold mb-1">Location</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {selectedPoint.details.location}
+                        </p>
+                      </div>
+
+                      {selectedPoint.details.actions.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold mb-1">Actions</h4>
+                          <div className="flex flex-wrap gap-1">
+                            {selectedPoint.details.actions.map((action, i) => (
+                              <Badge key={i} variant="secondary" className="text-xs">
+                                {action}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedPoint.details.indications.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold mb-1">Indications</h4>
+                          <ScrollArea className="h-32">
+                            <ul className="text-sm text-muted-foreground space-y-1">
+                              {selectedPoint.details.indications.map((ind, i) => (
+                                <li key={i}>• {ind}</li>
+                              ))}
+                            </ul>
+                          </ScrollArea>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <MapPin className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p>Click on a red point marker to view details</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Points list */}
+        <Card>
+          <CardHeader className="py-3">
+            <CardTitle className="text-sm">Points on this figure</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {figurePoints.map((point) => {
+                const details = getPointDetails(point.point_code);
+                const isSelected = selectedPoint?.code === point.point_code;
+                return (
+                  <Button
+                    key={point.point_code}
+                    variant={isSelected ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handlePointClick(point)}
+                    className="gap-1"
+                  >
+                    <MapPin className="h-3 w-3" />
+                    {point.point_code}
+                    {details && (
+                      <span className="text-xs opacity-70">
+                        ({details.name_pinyin})
+                      </span>
+                    )}
+                  </Button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Figure selection grid
+  return (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold mb-2">Interactive Body Map</h2>
+        <p className="text-muted-foreground">
+          Select a body part to explore acupuncture points
+        </p>
+      </div>
+
+      {figureCategories.map((category) => {
+        const availableFigures = category.figures.filter(f => imageMap[f]);
+        if (availableFigures.length === 0) return null;
+
+        return (
+          <div key={category.name}>
+            <h3 className="text-lg font-semibold mb-3 text-primary">
+              {category.name}
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {availableFigures.map((figure) => {
+                const pointCount = getPointCount(figure);
+                return (
+                  <Card
+                    key={figure}
+                    className="cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all overflow-hidden group"
+                    onClick={() => setSelectedFigure(figure)}
+                  >
+                    <div className="aspect-square relative bg-muted/30 overflow-hidden">
+                      <img
+                        src={imageMap[figure]}
+                        alt={getFigureName(figure)}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {pointCount > 0 && (
+                        <Badge 
+                          className="absolute top-2 right-2 bg-destructive"
+                        >
+                          {pointCount} pts
+                        </Badge>
+                      )}
+                    </div>
+                    <CardContent className="p-3">
+                      <p className="text-sm font-medium text-center truncate">
+                        {getFigureName(figure)}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}

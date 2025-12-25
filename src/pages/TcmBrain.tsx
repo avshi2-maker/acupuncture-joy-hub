@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { BodyFigureSelector } from '@/components/acupuncture/BodyFigureSelector';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
@@ -35,7 +36,8 @@ import {
   FileText,
   ClipboardList,
   Pill,
-  Trash2
+  Trash2,
+  User
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MessageCircle, Mic as MicIcon, History, MessageSquare } from 'lucide-react';
@@ -65,6 +67,7 @@ type QuickNavSection = 'chat' | 'voice' | 'history' | 'feedback';
 // Feature tabs configuration (excluding symptoms/diagnosis/treatment which are on main page)
 const featureTabs = [
   { id: 'chat', icon: Sparkles, label: 'Ask AI' },
+  { id: 'bodymap', icon: User, label: 'Body Map' },
   { id: 'herbs', icon: Leaf, label: 'Herbs' },
   { id: 'points', icon: MapPin, label: 'Points' },
   { id: 'conditions', icon: Stethoscope, label: 'Conditions' },
@@ -1079,6 +1082,11 @@ export default function TcmBrain() {
                   )}
                 </Button>
               </form>
+            </TabsContent>
+
+            {/* Body Map Tab */}
+            <TabsContent value="bodymap" className="flex-1 overflow-auto p-4">
+              <BodyFigureSelector />
             </TabsContent>
 
             {/* Symptoms Tab */}
