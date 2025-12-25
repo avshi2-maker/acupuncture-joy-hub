@@ -69,7 +69,6 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { tier, hasFeature, daysRemaining } = useTier();
   const [showVideoPanel, setShowVideoPanel] = useState(true);
-  const [selectedPatient, setSelectedPatient] = useState<{ id: string; name: string; phone?: string } | null>(null);
 
   useEffect(() => {
     if (!tier) {
@@ -175,11 +174,7 @@ export default function Dashboard() {
           {/* Video Panel - 25% */}
           {hasVideoAccess && showVideoPanel && (
             <aside className="w-1/4 min-w-[300px] max-w-[400px] p-4 border-l border-border bg-card/50 min-h-[calc(100vh-73px)]">
-              <VideoSessionPanel 
-                selectedPatientId={selectedPatient?.id}
-                selectedPatientName={selectedPatient?.name}
-                selectedPatientPhone={selectedPatient?.phone}
-              />
+              <VideoSessionPanel />
             </aside>
           )}
 
