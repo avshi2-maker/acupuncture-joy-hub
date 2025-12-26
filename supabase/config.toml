@@ -28,7 +28,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.import-knowledge]
-verify_jwt = true
+verify_jwt = false
 
 [functions.symptom-checker]
 verify_jwt = true
