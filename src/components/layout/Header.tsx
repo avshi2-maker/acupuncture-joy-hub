@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Leaf } from "lucide-react";
+import { Menu, X, Leaf, Code } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -10,6 +11,10 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { t } = useLanguage();
+
+  const isDevMode = window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.includes('lovableproject.com');
 
   const isHomePage = location.pathname === "/";
 
@@ -41,6 +46,14 @@ const Header = () => {
             <span className="text-[10px] lg:text-xs font-normal opacity-70 italic">Healing Through Balance with AI</span>
           </div>
         </Link>
+
+        {/* Dev Mode Badge */}
+        {isDevMode && (
+          <Badge variant="outline" className="hidden sm:flex items-center gap-1 border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-mono">
+            <Code className="w-3 h-3" />
+            DEV MODE
+          </Badge>
+        )}
 
         {/* Desktop Navigation - Only Therapist Login */}
         <nav className="hidden lg:flex items-center gap-6">
