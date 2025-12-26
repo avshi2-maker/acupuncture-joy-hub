@@ -3,22 +3,28 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import {
   Activity,
   AlertTriangle,
   Apple,
+  Brain,
+  Calendar,
   Clock,
+  Compass,
   Dumbbell,
   FileText,
   Heart,
   Leaf,
   Loader2,
   MapPin,
+  Moon,
+  Scale,
   Sparkles,
+  Star,
   Stethoscope,
   Target,
+  TrendingUp,
   User,
   Zap,
 } from 'lucide-react';
@@ -56,7 +62,7 @@ interface HerbInfo {
   indications: string[] | null;
 }
 
-// Section configuration for all asset types
+// TCM-CAF: TCM Clinical Asset Framework - Full 15 Asset Categories
 const SECTION_CONFIG = {
   diagnosis: {
     headings: ['Pattern', 'Diagnosis', 'Pattern / Diagnosis', 'Dx'],
@@ -85,7 +91,7 @@ const SECTION_CONFIG = {
   herbs: {
     headings: ['Herbal Formula', 'Herbs', 'Chinese Herbs', 'Formula'],
     icon: Leaf,
-    label: 'Herbs',
+    label: 'Herbal Formula',
     color: 'text-primary',
     bgColor: 'bg-primary/10',
     borderColor: 'border-primary/30',
@@ -129,6 +135,54 @@ const SECTION_CONFIG = {
     color: 'text-yellow-500',
     bgColor: 'bg-yellow-500/10',
     borderColor: 'border-yellow-500/30',
+  },
+  mental: {
+    headings: ['Mental', 'Mental & Emotional', 'Emotional', 'Shen', 'Mind'],
+    icon: Brain,
+    label: 'Mental & Emotional',
+    color: 'text-indigo-500',
+    bgColor: 'bg-indigo-500/10',
+    borderColor: 'border-indigo-500/30',
+  },
+  sleep: {
+    headings: ['Sleep', 'Sleep Optimization', 'Rest', 'Sleep Quality'],
+    icon: Moon,
+    label: 'Sleep',
+    color: 'text-slate-500',
+    bgColor: 'bg-slate-500/10',
+    borderColor: 'border-slate-500/30',
+  },
+  condition: {
+    headings: ['Condition', 'Condition Management', 'Management', 'Prognosis'],
+    icon: TrendingUp,
+    label: 'Condition Mgmt',
+    color: 'text-teal-500',
+    bgColor: 'bg-teal-500/10',
+    borderColor: 'border-teal-500/30',
+  },
+  constitution: {
+    headings: ['Constitutional', 'Constitutional Balance', 'Constitution', 'Body Type'],
+    icon: Scale,
+    label: 'Constitution',
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
+    borderColor: 'border-amber-500/30',
+  },
+  astrology: {
+    headings: ['Chinese Astrology', 'Astrology', 'Celestial', 'Timing'],
+    icon: Star,
+    label: 'Astrology',
+    color: 'text-violet-500',
+    bgColor: 'bg-violet-500/10',
+    borderColor: 'border-violet-500/30',
+  },
+  bazi: {
+    headings: ['BaZi', 'BaZi Considerations', 'Four Pillars', 'Birth Chart'],
+    icon: Compass,
+    label: 'BaZi',
+    color: 'text-rose-500',
+    bgColor: 'bg-rose-500/10',
+    borderColor: 'border-rose-500/30',
   },
 };
 
@@ -263,7 +317,7 @@ export function AIResponseDisplay({
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const fetchedRef = useRef<{ points: Set<string>; herbs: Set<string> }>({ points: new Set(), herbs: new Set() });
 
-  // Parse all sections
+  // Parse all TCM-CAF sections (15 assets)
   const sections = useMemo(() => {
     const result: Record<SectionKey, string[]> = {
       diagnosis: [],
@@ -275,6 +329,12 @@ export function AIResponseDisplay({
       exercise: [],
       wellness: [],
       safety: [],
+      mental: [],
+      sleep: [],
+      condition: [],
+      constitution: [],
+      astrology: [],
+      bazi: [],
     };
 
     Object.keys(SECTION_CONFIG).forEach((key) => {
@@ -688,8 +748,8 @@ export function AIResponseDisplay({
               </div>
             </div>
             <div className="text-center space-y-1">
-              <p className="text-sm font-medium">AI is building your comprehensive report…</p>
-              <p className="text-xs text-muted-foreground">Including diagnosis, points, herbs, nutrition, exercise, wellness & safety</p>
+              <p className="text-sm font-medium">TCM-CAF Report Loading…</p>
+              <p className="text-xs text-muted-foreground">Building all 15 clinical assets: Dx, Tx, Points, Herbs, Nutrition, Lifestyle, Exercise, Wellness, Safety, Mental, Sleep, Condition, Constitution, Astrology, BaZi</p>
             </div>
           </div>
         )}
