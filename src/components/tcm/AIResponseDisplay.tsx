@@ -518,7 +518,9 @@ export function AIResponseDisplay({
                   )}
                 </Button>
 
-                {assetButtons.map((asset) => (
+                {assetButtons
+                  .filter((asset) => asset.count > 0) // Only show buttons with content
+                  .map((asset) => (
                   <Button
                     key={asset.id}
                     variant={activeSection === asset.id ? 'default' : 'outline'}
@@ -528,11 +530,9 @@ export function AIResponseDisplay({
                   >
                     <asset.icon className="h-3 w-3" />
                     {asset.label}
-                    {asset.count > 0 && (
-                      <Badge variant="secondary" className="h-4 min-w-4 text-[10px] px-1">
-                        {asset.count}
-                      </Badge>
-                    )}
+                    <Badge variant="secondary" className="h-4 min-w-4 text-[10px] px-1">
+                      {asset.count}
+                    </Badge>
                   </Button>
                 ))}
               </div>
