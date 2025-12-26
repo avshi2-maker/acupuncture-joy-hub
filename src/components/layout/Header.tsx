@@ -57,6 +57,9 @@ const Header = () => {
             <Button asChild variant="ghost" size="sm" className="text-amber-600 dark:text-amber-400 hover:bg-amber-500/10">
               <Link to="/tcm-brain">TCM Brain</Link>
             </Button>
+            <Button asChild variant="ghost" size="sm" className="text-amber-600 dark:text-amber-400 hover:bg-amber-500/10">
+              <Link to="/admin/knowledge">Knowledge</Link>
+            </Button>
           </div>
         )}
 
