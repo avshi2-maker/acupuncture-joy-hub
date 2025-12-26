@@ -49,10 +49,15 @@ const Header = () => {
 
         {/* Dev Mode Badge */}
         {isDevMode && (
-          <Badge variant="outline" className="hidden sm:flex items-center gap-1 border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-mono">
-            <Code className="w-3 h-3" />
-            DEV MODE
-          </Badge>
+          <div className="hidden sm:flex items-center gap-2">
+            <Badge variant="outline" className="flex items-center gap-1 border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-mono">
+              <Code className="w-3 h-3" />
+              DEV MODE
+            </Badge>
+            <Button asChild variant="ghost" size="sm" className="text-amber-600 dark:text-amber-400 hover:bg-amber-500/10">
+              <Link to="/tcm-brain">TCM Brain</Link>
+            </Button>
+          </div>
         )}
 
         {/* Desktop Navigation - Only Therapist Login */}
