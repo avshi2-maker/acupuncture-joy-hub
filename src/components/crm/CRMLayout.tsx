@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { CRMSidebar } from './CRMSidebar';
 import { CRMBreadcrumb } from './CRMBreadcrumb';
+import { SessionTimerWidget } from './SessionTimerWidget';
 import { Building2, Menu } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 
@@ -45,6 +46,8 @@ export function CRMLayout({ children }: CRMLayoutProps) {
             {children}
           </main>
         </SidebarInset>
+        {/* Session Timer Widget - Always visible */}
+        <SessionTimerWidget position="bottom-right" />
       </div>
     </SidebarProvider>
   );

@@ -104,6 +104,26 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
         },
+        "pulse-subtle": {
+          "0%, 100%": { opacity: "1", boxShadow: "0 0 0 0 rgba(34, 197, 94, 0.4)" },
+          "50%": { opacity: "0.9", boxShadow: "0 0 0 8px rgba(34, 197, 94, 0)" },
+        },
+        "pulse-arrow": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "50%": { transform: "translateX(-4px)" },
+        },
+        "bounce-subtle": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-2px)" },
+        },
+        "ping-slow": {
+          "75%, 100%": { transform: "scale(1.5)", opacity: "0" },
+        },
+        "shake": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "10%, 30%, 50%, 70%, 90%": { transform: "translateX(-2px)" },
+          "20%, 40%, 60%, 80%": { transform: "translateX(2px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -112,6 +132,11 @@ export default {
         "fade-in-up": "fade-in-up 0.6s ease-out forwards",
         "slide-in-right": "slide-in-right 0.3s ease-out",
         float: "float 6s ease-in-out infinite",
+        "pulse-subtle": "pulse-subtle 2s ease-in-out infinite",
+        "pulse-arrow": "pulse-arrow 1.5s ease-in-out infinite",
+        "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
+        "ping-slow": "ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite",
+        "shake": "shake 0.5s ease-in-out",
       },
     },
   },

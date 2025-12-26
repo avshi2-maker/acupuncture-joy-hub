@@ -70,14 +70,23 @@ export function CRMSidebar() {
     <Sidebar collapsible="icon" className="border-r border-border/50">
       <SidebarHeader className="border-b border-border/30 p-4">
         <div className="flex flex-col gap-2">
-          {/* Back to Dashboard Button */}
+          {/* Animated Back to Dashboard Button */}
           <Link
             to="/dashboard"
-            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
+            className="group flex items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg
+                       bg-gradient-to-r from-jade-600/10 to-jade-500/5
+                       text-jade-700 dark:text-jade-300
+                       hover:from-jade-600/20 hover:to-jade-500/10
+                       transition-all duration-300 hover:-translate-x-1"
             onClick={handleNavClick}
           >
-            <ArrowLeft className="h-3 w-3" />
-            {(!isCollapsed || isMobile) && <span>Back to Dashboard</span>}
+            <ArrowLeft className="h-3.5 w-3.5 animate-pulse-arrow" />
+            {(!isCollapsed || isMobile) && (
+              <>
+                <span className="animate-bounce-subtle">🏠</span>
+                <span>Dashboard</span>
+              </>
+            )}
           </Link>
           
           <div className="flex items-center justify-between">

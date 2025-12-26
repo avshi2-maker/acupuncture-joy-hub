@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { VideoSessionPanel } from '@/components/video/VideoSessionPanel';
+import { SessionTimerWidget } from '@/components/crm/SessionTimerWidget';
 
 interface FeatureCardProps {
   title: string;
@@ -260,6 +261,9 @@ export default function Dashboard() {
             )}
           </main>
         </div>
+        
+        {/* Session Timer Widget - Always visible */}
+        <SessionTimerWidget position="bottom-right" />
       </div>
     </>
   );
