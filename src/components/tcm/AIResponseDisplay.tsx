@@ -122,6 +122,7 @@ export function AIResponseDisplay({
   const [pointsData, setPointsData] = useState<Record<string, PointInfo>>({});
   const [herbsData, setHerbsData] = useState<Record<string, HerbInfo>>({});
   const [dataLoading, setDataLoading] = useState(false);
+  const [alphabetFilter, setAlphabetFilter] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const fetchedRef = useRef<{ points: Set<string>; herbs: Set<string> }>({ points: new Set(), herbs: new Set() });
 
@@ -130,6 +131,31 @@ export function AIResponseDisplay({
   const nutrition = useMemo(() => parseNutrition(content), [content]);
   const lifestyle = useMemo(() => parseLifestyle(content), [content]);
   const briefSummary = useMemo(() => generateBrief(content, points, herbs), [content, points, herbs]);
+
+  // Filter points and herbs by alphabet
+  const filteredPoints = useMemo(() => {
+    if (!alphabetFilter) return points;
+    return points.filter(p => p.toUpperCase().startsWith(alphabetFilter));
+  }, [points, alphabetFilter]);
+
+  const filteredHerbs = useMemo(() => {
+    if (!alphabetFilter) return herbs;
+    return herbs.filter(h => h.toUpperCase().startsWith(alphabetFilter));
+  }, [herbs, alphabetFilter]);
+
+  // Get available letters for current section
+  const availableLetters = useMemo(() => {
+    const letters = new Set<string>();
+    if (activeSection === 'points') {
+      points.forEach(p => letters.add(p.charAt(0).toUpperCase()));
+    } else if (activeSection === 'herbs') {
+      herbs.forEach(h => letters.add(h.charAt(0).toUpperCase()));
+    }
+    return Array.from(letters).sort();
+  }, [activeSection, points, herbs]);
+
+  // Alphabet for the search bar
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
   // Batch fetch all points and herbs data when content changes
   useEffect(() => {
@@ -526,7 +552,10 @@ export function AIResponseDisplay({
                     variant={activeSection === asset.id ? 'default' : 'outline'}
                     size="sm"
                     className="gap-1.5 text-xs"
-                    onClick={() => setActiveSection(activeSection === asset.id ? null : asset.id)}
+                    onClick={() => {
+                      setAlphabetFilter(null); // Reset filter when switching sections
+                      setActiveSection(activeSection === asset.id ? null : asset.id);
+                    }}
                   >
                     <asset.icon className="h-3 w-3" />
                     {asset.label}
@@ -545,7 +574,7 @@ export function AIResponseDisplay({
               )}
 
               {activeSection === 'points' && (
-                <div className="rounded-md border border-border/60 bg-muted/20 p-3 space-y-2">
+                <div className="rounded-md border border-border/60 bg-muted/20 p-3 space-y-3">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-destructive" />
                     <span className="text-sm font-medium">Recommended points</span>
@@ -554,10 +583,43 @@ export function AIResponseDisplay({
                     </span>
                   </div>
 
-                  {points.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {points.map(renderPoint)}
+                  {/* Alphabet filter bar */}
+                  {points.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      <Button
+                        variant={alphabetFilter === null ? 'default' : 'ghost'}
+                        size="sm"
+                        className="h-6 w-6 p-0 text-[10px]"
+                        onClick={() => setAlphabetFilter(null)}
+                      >
+                        All
+                      </Button>
+                      {alphabet.map(letter => {
+                        const isAvailable = availableLetters.includes(letter);
+                        return (
+                          <Button
+                            key={letter}
+                            variant={alphabetFilter === letter ? 'default' : 'ghost'}
+                            size="sm"
+                            className={`h-6 w-6 p-0 text-[10px] ${!isAvailable ? 'opacity-30 cursor-not-allowed' : ''}`}
+                            onClick={() => isAvailable && setAlphabetFilter(letter)}
+                            disabled={!isAvailable}
+                          >
+                            {letter}
+                          </Button>
+                        );
+                      })}
                     </div>
+                  )}
+
+                  {filteredPoints.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {filteredPoints.map(renderPoint)}
+                    </div>
+                  ) : alphabetFilter ? (
+                    <p className="text-xs text-muted-foreground">
+                      No points starting with "{alphabetFilter}".
+                    </p>
                   ) : (
                     <p className="text-xs text-muted-foreground">
                       No acupuncture points detected in this report yet.
@@ -567,7 +629,7 @@ export function AIResponseDisplay({
               )}
 
               {activeSection === 'herbs' && (
-                <div className="rounded-md border border-border/60 bg-muted/20 p-3 space-y-2">
+                <div className="rounded-md border border-border/60 bg-muted/20 p-3 space-y-3">
                   <div className="flex items-center gap-2">
                     <Leaf className="h-4 w-4 text-primary" />
                     <span className="text-sm font-medium">Herbs</span>
@@ -575,10 +637,44 @@ export function AIResponseDisplay({
                       ({Object.keys(herbsData).length > 0 ? 'pre-loaded' : herbs.length > 0 ? 'loading...' : ''})
                     </span>
                   </div>
-                  {herbs.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {herbs.map(renderHerb)}
+
+                  {/* Alphabet filter bar */}
+                  {herbs.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      <Button
+                        variant={alphabetFilter === null ? 'default' : 'ghost'}
+                        size="sm"
+                        className="h-6 w-6 p-0 text-[10px]"
+                        onClick={() => setAlphabetFilter(null)}
+                      >
+                        All
+                      </Button>
+                      {alphabet.map(letter => {
+                        const isAvailable = availableLetters.includes(letter);
+                        return (
+                          <Button
+                            key={letter}
+                            variant={alphabetFilter === letter ? 'default' : 'ghost'}
+                            size="sm"
+                            className={`h-6 w-6 p-0 text-[10px] ${!isAvailable ? 'opacity-30 cursor-not-allowed' : ''}`}
+                            onClick={() => isAvailable && setAlphabetFilter(letter)}
+                            disabled={!isAvailable}
+                          >
+                            {letter}
+                          </Button>
+                        );
+                      })}
                     </div>
+                  )}
+
+                  {filteredHerbs.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {filteredHerbs.map(renderHerb)}
+                    </div>
+                  ) : alphabetFilter ? (
+                    <p className="text-xs text-muted-foreground">
+                      No herbs starting with "{alphabetFilter}".
+                    </p>
                   ) : (
                     <p className="text-xs text-muted-foreground">
                       No herbs detected in this report yet.
