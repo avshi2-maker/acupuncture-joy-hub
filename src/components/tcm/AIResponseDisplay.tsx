@@ -4,18 +4,22 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import {
   Activity,
   Apple,
   Clock,
+  FileText,
   Leaf,
   Loader2,
   MapPin,
   Sparkles,
+  Target,
   User,
+  Zap,
 } from 'lucide-react';
 import { parsePointReferences } from '@/components/acupuncture/BodyFigureSelector';
-import { PointInfoCard } from '@/components/tcm/PointInfoCard';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AIResponseDisplayProps {
   isLoading: boolean;
@@ -23,6 +27,29 @@ interface AIResponseDisplayProps {
   query: string;
   onViewBodyMap: (points: string[]) => void;
   loadingStartTime?: number;
+}
+
+interface PointInfo {
+  code: string;
+  name_english: string;
+  name_chinese: string;
+  name_pinyin: string;
+  meridian: string;
+  location: string;
+  indications: string[] | null;
+  actions: string[] | null;
+}
+
+interface HerbInfo {
+  name_pinyin: string;
+  name_english: string;
+  name_chinese: string;
+  category: string;
+  nature: string | null;
+  flavor: string[] | null;
+  meridians: string[] | null;
+  actions: string[] | null;
+  indications: string[] | null;
 }
 
 function parseHerbs(text: string): string[] {
@@ -46,6 +73,42 @@ function parseLifestyle(text: string): string[] {
   return [...new Set(matches.map((m) => m.trim()).filter((m) => m.length >= 10 && m.length <= 160))].slice(0, 8);
 }
 
+// Generate brief summary from content
+function generateBrief(content: string, points: string[], herbs: string[]): string[] {
+  const lines: string[] = [];
+  
+  // Extract key patterns/diagnosis
+  const patternMatch = content.match(/(?:pattern|diagnosis|condition)[:\s]+([^.\n]+)/i);
+  if (patternMatch) {
+    lines.push(`Dx: ${patternMatch[1].trim().slice(0, 80)}`);
+  }
+  
+  // Treatment principle
+  const principleMatch = content.match(/(?:treatment principle|principle)[:\s]+([^.\n]+)/i);
+  if (principleMatch) {
+    lines.push(`Tx: ${principleMatch[1].trim().slice(0, 80)}`);
+  }
+  
+  // Points summary
+  if (points.length > 0) {
+    lines.push(`Points: ${points.slice(0, 8).join(', ')}${points.length > 8 ? '...' : ''}`);
+  }
+  
+  // Herbs summary
+  if (herbs.length > 0) {
+    lines.push(`Herbs: ${herbs.slice(0, 6).join(', ')}${herbs.length > 6 ? '...' : ''}`);
+  }
+  
+  // If no specific matches, extract first meaningful sentence
+  if (lines.length < 2) {
+    const sentences = content.split(/[.!?]\s+/).filter(s => s.length > 20 && s.length < 150);
+    if (sentences[0]) lines.push(sentences[0].slice(0, 100));
+    if (sentences[1] && lines.length < 2) lines.push(sentences[1].slice(0, 100));
+  }
+  
+  return lines.slice(0, 4);
+}
+
 export function AIResponseDisplay({
   isLoading,
   content,
@@ -55,12 +118,85 @@ export function AIResponseDisplay({
 }: AIResponseDisplayProps) {
   const [activeSection, setActiveSection] = useState<'points' | 'herbs' | 'nutrition' | 'lifestyle' | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [showBrief, setShowBrief] = useState(false);
+  const [pointsData, setPointsData] = useState<Record<string, PointInfo>>({});
+  const [herbsData, setHerbsData] = useState<Record<string, HerbInfo>>({});
+  const [dataLoading, setDataLoading] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const fetchedRef = useRef<{ points: Set<string>; herbs: Set<string> }>({ points: new Set(), herbs: new Set() });
 
   const points = useMemo(() => parsePointReferences(content), [content]);
   const herbs = useMemo(() => parseHerbs(content), [content]);
   const nutrition = useMemo(() => parseNutrition(content), [content]);
   const lifestyle = useMemo(() => parseLifestyle(content), [content]);
+  const briefSummary = useMemo(() => generateBrief(content, points, herbs), [content, points, herbs]);
+
+  // Batch fetch all points and herbs data when content changes
+  useEffect(() => {
+    if (!content || isLoading) return;
+    
+    const fetchData = async () => {
+      const newPoints = points.filter(p => !fetchedRef.current.points.has(p));
+      const newHerbs = herbs.filter(h => !fetchedRef.current.herbs.has(h));
+      
+      if (newPoints.length === 0 && newHerbs.length === 0) return;
+      
+      setDataLoading(true);
+      
+      try {
+        // Batch fetch all points at once
+        if (newPoints.length > 0) {
+          // Normalize codes for database lookup (database uses LI-4 format)
+          const normalizedCodes = newPoints.map(p => {
+            // Convert ST36 to ST-36 format for database lookup
+            const match = p.match(/^([A-Za-z]+)(\d+)$/);
+            if (match) return `${match[1].toUpperCase()}-${match[2]}`;
+            return p;
+          });
+          
+          const { data: pointsResult } = await supabase
+            .from('acupuncture_points')
+            .select('code, name_english, name_chinese, name_pinyin, meridian, location, indications, actions')
+            .in('code', [...normalizedCodes, ...newPoints]); // Try both formats
+          
+          if (pointsResult) {
+            const newPointsData: Record<string, PointInfo> = {};
+            pointsResult.forEach(p => {
+              // Store by both original and normalized code
+              const normalized = p.code.replace(/-/g, '');
+              newPointsData[p.code] = p;
+              newPointsData[normalized] = p;
+            });
+            setPointsData(prev => ({ ...prev, ...newPointsData }));
+            newPoints.forEach(p => fetchedRef.current.points.add(p));
+          }
+        }
+        
+        // Batch fetch all herbs at once
+        if (newHerbs.length > 0) {
+          const { data: herbsResult } = await supabase
+            .from('herbs')
+            .select('name_pinyin, name_english, name_chinese, category, nature, flavor, meridians, actions, indications')
+            .in('name_pinyin', newHerbs);
+          
+          if (herbsResult) {
+            const newHerbsData: Record<string, HerbInfo> = {};
+            herbsResult.forEach(h => {
+              newHerbsData[h.name_pinyin] = h;
+            });
+            setHerbsData(prev => ({ ...prev, ...newHerbsData }));
+            newHerbs.forEach(h => fetchedRef.current.herbs.add(h));
+          }
+        }
+      } catch (err) {
+        console.error('Error batch fetching data:', err);
+      } finally {
+        setDataLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [content, isLoading, points, herbs]);
 
   const quickTopics = useMemo(() => {
     const topics: string[] = [];
@@ -103,6 +239,153 @@ export function AIResponseDisplay({
     { id: 'lifestyle' as const, icon: Activity, label: 'Lifestyle', count: lifestyle.length },
   ];
 
+  // Render point with pre-fetched data (no additional queries)
+  const renderPoint = (pointCode: string) => {
+    const info = pointsData[pointCode] || pointsData[pointCode.replace(/-/g, '')];
+    
+    return (
+      <HoverCard key={pointCode} openDelay={100} closeDelay={50}>
+        <HoverCardTrigger asChild>
+          <Badge
+            variant="outline"
+            className="cursor-pointer border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+            onClick={() => onViewBodyMap([pointCode])}
+          >
+            {pointCode}
+          </Badge>
+        </HoverCardTrigger>
+        <HoverCardContent align="start" className="w-80 p-0" side="top">
+          {info ? (
+            <div className="space-y-3 p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-destructive" />
+                    <span className="font-semibold text-sm">{info.code}</span>
+                    <Badge variant="secondary" className="text-[10px] h-5">
+                      {info.meridian}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {info.name_pinyin} • {info.name_chinese} • {info.name_english}
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-medium text-foreground/80">
+                  <Target className="h-3 w-3" />
+                  Location
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed pl-4">
+                  {info.location}
+                </p>
+              </div>
+              {info.indications && info.indications.length > 0 && (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-foreground/80">
+                    <Zap className="h-3 w-3" />
+                    Indications
+                  </div>
+                  <div className="flex flex-wrap gap-1 pl-4">
+                    {info.indications.slice(0, 5).map((ind, i) => (
+                      <Badge key={i} variant="outline" className="text-[10px] h-5 font-normal">
+                        {ind}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {info.actions && info.actions.length > 0 && (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-foreground/80">
+                    <Zap className="h-3 w-3 rotate-45" />
+                    Actions
+                  </div>
+                  <ul className="text-xs text-muted-foreground space-y-0.5 pl-4">
+                    {info.actions.slice(0, 4).map((action, i) => (
+                      <li key={i}>• {action}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="p-4 text-center">
+              <p className="text-xs text-muted-foreground">
+                {dataLoading ? 'Loading...' : `${pointCode} - data pending`}
+              </p>
+            </div>
+          )}
+        </HoverCardContent>
+      </HoverCard>
+    );
+  };
+
+  // Render herb with pre-fetched data
+  const renderHerb = (herbName: string) => {
+    const info = herbsData[herbName];
+    
+    return (
+      <HoverCard key={herbName} openDelay={100} closeDelay={50}>
+        <HoverCardTrigger asChild>
+          <Badge
+            variant="outline"
+            className="cursor-pointer border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+          >
+            {herbName}
+          </Badge>
+        </HoverCardTrigger>
+        <HoverCardContent align="start" className="w-80 p-0" side="top">
+          {info ? (
+            <div className="space-y-3 p-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Leaf className="h-4 w-4 text-primary" />
+                  <span className="font-semibold text-sm">{info.name_pinyin}</span>
+                  <Badge variant="secondary" className="text-[10px] h-5">
+                    {info.category}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {info.name_chinese} • {info.name_english}
+                </p>
+              </div>
+              {(info.nature || info.flavor) && (
+                <div className="flex gap-2 text-xs">
+                  {info.nature && <Badge variant="outline" className="text-[10px]">{info.nature}</Badge>}
+                  {info.flavor?.slice(0, 3).map((f, i) => (
+                    <Badge key={i} variant="outline" className="text-[10px]">{f}</Badge>
+                  ))}
+                </div>
+              )}
+              {info.meridians && info.meridians.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Meridians: {info.meridians.join(', ')}
+                </p>
+              )}
+              {info.actions && info.actions.length > 0 && (
+                <div className="space-y-1">
+                  <span className="text-xs font-medium">Actions:</span>
+                  <ul className="text-xs text-muted-foreground space-y-0.5 pl-2">
+                    {info.actions.slice(0, 3).map((a, i) => (
+                      <li key={i}>• {a}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="p-4 text-center">
+              <p className="text-xs text-muted-foreground">
+                {dataLoading ? 'Loading...' : `${herbName} - not in database`}
+              </p>
+            </div>
+          )}
+        </HoverCardContent>
+      </HoverCard>
+    );
+  };
+
   return (
     <Card className="border-border/60 bg-card shadow-sm">
       <CardHeader className="py-3 border-b border-border/50">
@@ -113,6 +396,19 @@ export function AIResponseDisplay({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Brief Summary Toggle */}
+            {content && !isLoading && (
+              <Button
+                variant={showBrief ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowBrief(!showBrief)}
+                className="gap-1.5 text-xs"
+              >
+                <FileText className="h-3 w-3" />
+                Brief
+              </Button>
+            )}
+
             {(isLoading || content) && (
               <Popover>
                 <PopoverTrigger asChild>
@@ -165,18 +461,44 @@ export function AIResponseDisplay({
           <div className="grid gap-4 md:grid-cols-[2fr_1fr]">
             <section className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">English report</span>
+                <span className="text-xs text-muted-foreground">
+                  {showBrief ? 'Brief summary' : 'Full report'}
+                </span>
                 {isLoading && <span className="text-xs text-muted-foreground">Streaming…</span>}
               </div>
 
-              <ScrollArea className="h-[440px] rounded-md border border-border/60 bg-background/40">
-                <div className="p-4 whitespace-pre-wrap text-sm leading-relaxed text-left">
-                  {content}
-                  {isLoading && (
-                    <span className="inline-block w-2 h-4 bg-primary/60 animate-pulse ml-1 align-text-bottom" />
+              {showBrief ? (
+                <div className="rounded-md border border-primary/30 bg-primary/5 p-4 space-y-2">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FileText className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">Quick Brief</span>
+                  </div>
+                  {briefSummary.length > 0 ? (
+                    <ul className="space-y-2">
+                      {briefSummary.map((line, i) => (
+                        <li key={i} className="text-sm text-foreground/90 flex items-start gap-2">
+                          <span className="text-primary font-bold">•</span>
+                          <span>{line}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Processing summary...</p>
                   )}
+                  <p className="text-xs text-muted-foreground pt-2 border-t border-border/50">
+                    Click "Brief" again to see full report
+                  </p>
                 </div>
-              </ScrollArea>
+              ) : (
+                <ScrollArea className="h-[440px] rounded-md border border-border/60 bg-background/40">
+                  <div className="p-4 whitespace-pre-wrap text-sm leading-relaxed text-left">
+                    {content}
+                    {isLoading && (
+                      <span className="inline-block w-2 h-4 bg-primary/60 animate-pulse ml-1 align-text-bottom" />
+                    )}
+                  </div>
+                </ScrollArea>
+              )}
             </section>
 
             <aside className="space-y-3">
@@ -215,22 +537,26 @@ export function AIResponseDisplay({
                 ))}
               </div>
 
+              {dataLoading && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Loading asset data...
+                </div>
+              )}
+
               {activeSection === 'points' && (
                 <div className="rounded-md border border-border/60 bg-muted/20 p-3 space-y-2">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-destructive" />
                     <span className="text-sm font-medium">Recommended points</span>
+                    <span className="text-xs text-muted-foreground">
+                      ({Object.keys(pointsData).length > 0 ? 'pre-loaded' : 'loading...'})
+                    </span>
                   </div>
 
                   {points.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
-                      {points.map((point) => (
-                        <PointInfoCard
-                          key={point}
-                          pointCode={point}
-                          onViewBodyMap={(p) => onViewBodyMap([p])}
-                        />
-                      ))}
+                      {points.map(renderPoint)}
                     </div>
                   ) : (
                     <p className="text-xs text-muted-foreground">
@@ -240,19 +566,24 @@ export function AIResponseDisplay({
                 </div>
               )}
 
-              {activeSection === 'herbs' && herbs.length > 0 && (
+              {activeSection === 'herbs' && (
                 <div className="rounded-md border border-border/60 bg-muted/20 p-3 space-y-2">
                   <div className="flex items-center gap-2">
                     <Leaf className="h-4 w-4 text-primary" />
                     <span className="text-sm font-medium">Herbs</span>
+                    <span className="text-xs text-muted-foreground">
+                      ({Object.keys(herbsData).length > 0 ? 'pre-loaded' : herbs.length > 0 ? 'loading...' : ''})
+                    </span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {herbs.map((herb) => (
-                      <Badge key={herb} variant="outline" className="border-primary/30 bg-primary/10 text-primary">
-                        {herb}
-                      </Badge>
-                    ))}
-                  </div>
+                  {herbs.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {herbs.map(renderHerb)}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      No herbs detected in this report yet.
+                    </p>
+                  )}
                 </div>
               )}
 
