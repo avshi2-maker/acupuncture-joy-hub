@@ -531,13 +531,18 @@ ${report.legalDeclaration.declarationText}
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
-      {/* Back to Dashboard */}
+      {/* Animated Back to Dashboard */}
       <Link
         to="/dashboard"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+        className="group inline-flex items-center gap-2 text-sm font-medium py-1.5 px-3 rounded-lg mb-4
+                   bg-gradient-to-r from-jade-600/10 to-jade-500/5
+                   text-jade-700 dark:text-jade-300
+                   hover:from-jade-600/20 hover:to-jade-500/10
+                   transition-all duration-300 hover:-translate-x-1"
       >
-        <ArrowLeft className="h-4 w-4" />
-        Back to Dashboard
+        <ArrowLeft className="h-4 w-4 animate-pulse-arrow" />
+        <span className="animate-bounce-subtle">🏠</span>
+        Dashboard
       </Link>
       
       <div className="mb-8">
