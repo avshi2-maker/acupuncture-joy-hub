@@ -236,8 +236,10 @@ export default function EncyclopediaLanding() {
               size="lg" 
               variant="outline" 
               className="border-gold/50 text-gold hover:bg-gold/10 text-lg px-8 py-6"
+              onClick={() => document.getElementById('roi-calculator')?.scrollIntoView({ behavior: 'smooth' })}
             >
-              Watch Demo
+              <TrendingUp className="mr-2 h-5 w-5" />
+              ROI Calculator
             </Button>
           </div>
 
@@ -404,7 +406,7 @@ export default function EncyclopediaLanding() {
           </div>
 
           {/* Interactive ROI Table */}
-          <div className="mb-12 p-6 bg-muted/20 rounded-2xl border border-border">
+          <div id="roi-calculator" className="mb-12 p-6 bg-muted/20 rounded-2xl border border-border scroll-mt-20">
             <WhatIfROITable />
           </div>
 
