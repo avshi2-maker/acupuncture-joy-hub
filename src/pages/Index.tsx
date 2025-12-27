@@ -5,6 +5,7 @@ import TcmBrainPreview from "@/components/sections/TcmBrainPreview";
 import Contact from "@/components/sections/Contact";
 import Footer from "@/components/layout/Footer";
 import InstallBanner from "@/components/pwa/InstallBanner";
+import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 
 const Index = () => {
   return (
@@ -26,6 +27,7 @@ const Index = () => {
         </main>
         <Footer />
         <InstallBanner />
+        <FloatingWhatsApp phoneNumber="972544634923" />
       </div>
     </>
   );
