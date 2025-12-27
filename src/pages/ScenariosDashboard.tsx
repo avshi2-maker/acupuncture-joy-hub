@@ -7,8 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { 
   ArrowLeft, 
@@ -27,8 +29,11 @@ import {
   TrendingUp,
   X,
   Save,
-  FileDown
+  FileDown,
+  GitCompare,
+  CheckSquare
 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import jsPDF from 'jspdf';
@@ -65,7 +70,14 @@ export default function ScenariosDashboard() {
   const [editNotes, setEditNotes] = useState('');
   const [editTags, setEditTags] = useState<string[]>([]);
   const [customTagInput, setCustomTagInput] = useState('');
-
+  
+  // Delete confirmation state
+  const [deletingScenarioId, setDeletingScenarioId] = useState<string | null>(null);
+  const [deletingScenarioName, setDeletingScenarioName] = useState('');
+  
+  // Comparison mode state
+  const [isCompareMode, setIsCompareMode] = useState(false);
+  const [selectedForComparison, setSelectedForComparison] = useState<string[]>([]);
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -212,17 +224,46 @@ export default function ScenariosDashboard() {
     }
   };
 
-  const deleteScenario = async (id: string) => {
+  const confirmDelete = (scenario: Scenario) => {
+    setDeletingScenarioId(scenario.id);
+    setDeletingScenarioName(scenario.name);
+  };
+
+  const deleteScenario = async () => {
+    if (!deletingScenarioId) return;
+    
     const { error } = await supabase
       .from('roi_scenarios')
       .delete()
-      .eq('id', id);
+      .eq('id', deletingScenarioId);
     
     if (!error) {
       toast.success('Scenario deleted');
+      setSelectedForComparison(prev => prev.filter(id => id !== deletingScenarioId));
       loadScenarios();
     }
+    setDeletingScenarioId(null);
+    setDeletingScenarioName('');
   };
+
+  const toggleComparisonSelection = (id: string) => {
+    setSelectedForComparison(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const comparisonScenarios = useMemo(() => {
+    return scenarios.filter(s => selectedForComparison.includes(s.id));
+  }, [scenarios, selectedForComparison]);
+
+  const comparisonChartData = useMemo(() => {
+    return comparisonScenarios.map(s => ({
+      name: s.name.length > 15 ? s.name.substring(0, 15) + '...' : s.name,
+      revenue: s.calculations?.totalRevenue || 0,
+      profit: s.calculations?.netProfit || 0,
+      cost: s.calculations?.totalCost || 0,
+    }));
+  }, [comparisonScenarios]);
 
   const exportAllToPDF = () => {
     const doc = new jsPDF();
@@ -294,10 +335,23 @@ export default function ScenariosDashboard() {
                 <p className="text-sm text-muted-foreground">Manage all your saved ROI scenarios</p>
               </div>
             </div>
-            <Button variant="outline" onClick={exportAllToPDF} disabled={filteredScenarios.length === 0}>
-              <FileDown className="h-4 w-4 mr-2" />
-              Export PDF
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant={isCompareMode ? "default" : "outline"} 
+                onClick={() => {
+                  setIsCompareMode(!isCompareMode);
+                  if (isCompareMode) setSelectedForComparison([]);
+                }}
+                className="gap-2"
+              >
+                <GitCompare className="h-4 w-4" />
+                {isCompareMode ? 'Exit Compare' : 'Compare'}
+              </Button>
+              <Button variant="outline" onClick={exportAllToPDF} disabled={filteredScenarios.length === 0}>
+                <FileDown className="h-4 w-4 mr-2" />
+                Export PDF
+              </Button>
+            </div>
           </div>
         </header>
 
@@ -417,6 +471,79 @@ export default function ScenariosDashboard() {
             </TabsList>
           </Tabs>
 
+          {/* Comparison Panel */}
+          {isCompareMode && selectedForComparison.length > 0 && (
+            <Card className="mb-6 border-jade/50 bg-jade/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <GitCompare className="h-4 w-4 text-jade" />
+                  Comparing {selectedForComparison.length} Scenarios
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {/* Comparison Table */}
+                <div className="overflow-x-auto mb-6">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2 px-3 font-medium">Scenario</th>
+                        <th className="text-left py-2 px-3 font-medium">Type</th>
+                        <th className="text-right py-2 px-3 font-medium">Revenue</th>
+                        <th className="text-right py-2 px-3 font-medium">Cost</th>
+                        <th className="text-right py-2 px-3 font-medium">Profit</th>
+                        <th className="text-right py-2 px-3 font-medium">Margin</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {comparisonScenarios.map(s => (
+                        <tr key={s.id} className="border-b hover:bg-muted/50">
+                          <td className="py-2 px-3 font-medium">{s.name}</td>
+                          <td className="py-2 px-3">
+                            <Badge variant="outline" className="text-xs">
+                              {s.scenario_type === 'encyclopedia' ? 'Encyclopedia' : 'Clinic'}
+                            </Badge>
+                          </td>
+                          <td className="py-2 px-3 text-right">${s.calculations?.totalRevenue?.toLocaleString() || 0}</td>
+                          <td className="py-2 px-3 text-right">${s.calculations?.totalCost?.toFixed(2) || 0}</td>
+                          <td className="py-2 px-3 text-right font-bold text-jade">${s.calculations?.netProfit?.toLocaleString() || 0}</td>
+                          <td className="py-2 px-3 text-right">{s.calculations?.profitMargin || 0}%</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Comparison Chart */}
+                {comparisonChartData.length > 1 && (
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={comparisonChartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" fontSize={10} />
+                        <YAxis fontSize={10} />
+                        <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
+                        <Legend />
+                        <Bar dataKey="revenue" name="Revenue" fill="#107c6c" />
+                        <Bar dataKey="profit" name="Profit" fill="#d4a853" />
+                        <Bar dataKey="cost" name="Cost" fill="#dc2626" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+
+                <div className="flex justify-end mt-4">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setSelectedForComparison([])}
+                  >
+                    Clear Selection
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Scenarios Grid */}
           {loading ? (
             <div className="text-center py-12 text-muted-foreground">Loading scenarios...</div>
@@ -433,23 +560,33 @@ export default function ScenariosDashboard() {
               {filteredScenarios.map(scenario => (
                 <Card 
                   key={scenario.id} 
-                  className={`transition-all hover:shadow-lg ${scenario.archived ? 'opacity-60' : ''}`}
+                  className={`transition-all hover:shadow-lg ${scenario.archived ? 'opacity-60' : ''} ${isCompareMode && selectedForComparison.includes(scenario.id) ? 'ring-2 ring-jade' : ''}`}
+                  onClick={isCompareMode ? () => toggleComparisonSelection(scenario.id) : undefined}
                 >
                   <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-base flex items-center gap-2">
-                          {scenario.scenario_type === 'encyclopedia' ? (
-                            <BookOpen className="h-4 w-4 text-jade shrink-0" />
-                          ) : (
-                            <Building2 className="h-4 w-4 text-gold shrink-0" />
-                          )}
-                          <span className="truncate">{scenario.name}</span>
-                        </CardTitle>
-                        <CardDescription className="text-xs mt-1">
-                          <Calendar className="h-3 w-3 inline mr-1" />
-                          {formatDate(scenario.created_at)}
-                        </CardDescription>
+                      <div className="flex items-start gap-2 flex-1">
+                        {isCompareMode && (
+                          <Checkbox 
+                            checked={selectedForComparison.includes(scenario.id)}
+                            onCheckedChange={() => toggleComparisonSelection(scenario.id)}
+                            className="mt-1"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-base flex items-center gap-2">
+                            {scenario.scenario_type === 'encyclopedia' ? (
+                              <BookOpen className="h-4 w-4 text-jade shrink-0" />
+                            ) : (
+                              <Building2 className="h-4 w-4 text-gold shrink-0" />
+                            )}
+                            <span className="truncate">{scenario.name}</span>
+                          </CardTitle>
+                          <CardDescription className="text-xs mt-1">
+                            <Calendar className="h-3 w-3 inline mr-1" />
+                            {formatDate(scenario.created_at)}
+                          </CardDescription>
+                        </div>
                       </div>
                       {scenario.archived && (
                         <Badge variant="secondary" className="text-xs">Archived</Badge>
@@ -532,7 +669,7 @@ export default function ScenariosDashboard() {
                         variant="ghost" 
                         size="sm" 
                         className="h-8 text-xs text-destructive hover:text-destructive"
-                        onClick={() => deleteScenario(scenario.id)}
+                        onClick={() => confirmDelete(scenario)}
                       >
                         <Trash2 className="h-3 w-3" />
                       </Button>
@@ -613,6 +750,31 @@ export default function ScenariosDashboard() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deletingScenarioId} onOpenChange={(open) => !open && setDeletingScenarioId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-destructive" />
+              Delete Scenario
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "<strong>{deletingScenarioName}</strong>"? 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={deleteScenario}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
