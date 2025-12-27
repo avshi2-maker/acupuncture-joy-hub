@@ -1,30 +1,15 @@
-import { useState } from "react";
-import { Sparkles, Lock } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroBg from "@/assets/hero-meridian-bg.png";
 import baziWheel from "@/assets/bazi-wheel.jpg";
-import { useTier } from "@/hooks/useTier";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
 const Hero = () => {
   const navigate = useNavigate();
-  const { tier } = useTier();
-  const [showRegisterDialog, setShowRegisterDialog] = useState(false);
 
   const handleBaziClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (tier) {
-      navigate('/bazi-calculator');
-    } else {
-      setShowRegisterDialog(true);
-    }
+    // BaZi is now free - navigate directly
+    navigate('/bazi-calculator');
   };
 
   return (
@@ -98,46 +83,6 @@ const Hero = () => {
           </div>
         </div>
       </div>
-
-      {/* Registration Required Dialog */}
-      <Dialog open={showRegisterDialog} onOpenChange={setShowRegisterDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader className="text-center">
-            <div className="mx-auto w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mb-4">
-              <Lock className="h-8 w-8 text-gold" />
-            </div>
-            <DialogTitle className="text-xl font-display">
-              🔮 BaZi Calculator Access
-            </DialogTitle>
-            <DialogDescription className="text-base mt-2">
-              <span className="block mb-2">
-                לצפייה במחשבון בא-זי יש להירשם כמטפל
-              </span>
-              <span className="block text-muted-foreground">
-                To view the BaZi Calculator, you must register as a therapist
-              </span>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-3 mt-4">
-            <Button 
-              onClick={() => {
-                setShowRegisterDialog(false);
-                navigate('/gate');
-              }}
-              className="w-full"
-            >
-              הרשמה / Register
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowRegisterDialog(false)}
-              className="w-full"
-            >
-              סגור / Close
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </section>
   );
 };
