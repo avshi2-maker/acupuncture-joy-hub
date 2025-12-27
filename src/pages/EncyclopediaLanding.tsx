@@ -37,6 +37,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { WhatIfROITable } from '@/components/encyclopedia/WhatIfROITable';
+import { ClinicWhatIfTable } from '@/components/encyclopedia/ClinicWhatIfTable';
+import { TotalCostsCard } from '@/components/encyclopedia/TotalCostsCard';
 
 // Encyclopedia Pricing Tiers
 const encyclopediaTiers = [
@@ -396,53 +399,20 @@ export default function EncyclopediaLanding() {
               Revenue Projections
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Sustainable SaaS business model with 97-98% profit margins
+              Interactive ROI calculator - adjust numbers to see real-time projections
             </p>
           </div>
 
-          {/* ROI Table */}
-          <div className="overflow-x-auto mb-12">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-muted/50">
-                  <th className="border border-border p-4 text-left font-semibold">Subscribers</th>
-                  <th className="border border-border p-4 text-left font-semibold text-jade">Best Case (Monthly)</th>
-                  <th className="border border-border p-4 text-left font-semibold text-gold">Conservative (Monthly)</th>
-                  <th className="border border-border p-4 text-left font-semibold">Profit Margin</th>
-                </tr>
-              </thead>
-              <tbody>
-                {roiScenarios.map((scenario) => (
-                  <tr key={scenario.users} className="hover:bg-muted/30 transition-colors">
-                    <td className="border border-border p-4">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-muted-foreground" />
-                        <span className="font-medium">{scenario.users.toLocaleString()} users</span>
-                      </div>
-                    </td>
-                    <td className="border border-border p-4">
-                      <span className="text-jade font-bold text-lg">
-                        ${scenario.bestCase.profit.toLocaleString()}
-                      </span>
-                    </td>
-                    <td className="border border-border p-4">
-                      <span className="text-gold font-bold text-lg">
-                        ${scenario.lowCase.profit.toLocaleString()}
-                      </span>
-                    </td>
-                    <td className="border border-border p-4">
-                      <Badge className="bg-jade/20 text-jade border-jade/30">
-                        {scenario.bestCase.margin}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* Interactive ROI Table */}
+          <div className="mb-12 p-6 bg-muted/20 rounded-2xl border border-border">
+            <WhatIfROITable />
           </div>
 
-          {/* Cost Breakdown */}
-          <div className="grid md:grid-cols-3 gap-6">
+          {/* Cost Breakdown Cards */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Total Fixed Costs Card */}
+            <TotalCostsCard />
+
             <Card 
               className="bg-jade/5 border-jade/20 cursor-pointer hover:border-jade/50 hover:shadow-lg transition-all duration-300"
               onClick={() => setShowCostBreakdown(true)}
@@ -474,9 +444,9 @@ export default function EncyclopediaLanding() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-gold">~15 users</div>
+                <div className="text-3xl font-bold text-gold">~3 users</div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Covers infrastructure costs with just 15 paying subscribers
+                  Covers $60 fixed costs with just 3 Practitioner subscribers
                 </p>
               </CardContent>
             </Card>
@@ -485,13 +455,13 @@ export default function EncyclopediaLanding() {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Zap className="h-5 w-5 text-crimson" />
-                  Annual Potential
+                  Profit Margins
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-crimson">$1M+</div>
+                <div className="text-3xl font-bold text-crimson">97-99%</div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  With 5,000 subscribers at average $25/month tier
+                  After covering fixed costs, nearly pure profit per user
                 </p>
               </CardContent>
             </Card>
@@ -619,58 +589,9 @@ export default function EncyclopediaLanding() {
             </Card>
           </div>
 
-          {/* Clinic ROI Table */}
-          <div className="overflow-x-auto mb-8">
-            <h3 className="text-2xl font-bold mb-6 text-center">Clinic CRM ROI Projection</h3>
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-muted/50">
-                  <th className="border border-border p-4 text-left">Market</th>
-                  <th className="border border-border p-4 text-left">Potential Users</th>
-                  <th className="border border-border p-4 text-left">Avg. Price</th>
-                  <th className="border border-border p-4 text-left">5% Adoption</th>
-                  <th className="border border-border p-4 text-left">Monthly Revenue</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="hover:bg-muted/30 transition-colors">
-                  <td className="border border-border p-4 flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-gold" />
-                    <span className="font-medium">Israel</span>
-                  </td>
-                  <td className="border border-border p-4">~2,500</td>
-                  <td className="border border-border p-4">₪40 ($11)</td>
-                  <td className="border border-border p-4">125 users</td>
-                  <td className="border border-border p-4">
-                    <span className="text-gold font-bold">$1,375/mo</span>
-                  </td>
-                </tr>
-                <tr className="hover:bg-muted/30 transition-colors">
-                  <td className="border border-border p-4 flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-crimson" />
-                    <span className="font-medium">Global (1%)</span>
-                  </td>
-                  <td className="border border-border p-4">~450,000</td>
-                  <td className="border border-border p-4">$30 avg</td>
-                  <td className="border border-border p-4">4,500 users</td>
-                  <td className="border border-border p-4">
-                    <span className="text-crimson font-bold">$135,000/mo</span>
-                  </td>
-                </tr>
-                <tr className="bg-jade/5 hover:bg-jade/10 transition-colors">
-                  <td className="border border-border p-4 flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-jade" />
-                    <span className="font-bold">Combined</span>
-                  </td>
-                  <td className="border border-border p-4"></td>
-                  <td className="border border-border p-4"></td>
-                  <td className="border border-border p-4">4,625 users</td>
-                  <td className="border border-border p-4">
-                    <span className="text-jade font-bold text-lg">$136,375/mo</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          {/* Interactive Clinic ROI Table */}
+          <div className="mb-8 p-6 bg-background/50 rounded-2xl border border-border">
+            <ClinicWhatIfTable />
           </div>
 
           <p className="text-center text-sm text-muted-foreground mb-8">
