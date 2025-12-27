@@ -815,6 +815,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          notes: string | null
           scenario_type: string
           updated_at: string
           user_id: string | null
@@ -825,6 +826,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          notes?: string | null
           scenario_type: string
           updated_at?: string
           user_id?: string | null
@@ -835,6 +837,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          notes?: string | null
           scenario_type?: string
           updated_at?: string
           user_id?: string | null
