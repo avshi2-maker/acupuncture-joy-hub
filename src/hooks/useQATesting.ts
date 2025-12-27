@@ -39,11 +39,13 @@ export interface QASession {
 
 const DEFAULT_MODULES: Omit<ModuleTest, 'status' | 'comments' | 'testedBy' | 'testedAt' | 'confirmedBy' | 'confirmedAt' | 'followUpRequired' | 'followUpNotes' | 'followUpDueDate'>[] = [
   // Core pages
-  { id: 'home', moduleName: 'Home Page', moduleNameHe: 'דף הבית', path: '/', category: 'core', priority: 'high' },
+  { id: 'home', moduleName: 'Home Page', moduleNameHe: 'דף הבית', path: '/', category: 'core', priority: 'critical' },
   { id: 'gate', moduleName: 'Gate / Login', moduleNameHe: 'כניסת מטפלים', path: '/gate', category: 'auth', priority: 'critical' },
+  { id: 'auth', moduleName: 'Authentication', moduleNameHe: 'התחברות/הרשמה', path: '/auth', category: 'auth', priority: 'critical' },
   { id: 'dashboard', moduleName: 'Dashboard', moduleNameHe: 'לוח בקרה', path: '/dashboard', category: 'core', priority: 'critical' },
   { id: 'therapist-profile', moduleName: 'Therapist Profile', moduleNameHe: 'פרופיל מטפל', path: '/therapist-profile', category: 'core', priority: 'high' },
   { id: 'pricing', moduleName: 'Pricing', moduleNameHe: 'מחירון', path: '/pricing', category: 'core', priority: 'medium' },
+  { id: 'payment-instructions', moduleName: 'Payment Instructions', moduleNameHe: 'הוראות תשלום', path: '/payment-instructions', category: 'core', priority: 'medium' },
   
   // CRM
   { id: 'crm-dashboard', moduleName: 'CRM Dashboard', moduleNameHe: 'לוח בקרה CRM', path: '/crm', category: 'crm', priority: 'critical' },
@@ -62,6 +64,7 @@ const DEFAULT_MODULES: Omit<ModuleTest, 'status' | 'comments' | 'testedBy' | 'te
   { id: 'admin', moduleName: 'Admin Panel', moduleNameHe: 'ניהול', path: '/admin', category: 'admin', priority: 'high' },
   { id: 'admin-feedback', moduleName: 'Feedback Management', moduleNameHe: 'ניהול משוב', path: '/admin/feedback', category: 'admin', priority: 'medium' },
   { id: 'knowledge-registry', moduleName: 'Knowledge Registry', moduleNameHe: 'רישום ידע', path: '/knowledge-registry', category: 'admin', priority: 'medium' },
+  { id: 'legal-report', moduleName: 'Legal Report', moduleNameHe: 'דו"ח משפטי', path: '/legal-report', category: 'admin', priority: 'low' },
   
   // Auth & Misc
   { id: 'therapist-register', moduleName: 'Therapist Registration', moduleNameHe: 'הרשמת מטפל', path: '/therapist-register', category: 'auth', priority: 'high' },
