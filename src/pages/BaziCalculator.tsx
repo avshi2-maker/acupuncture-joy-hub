@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,9 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { useTier } from '@/hooks/useTier';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { 
   Compass, 
   Calendar, 
@@ -74,6 +76,7 @@ const getSampleBaziResult = () => {
 
 export default function BaziCalculator() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t, dir, language } = useLanguage();
   const { tier } = useTier();
   const [birthDate, setBirthDate] = useState('');
@@ -85,7 +88,11 @@ export default function BaziCalculator() {
 
   const isRTL = dir === 'rtl';
   const BackArrow = isRTL ? ArrowRight : ArrowLeft;
-  const showRegistrationTeaser = !tier; // Show teaser if not registered
+  const showRegistrationTeaser = !tier; // visitor (no tier)
+  const redirectTo = `${location.pathname}${location.search}${location.hash}`;
+
+  useBodyScrollLock(showRegistrationTeaser);
+
 
   const translateElement = (element: string): string => {
     const elementMap: Record<string, string> = {
@@ -228,14 +235,59 @@ export default function BaziCalculator() {
                   | Love the BaZi Calculator? Register for full access to all tools!
                 </span>
               </div>
-              <Button 
-                size="sm" 
-                onClick={() => navigate('/gate')}
-                className="gap-2 bg-jade hover:bg-jade-dark"
-              >
-                <Lock className="h-3 w-3" />
-                הרשמה / Register
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    size="sm" 
+                    onClick={() => navigate(`/gate?redirect=${encodeURIComponent(redirectTo)}`)}
+                    className="gap-2 bg-jade hover:bg-jade-dark"
+                  >
+                    <Lock className="h-3 w-3" />
+                    הרשמה / Register
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>לחצו כדי להתחיל ניסיון חינם ולקבל גישה מלאה לכל הכלים</p>
+                </TooltipContent>
+              </Tooltip>
+
+            </div>
+          </div>
+        )}
+
+        {showRegistrationTeaser && (
+          <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
+            <div className="container h-full flex items-center justify-center p-4">
+              <Card className="w-full max-w-md shadow-elevated">
+                <CardHeader className="text-center">
+                  <CardTitle className="flex items-center justify-center gap-2">
+                    <Lock className="h-5 w-5 text-primary" />
+                    כניסת מטפלים
+                  </CardTitle>
+                  <CardDescription>
+                    כדי להמשיך למחשבון הבא-זי, יש ללחוץ על "כניסה/הרשמה" ולהשלים את תהליך התוכנית.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={() => navigate(`/gate?redirect=${encodeURIComponent(redirectTo)}`)}
+                        className="w-full gap-2"
+                      >
+                        <Lock className="h-4 w-4" />
+                        כניסה / הרשמה (כולל ניסיון חינם)
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>אחרי השלמת התהליך, העמוד ייפתח לגלילה מלאה.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Button variant="outline" onClick={() => navigate('/')} className="w-full">
+                    חזרה לדף הבית
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           </div>
         )}
