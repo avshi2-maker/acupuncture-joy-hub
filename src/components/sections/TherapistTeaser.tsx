@@ -1,40 +1,102 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Play, Users, Brain, Calendar, TrendingUp, CheckCircle } from "lucide-react";
+import { Play, Pause, SkipForward, Volume2, VolumeX, Users, Brain, Calendar, TrendingUp, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+const videos = [
+  "/videos/promo-1.mp4",
+  "/videos/promo-2.mp4",
+  "/videos/promo-3.mp4",
+  "/videos/promo-4.mp4",
+];
+
 const features = [
-  { icon: Users, label: "Patient Management", delay: 0 },
-  { icon: Brain, label: "AI-Powered TCM Brain", delay: 0.5 },
-  { icon: Calendar, label: "Smart Scheduling", delay: 1 },
-  { icon: TrendingUp, label: "ROI Analytics", delay: 1.5 },
+  { icon: Users, label: "Patient Management" },
+  { icon: Brain, label: "AI-Powered TCM Brain" },
+  { icon: Calendar, label: "Smart Scheduling" },
+  { icon: TrendingUp, label: "ROI Analytics" },
 ];
 
 const TherapistTeaser = () => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentVideo, setCurrentVideo] = useState(0);
   const [showDialog, setShowDialog] = useState(false);
-  const [currentFeature, setCurrentFeature] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleTimeUpdate = () => {
+      const totalDuration = videos.length * video.duration;
+      const currentProgress = (currentVideo * video.duration + video.currentTime) / totalDuration;
+      setProgress(currentProgress * 100);
+    };
+
+    const handleEnded = () => {
+      if (currentVideo < videos.length - 1) {
+        setCurrentVideo(prev => prev + 1);
+      } else {
+        setIsPlaying(false);
+        setShowDialog(true);
+        setCurrentVideo(0);
+        setProgress(0);
+      }
+    };
+
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    video.addEventListener('ended', handleEnded);
+
+    return () => {
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+      video.removeEventListener('ended', handleEnded);
+    };
+  }, [currentVideo]);
+
+  useEffect(() => {
+    if (isPlaying && videoRef.current) {
+      videoRef.current.play();
+    }
+  }, [currentVideo, isPlaying]);
 
   const handlePlay = () => {
     setIsPlaying(true);
-    setCurrentFeature(0);
-    
-    // Animate through features
-    const interval = setInterval(() => {
-      setCurrentFeature((prev) => {
-        if (prev >= features.length - 1) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setIsPlaying(false);
-            setShowDialog(true);
-          }, 1500);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 1200);
+    setCurrentVideo(0);
+    if (videoRef.current) {
+      videoRef.current.play();
+    }
+  };
+
+  const handlePause = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleSkip = () => {
+    if (currentVideo < videos.length - 1) {
+      setCurrentVideo(prev => prev + 1);
+    } else {
+      setIsPlaying(false);
+      setShowDialog(true);
+      setCurrentVideo(0);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
   };
 
   return (
@@ -53,73 +115,78 @@ const TherapistTeaser = () => {
           </p>
         </div>
 
-        {/* Video Teaser Container */}
+        {/* Video Player Container */}
         <div className="max-w-4xl mx-auto">
           <div 
-            className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-jade/20 to-gold/10 border border-border/50 shadow-elevated aspect-video cursor-pointer group"
-            onClick={!isPlaying ? handlePlay : undefined}
+            className="relative rounded-2xl overflow-hidden bg-black border border-border/50 shadow-elevated aspect-video"
           >
-            {/* Animated Background */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,hsl(var(--jade)/0.3),transparent_50%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,hsl(var(--gold)/0.2),transparent_50%)]" />
-            
-            {!isPlaying ? (
-              /* Play Button State */
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
+            {/* Video Element */}
+            <video
+              ref={videoRef}
+              src={videos[currentVideo]}
+              className="w-full h-full object-cover"
+              muted={isMuted}
+              playsInline
+              preload="metadata"
+            />
+
+            {/* Play Overlay (shown when not playing) */}
+            {!isPlaying && (
+              <div 
+                className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-jade/40 to-gold/20 cursor-pointer"
+                onClick={handlePlay}
+              >
                 <div className="relative mb-6">
                   <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" />
-                  <div className="relative w-20 h-20 bg-primary rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <div className="relative w-20 h-20 bg-primary rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300">
                     <Play className="w-8 h-8 text-primary-foreground ml-1" />
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">
+                <h3 className="text-xl font-semibold text-white mb-2 drop-shadow-lg">
                   See How It Works
                 </h3>
-                <p className="text-muted-foreground text-sm">
-                  30-second platform overview
+                <p className="text-white/80 text-sm drop-shadow">
+                  Watch our platform overview
                 </p>
               </div>
-            ) : (
-              /* Playing Animation State */
-              <div className="absolute inset-0 flex items-center justify-center p-8">
-                <div className="grid grid-cols-2 gap-6 w-full max-w-lg">
-                  {features.map((feature, index) => (
-                    <div
-                      key={feature.label}
-                      className={`flex items-center gap-3 p-4 rounded-xl transition-all duration-500 ${
-                        index <= currentFeature
-                          ? "bg-background/80 shadow-lg scale-100 opacity-100"
-                          : "bg-background/20 scale-95 opacity-40"
-                      }`}
-                    >
-                      <div className={`p-2 rounded-lg ${
-                        index <= currentFeature ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                      }`}>
-                        <feature.icon className="w-5 h-5" />
-                      </div>
-                      <span className={`font-medium ${
-                        index <= currentFeature ? "text-foreground" : "text-muted-foreground"
-                      }`}>
-                        {feature.label}
-                      </span>
-                      {index <= currentFeature && (
-                        <CheckCircle className="w-4 h-4 text-green-500 ml-auto animate-scale-in" />
-                      )}
-                    </div>
-                  ))}
+            )}
+
+            {/* Video Controls (shown when playing) */}
+            {isPlaying && (
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={handlePause}
+                    className="text-white hover:text-primary transition-colors"
+                  >
+                    {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
+                  </button>
+                  <button
+                    onClick={handleSkip}
+                    className="text-white hover:text-primary transition-colors"
+                  >
+                    <SkipForward className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={toggleMute}
+                    className="text-white hover:text-primary transition-colors"
+                  >
+                    {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+                  </button>
+                  <span className="text-white text-sm ml-auto">
+                    Part {currentVideo + 1} of {videos.length}
+                  </span>
                 </div>
               </div>
             )}
 
             {/* Progress Bar */}
-            {isPlaying && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted">
-                <div 
-                  className="h-full bg-primary transition-all duration-1000 ease-linear"
-                  style={{ width: `${((currentFeature + 1) / features.length) * 100}%` }}
-                />
-              </div>
-            )}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
+              <div 
+                className="h-full bg-primary transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
 
           {/* CTA Buttons */}
