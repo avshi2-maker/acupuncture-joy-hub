@@ -25,7 +25,8 @@ import {
   Database,
   Info,
   Building2,
-  MapPin
+  MapPin,
+  FolderOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import heroBackground from '@/assets/encyclopedia-hero-bg.jpg';
@@ -400,9 +401,17 @@ export default function EncyclopediaLanding() {
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">
               Revenue Projections
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
               Interactive ROI calculator - adjust numbers to see real-time projections
             </p>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/scenarios')}
+              className="gap-2"
+            >
+              <FolderOpen className="h-4 w-4" />
+              View Saved Scenarios
+            </Button>
           </div>
 
           {/* Interactive ROI Table */}
