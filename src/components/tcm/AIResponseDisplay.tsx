@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { parsePointReferences } from '@/components/acupuncture/BodyFigureSelector';
 import { supabase } from '@/integrations/supabase/client';
+import { HebrewTTSButton } from './HebrewTTSButton';
 
 interface AIResponseDisplayProps {
   isLoading: boolean;
@@ -725,6 +726,16 @@ export function AIResponseDisplay({
                 Body Map
                 <Badge variant="secondary" className="h-4 min-w-4 text-[10px] px-1">{points.length}</Badge>
               </Button>
+            )}
+
+            {/* Hebrew TTS Button */}
+            {content && !isLoading && (
+              <HebrewTTSButton
+                text={content}
+                size="sm"
+                variant="outline"
+                className="gap-1.5 text-xs"
+              />
             )}
 
             {isLoading && (
