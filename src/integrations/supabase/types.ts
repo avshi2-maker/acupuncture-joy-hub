@@ -894,6 +894,59 @@ export type Database = {
           },
         ]
       }
+      session_reports: {
+        Row: {
+          anxiety_responses: Json | null
+          audio_url: string | null
+          chief_complaint: string | null
+          created_at: string
+          id: string
+          patient_id: string
+          pdf_url: string | null
+          session_notes: string | null
+          summary: string
+          therapist_id: string
+          updated_at: string
+          voice_used: string | null
+        }
+        Insert: {
+          anxiety_responses?: Json | null
+          audio_url?: string | null
+          chief_complaint?: string | null
+          created_at?: string
+          id?: string
+          patient_id: string
+          pdf_url?: string | null
+          session_notes?: string | null
+          summary: string
+          therapist_id: string
+          updated_at?: string
+          voice_used?: string | null
+        }
+        Update: {
+          anxiety_responses?: Json | null
+          audio_url?: string | null
+          chief_complaint?: string | null
+          created_at?: string
+          id?: string
+          patient_id?: string
+          pdf_url?: string | null
+          session_notes?: string | null
+          summary?: string
+          therapist_id?: string
+          updated_at?: string
+          voice_used?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_reports_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       therapist_disclaimers: {
         Row: {
           created_at: string

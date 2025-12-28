@@ -18,7 +18,8 @@ import {
   Check,
   RefreshCw,
   Edit2,
-  Mic
+  Mic,
+  Save
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,6 +37,7 @@ const TTS_VOICES = [
 interface SessionReportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  patientId?: string;
   patientName: string;
   patientPhone: string | null;
   sessionNotes: string;
@@ -46,6 +48,7 @@ interface SessionReportDialogProps {
 export function SessionReportDialog({
   open,
   onOpenChange,
+  patientId,
   patientName,
   patientPhone,
   sessionNotes,
@@ -54,6 +57,9 @@ export function SessionReportDialog({
 }: SessionReportDialogProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [isPreviewingVoice, setIsPreviewingVoice] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [reportSaved, setReportSaved] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -61,6 +67,79 @@ export function SessionReportDialog({
   const [pdfGenerated, setPdfGenerated] = useState(false);
   const [audioGenerated, setAudioGenerated] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState('onyx');
+
+  // Preview a voice with a short sample
+  const previewVoice = useCallback(async (voiceId: string) => {
+    setIsPreviewingVoice(voiceId);
+    try {
+      const sampleText = 'שלום, זהו דוגמה לקול הנבחר.';
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-to-speech`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            text: sampleText,
+            voice: voiceId,
+            language: 'he',
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error('Failed to preview voice');
+
+      const data = await response.json();
+      if (data?.audioContent) {
+        const audio = new Audio(`data:audio/mpeg;base64,${data.audioContent}`);
+        audio.play();
+      }
+    } catch (err) {
+      console.error('Error previewing voice:', err);
+      toast.error('שגיאה בהשמעת דוגמה');
+    } finally {
+      setIsPreviewingVoice(null);
+    }
+  }, []);
+
+  // Save report to database
+  const saveReport = useCallback(async () => {
+    if (!summary || !patientId) {
+      toast.error('חסרים פרטים לשמירת הדו"ח');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const textToSave = isEditing ? editedSummary : summary;
+
+      const { error } = await supabase.from('session_reports').insert({
+        patient_id: patientId,
+        therapist_id: user.id,
+        summary: textToSave,
+        voice_used: selectedVoice,
+        session_notes: sessionNotes,
+        chief_complaint: chiefComplaint,
+        anxiety_responses: anxietyResponses,
+      });
+
+      if (error) throw error;
+
+      setReportSaved(true);
+      toast.success('הדו"ח נשמר בהצלחה');
+    } catch (err) {
+      console.error('Error saving report:', err);
+      toast.error('שגיאה בשמירת הדו"ח');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [summary, patientId, isEditing, editedSummary, selectedVoice, sessionNotes, chiefComplaint, anxietyResponses]);
 
   const generateSummary = useCallback(async () => {
     setIsGenerating(true);
@@ -386,7 +465,7 @@ export function SessionReportDialog({
                       {audioGenerated && <Check className="h-4 w-4 text-jade ml-auto" />}
                     </div>
                     
-                    {/* Voice Selector */}
+                    {/* Voice Selector with Preview */}
                     <div className="flex items-center gap-2">
                       <Mic className="h-3 w-3 text-muted-foreground" />
                       <Select value={selectedVoice} onValueChange={setSelectedVoice}>
@@ -402,6 +481,20 @@ export function SessionReportDialog({
                           ))}
                         </SelectContent>
                       </Select>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => previewVoice(selectedVoice)}
+                        disabled={isPreviewingVoice !== null}
+                        className="h-8 w-8 p-0"
+                        title="השמע דוגמה"
+                      >
+                        {isPreviewingVoice === selectedVoice ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Volume2 className="h-3 w-3" />
+                        )}
+                      </Button>
                     </div>
                     
                     {!audioGenerated ? (
@@ -496,6 +589,46 @@ export function SessionReportDialog({
                   </p>
                 )}
               </div>
+
+              <Separator />
+
+              {/* Save Report */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Save className={`h-4 w-4 ${reportSaved ? 'text-jade' : 'text-muted-foreground'}`} />
+                  <span className="text-sm font-medium">שמור בתיק המטופל</span>
+                  {reportSaved && <Check className="h-4 w-4 text-jade" />}
+                </div>
+                <Button
+                  variant={reportSaved ? 'outline' : 'default'}
+                  size="sm"
+                  onClick={saveReport}
+                  disabled={isSaving || !patientId}
+                  className={`gap-1 ${!reportSaved ? 'bg-jade hover:bg-jade/90' : ''}`}
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      שומר...
+                    </>
+                  ) : reportSaved ? (
+                    <>
+                      <Check className="h-3 w-3" />
+                      נשמר
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-3 w-3" />
+                      שמור דו"ח
+                    </>
+                  )}
+                </Button>
+              </div>
+              {!patientId && (
+                <p className="text-xs text-muted-foreground">
+                  * יש לבחור מטופל כדי לשמור את הדו"ח
+                </p>
+              )}
             </>
           )}
         </div>
