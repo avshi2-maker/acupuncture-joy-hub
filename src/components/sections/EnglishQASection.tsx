@@ -1,12 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Leaf, MapPin, Stethoscope, ArrowRight, Sparkles, Search, Brain } from 'lucide-react';
+import { Leaf, MapPin, Stethoscope, ArrowRight, Sparkles, Search, Brain, Mic, Loader2 } from 'lucide-react';
 import { herbsQuestions, pointsQuestions, conditionsQuestions } from '@/data/tcmBrainQuestions';
+import { toast } from 'sonner';
 
 const queryBoxes = [
   {
@@ -47,11 +48,16 @@ const queryBoxes = [
   },
 ];
 
+// Check if Web Speech API is supported
+const isSpeechSupported = typeof window !== 'undefined' && 
+  ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+
 export default function EnglishQASection() {
   const navigate = useNavigate();
   const [selectedQuestions, setSelectedQuestions] = useState<Record<string, string>>({});
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({});
   const [openPopovers, setOpenPopovers] = useState<Record<string, boolean>>({});
+  const [listeningBoxId, setListeningBoxId] = useState<string | null>(null);
 
   const handleQuestionSelect = (boxId: string, question: string) => {
     setSelectedQuestions(prev => ({ ...prev, [boxId]: question }));
@@ -72,6 +78,46 @@ export default function EnglishQASection() {
     );
   };
 
+  const startVoiceSearch = useCallback((boxId: string) => {
+    if (!isSpeechSupported) {
+      toast.error('Voice input is not supported in this browser');
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    setListeningBoxId(boxId);
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchFilters(prev => ({ ...prev, [boxId]: transcript }));
+      setListeningBoxId(null);
+      toast.success(`Heard: "${transcript}"`);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setListeningBoxId(null);
+      if (event.error === 'no-speech') {
+        toast.info('No speech detected, try again');
+      } else {
+        toast.error(`Voice error: ${event.error}`);
+      }
+    };
+
+    recognition.onend = () => {
+      setListeningBoxId(null);
+    };
+
+    recognition.start();
+    toast.info('Listening... speak now');
+  }, []);
+
   return (
     <section className="py-16 bg-gradient-to-b from-background to-card/50">
       <div className="max-w-6xl mx-auto px-4">
@@ -86,7 +132,7 @@ export default function EnglishQASection() {
             Ask the AI Expert
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Select a pre-built question and send directly to CM Brain for professional answers
+            Select a pre-built question or use voice search to find what you need
           </p>
         </div>
 
@@ -96,6 +142,7 @@ export default function EnglishQASection() {
             const Icon = box.icon;
             const categories = [...new Set(box.questions.map(q => q.category))];
             const selectedQuestion = selectedQuestions[box.id] || '';
+            const isListening = listeningBoxId === box.id;
 
             return (
               <Card 
@@ -131,11 +178,35 @@ export default function EnglishQASection() {
                     </PopoverTrigger>
                     <PopoverContent className="w-80 p-0" align="start">
                       <div className="p-3 border-b border-border">
-                        <Input
-                          placeholder="Search by keyword..."
-                          value={searchFilters[box.id] || ''}
-                          onChange={(e) => setSearchFilters(prev => ({ ...prev, [box.id]: e.target.value }))}
-                        />
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Search by keyword..."
+                            value={searchFilters[box.id] || ''}
+                            onChange={(e) => setSearchFilters(prev => ({ ...prev, [box.id]: e.target.value }))}
+                            className="flex-1"
+                          />
+                          {isSpeechSupported && (
+                            <Button
+                              variant={isListening ? 'destructive' : 'outline'}
+                              size="icon"
+                              onClick={() => startVoiceSearch(box.id)}
+                              disabled={isListening}
+                              className="shrink-0"
+                              title="Voice search"
+                            >
+                              {isListening ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Mic className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                        {isListening && (
+                          <p className="text-xs text-center text-primary mt-2 animate-pulse">
+                            🎤 Listening...
+                          </p>
+                        )}
                       </div>
                       <ScrollArea className="h-64">
                         <div className="p-2">
