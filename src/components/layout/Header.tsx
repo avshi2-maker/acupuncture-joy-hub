@@ -108,12 +108,38 @@ const Header = () => {
               >
                 Dr Roni Sapir
                 {isPlayingBio ? (
-                  <span className="inline-flex items-center gap-0.5 h-4">
-                    <span className="w-0.5 h-full bg-gold rounded-full animate-waveform" style={{ animationDelay: '0ms' }} />
-                    <span className="w-0.5 h-3 bg-gold rounded-full animate-waveform" style={{ animationDelay: '100ms' }} />
-                    <span className="w-0.5 h-full bg-gold rounded-full animate-waveform" style={{ animationDelay: '200ms' }} />
-                    <span className="w-0.5 h-2 bg-gold rounded-full animate-waveform" style={{ animationDelay: '300ms' }} />
-                    <span className="w-0.5 h-3 bg-gold rounded-full animate-waveform" style={{ animationDelay: '400ms' }} />
+                  <span className="relative inline-flex items-center justify-center w-6 h-6">
+                    {/* Circular progress ring */}
+                    <svg className="absolute inset-0 w-6 h-6 -rotate-90" viewBox="0 0 24 24">
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        className="opacity-20"
+                      />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        fill="none"
+                        stroke="hsl(var(--gold))"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeDasharray={2 * Math.PI * 10}
+                        strokeDashoffset={2 * Math.PI * 10 * (1 - bioProgress / 100)}
+                        className="transition-all duration-150 ease-linear"
+                      />
+                    </svg>
+                    {/* Waveform inside */}
+                    <span className="inline-flex items-center gap-0.5 h-3 z-10">
+                      <span className="w-0.5 h-full bg-gold rounded-full animate-waveform" style={{ animationDelay: '0ms' }} />
+                      <span className="w-0.5 h-2 bg-gold rounded-full animate-waveform" style={{ animationDelay: '100ms' }} />
+                      <span className="w-0.5 h-full bg-gold rounded-full animate-waveform" style={{ animationDelay: '200ms' }} />
+                      <span className="w-0.5 h-2 bg-gold rounded-full animate-waveform" style={{ animationDelay: '300ms' }} />
+                    </span>
                   </span>
                 ) : (
                   <span className="text-xs opacity-0 group-hover/bio:opacity-70 transition-opacity duration-200 font-normal whitespace-nowrap">
@@ -121,15 +147,6 @@ const Header = () => {
                   </span>
                 )}
               </button>
-              {/* Progress bar */}
-              {isPlayingBio && (
-                <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary-foreground/20 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gold transition-all duration-150 ease-linear rounded-full"
-                    style={{ width: `${bioProgress}%` }}
-                  />
-                </div>
-              )}
             </div>
             <span className="text-sm lg:text-base font-semibold opacity-90">Complementary Medicine - Acupuncture Clinic</span>
             <span className="text-xs lg:text-sm font-normal opacity-70 italic">Healing Through Balance with AI</span>
