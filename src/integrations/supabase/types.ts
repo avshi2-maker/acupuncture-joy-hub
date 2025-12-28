@@ -894,6 +894,48 @@ export type Database = {
           },
         ]
       }
+      therapist_disclaimers: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          ip_address: string | null
+          language: string
+          license_number: string
+          signature_url: string | null
+          signed_at: string
+          therapist_name: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          language?: string
+          license_number: string
+          signature_url?: string | null
+          signed_at?: string
+          therapist_name: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          language?: string
+          license_number?: string
+          signature_url?: string | null
+          signed_at?: string
+          therapist_name?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       therapist_registrations: {
         Row: {
           created_at: string

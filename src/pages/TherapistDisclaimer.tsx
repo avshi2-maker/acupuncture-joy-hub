@@ -284,13 +284,33 @@ This is an automated message from the TCM Practice Support System.
     }
   };
 
-  const handleProceed = () => {
+  const handleProceed = async () => {
     if (!hasRequiredFields) {
       toast.error(content.requiredFields);
       return;
     }
+
+    try {
+      // Save to database
+      const { error } = await supabase
+        .from('therapist_disclaimers')
+        .insert({
+          therapist_name: therapistName,
+          license_number: licenseNumber,
+          language,
+          signature_url: signature,
+          user_agent: navigator.userAgent,
+        });
+
+      if (error) {
+        console.error('Error saving disclaimer to database:', error);
+        // Continue anyway - localStorage is the primary storage
+      }
+    } catch (err) {
+      console.error('Error saving disclaimer:', err);
+    }
     
-    // Save signed status with therapist info
+    // Save signed status with therapist info to localStorage
     localStorage.setItem(DISCLAIMER_STORAGE_KEY, JSON.stringify({
       signedAt: new Date().toISOString(),
       language,
