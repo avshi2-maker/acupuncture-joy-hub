@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
-import { Play, Pause, SkipForward, Volume2, VolumeX, Users, Brain, Calendar, TrendingUp, CheckCircle, Loader2, Mic } from "lucide-react";
+import { Play, Pause, SkipForward, Volume2, VolumeX, Users, Brain, Calendar, TrendingUp, CheckCircle, Loader2, Mic, RotateCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -78,7 +78,7 @@ const TherapistTeaser = () => {
   const [isTransitioning, setIsTransitioning] = useState(false); // For crossfade transitions
   const [videoOpacity, setVideoOpacity] = useState(1); // Control video fade
   const [videoProgressPercent, setVideoProgressPercent] = useState(0); // 0-100 progress for current video
-  const [showDebug, setShowDebug] = useState(false); // Dev mode debug overlay
+  const [showReplay, setShowReplay] = useState(false); // Show replay button after all videos complete
   const originalVolumeRef = useRef(100); // Store original volume before ducking
   const isTransitioningRef = useRef(false);
   const currentVideoRef = useRef(0);
@@ -260,7 +260,7 @@ const TherapistTeaser = () => {
           }
 
           setIsPlaying(false);
-          setShowDialog(true);
+          setShowReplay(true); // Show replay button instead of dialog
           setProgress(0);
           return 0;
         });
@@ -530,27 +530,6 @@ const TherapistTeaser = () => {
               Your browser does not support the video tag.
             </video>
 
-            {/* Dev Mode Debug Toggle & Overlay */}
-            {import.meta.env.DEV && (
-              <>
-                <button
-                  onClick={() => setShowDebug(!showDebug)}
-                  className="absolute top-4 left-4 z-20 bg-black/70 text-white text-[10px] px-2 py-1 rounded font-mono hover:bg-black/90 transition-colors"
-                >
-                  {showDebug ? '🔧 Hide' : '🔧 Debug'}
-                </button>
-                {showDebug && (
-                  <div className="absolute top-12 left-4 z-20 bg-black/80 backdrop-blur-sm text-white text-[11px] font-mono px-3 py-2 rounded-lg shadow-lg space-y-1 animate-fade-in">
-                    <div>currentVideo: <span className="text-green-400">{currentVideo}</span> / {videos.length - 1}</div>
-                    <div>isPlaying: <span className={isPlaying ? 'text-green-400' : 'text-red-400'}>{String(isPlaying)}</span></div>
-                    <div>isTransitioning: <span className={isTransitioning ? 'text-yellow-400' : 'text-gray-400'}>{String(isTransitioning)}</span></div>
-                    <div>videoOpacity: <span className="text-blue-400">{videoOpacity}</span></div>
-                    <div>progress: <span className="text-purple-400">{videoProgressPercent.toFixed(1)}%</span></div>
-                    <div>isMuted: <span className={isMuted ? 'text-red-400' : 'text-green-400'}>{String(isMuted)}</span></div>
-                  </div>
-                )}
-              </>
-            )}
 
             {/* Now Playing Badge */}
             {isPlaying && (
@@ -640,8 +619,8 @@ const TherapistTeaser = () => {
               </div>
             )}
 
-            {/* Play Overlay (shown when not playing) */}
-            {!isPlaying && (
+            {/* Play Overlay (shown when not playing and not replay mode) */}
+            {!isPlaying && !showReplay && (
               <div 
                 className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-jade/40 to-gold/20 cursor-pointer"
                 onClick={handlePlay}
@@ -658,6 +637,43 @@ const TherapistTeaser = () => {
                 <p className="text-white/80 text-sm drop-shadow">
                   Watch our platform overview
                 </p>
+              </div>
+            )}
+
+            {/* Replay Overlay (shown after all videos complete) */}
+            {!isPlaying && showReplay && (
+              <div 
+                className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-jade/60 to-gold/30 cursor-pointer animate-fade-in"
+                onClick={() => {
+                  setShowReplay(false);
+                  setCurrentVideo(0);
+                  handlePlay();
+                }}
+              >
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 bg-gold/30 rounded-full animate-pulse" />
+                  <div className="relative w-20 h-20 bg-gold rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300">
+                    <RotateCcw className="w-8 h-8 text-primary-foreground" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2 drop-shadow-lg">
+                  Replay All Videos
+                </h3>
+                <p className="text-white/80 text-sm drop-shadow mb-4">
+                  Watch the presentation again
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowReplay(false);
+                    setShowDialog(true);
+                  }}
+                  className="bg-white/20 border-white/40 text-white hover:bg-white/30"
+                >
+                  Or explore features →
+                </Button>
               </div>
             )}
 
