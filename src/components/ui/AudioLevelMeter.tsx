@@ -14,6 +14,7 @@ export function AudioLevelMeter({
   barCount = 12 
 }: AudioLevelMeterProps) {
   const [levels, setLevels] = useState<number[]>(new Array(barCount).fill(0));
+  const [waveformData, setWaveformData] = useState<number[]>(new Array(64).fill(128));
   const analyzerRef = useRef<AnalyserNode | null>(null);
   const animationRef = useRef<number | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -21,6 +22,7 @@ export function AudioLevelMeter({
   useEffect(() => {
     if (!stream || !isRecording) {
       setLevels(new Array(barCount).fill(0));
+      setWaveformData(new Array(64).fill(128));
       return;
     }
 
@@ -29,31 +31,36 @@ export function AudioLevelMeter({
     audioContextRef.current = audioContext;
     
     const analyzer = audioContext.createAnalyser();
-    analyzer.fftSize = 64;
-    analyzer.smoothingTimeConstant = 0.8;
+    analyzer.fftSize = variant === 'wave' ? 128 : 64;
+    analyzer.smoothingTimeConstant = 0.6;
     analyzerRef.current = analyzer;
 
     const source = audioContext.createMediaStreamSource(stream);
     source.connect(analyzer);
 
-    const dataArray = new Uint8Array(analyzer.frequencyBinCount);
+    const frequencyData = new Uint8Array(analyzer.frequencyBinCount);
+    const timeDomainData = new Uint8Array(analyzer.fftSize);
 
     const updateLevels = () => {
       if (!analyzerRef.current) return;
       
-      analyzerRef.current.getByteFrequencyData(dataArray);
+      // Get frequency data for bars/circle
+      analyzerRef.current.getByteFrequencyData(frequencyData);
+      
+      // Get time domain data for waveform
+      analyzerRef.current.getByteTimeDomainData(timeDomainData);
       
       // Sample frequencies for visualization
       const newLevels = [];
-      const step = Math.floor(dataArray.length / barCount);
+      const step = Math.floor(frequencyData.length / barCount);
       
       for (let i = 0; i < barCount; i++) {
-        const value = dataArray[i * step] || 0;
-        // Normalize to 0-100 with some boost for better visibility
+        const value = frequencyData[i * step] || 0;
         newLevels.push(Math.min(100, (value / 255) * 150));
       }
       
       setLevels(newLevels);
+      setWaveformData(Array.from(timeDomainData));
       animationRef.current = requestAnimationFrame(updateLevels);
     };
 
@@ -67,21 +74,104 @@ export function AudioLevelMeter({
         audioContextRef.current.close();
       }
     };
-  }, [stream, isRecording, barCount]);
+  }, [stream, isRecording, barCount, variant]);
+
+  // Generate smooth SVG path from waveform data
+  const generateWavePath = (data: number[], width: number, height: number): string => {
+    if (data.length === 0) return '';
+    
+    const points: string[] = [];
+    const sliceWidth = width / data.length;
+    
+    for (let i = 0; i < data.length; i++) {
+      const x = i * sliceWidth;
+      // Normalize: 128 is silence, 0-255 is the range
+      const normalized = (data[i] - 128) / 128;
+      const y = (height / 2) + (normalized * height / 2 * 0.8);
+      
+      if (i === 0) {
+        points.push(`M ${x} ${y}`);
+      } else {
+        // Use quadratic curves for smoothness
+        const prevX = (i - 1) * sliceWidth;
+        const cpX = (prevX + x) / 2;
+        points.push(`Q ${cpX} ${y} ${x} ${y}`);
+      }
+    }
+    
+    return points.join(' ');
+  };
 
   if (variant === 'wave') {
+    const width = 280;
+    const height = 60;
+    const avgLevel = levels.reduce((a, b) => a + b, 0) / levels.length;
+    
     return (
-      <div className="flex items-center justify-center gap-[2px] h-12 px-4">
-        {levels.map((level, i) => (
-          <div
-            key={i}
-            className="w-1 bg-gradient-to-t from-jade via-emerald-400 to-green-300 rounded-full transition-all duration-75"
-            style={{
-              height: `${Math.max(4, level * 0.4)}px`,
-              opacity: isRecording ? 1 : 0.3,
-            }}
+      <div className="relative w-full flex items-center justify-center overflow-hidden rounded-lg bg-gradient-to-r from-slate-900/50 via-slate-800/50 to-slate-900/50 p-2">
+        <svg 
+          width={width} 
+          height={height} 
+          className="overflow-visible"
+          style={{ filter: isRecording ? 'drop-shadow(0 0 8px rgba(34, 197, 94, 0.5))' : 'none' }}
+        >
+          {/* Background grid lines */}
+          <defs>
+            <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#22c55e" stopOpacity="0.8" />
+              <stop offset="25%" stopColor="#10b981" stopOpacity="1" />
+              <stop offset="50%" stopColor="#14b8a6" stopOpacity="1" />
+              <stop offset="75%" stopColor="#06b6d4" stopOpacity="1" />
+              <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.8" />
+            </linearGradient>
+            <linearGradient id="waveFill" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#22c55e" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          
+          {/* Center line */}
+          <line 
+            x1="0" 
+            y1={height / 2} 
+            x2={width} 
+            y2={height / 2} 
+            stroke="rgba(255,255,255,0.1)" 
+            strokeWidth="1"
+            strokeDasharray="4 4"
           />
-        ))}
+          
+          {/* Waveform path */}
+          <path
+            d={generateWavePath(waveformData, width, height)}
+            fill="none"
+            stroke="url(#waveGradient)"
+            strokeWidth={2 + avgLevel * 0.02}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="transition-all duration-75"
+          />
+          
+          {/* Mirrored waveform for symmetry effect */}
+          <path
+            d={generateWavePath(waveformData.map(v => 256 - v), width, height)}
+            fill="none"
+            stroke="url(#waveGradient)"
+            strokeWidth={1.5 + avgLevel * 0.01}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity="0.4"
+            className="transition-all duration-75"
+          />
+        </svg>
+        
+        {/* Level indicator */}
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col items-center">
+          <div 
+            className="w-1 rounded-full bg-gradient-to-t from-green-500 via-yellow-500 to-red-500 transition-all duration-75"
+            style={{ height: `${Math.max(8, avgLevel * 0.5)}px` }}
+          />
+        </div>
       </div>
     );
   }
