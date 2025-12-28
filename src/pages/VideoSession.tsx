@@ -29,7 +29,15 @@ import {
   ClipboardList,
   Trash2,
   Leaf,
-  ArrowRight
+  ArrowRight,
+  Apple,
+  Pill,
+  Stethoscope,
+  Heart,
+  Brain,
+  FileText,
+  Send,
+  Loader2
 } from 'lucide-react';
 import { AnimatedMic } from '@/components/ui/AnimatedMic';
 import { toast } from 'sonner';
@@ -81,6 +89,16 @@ export default function VideoSession() {
   const [currentAppointmentId, setCurrentAppointmentId] = useState<string | null>(null);
   const [isCancellingBlock, setIsCancellingBlock] = useState(false);
   const warningShownRef = useRef(false);
+  
+  // AI Query states
+  const [activeAiQuery, setActiveAiQuery] = useState<'nutrition' | 'herbs' | 'diagnosis' | null>(null);
+  const [aiQueryInput, setAiQueryInput] = useState('');
+  const [aiQueryLoading, setAiQueryLoading] = useState(false);
+  const [aiQueryResult, setAiQueryResult] = useState<string | null>(null);
+  
+  // Anxiety Q&A inline state
+  const [inlineAnxietyMessages, setInlineAnxietyMessages] = useState<Array<{role: 'user' | 'assistant', content: string}>>([]);
+  const [anxietyInput, setAnxietyInput] = useState('');
 
   const {
     status: sessionStatus,
@@ -344,6 +362,60 @@ export default function VideoSession() {
     });
   };
 
+  // AI Query handler
+  const handleAiQuery = async (type: 'nutrition' | 'herbs' | 'diagnosis') => {
+    if (!aiQueryInput.trim()) {
+      toast.error('נא להזין שאלה');
+      return;
+    }
+    setAiQueryLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('tcm-rag-chat', {
+        body: { 
+          message: aiQueryInput,
+          context: type,
+          patientName: selectedPatientName
+        }
+      });
+      if (error) throw error;
+      setAiQueryResult(data?.response || 'לא התקבלה תשובה');
+    } catch (error) {
+      console.error('AI Query error:', error);
+      toast.error('שגיאה בשליחת השאלה');
+    } finally {
+      setAiQueryLoading(false);
+    }
+  };
+
+  // Anxiety Q&A inline handler
+  const handleAnxietyQuestion = async () => {
+    if (!anxietyInput.trim()) return;
+    
+    const userMessage = { role: 'user' as const, content: anxietyInput };
+    setInlineAnxietyMessages(prev => [...prev, userMessage]);
+    setAnxietyInput('');
+    setAiQueryLoading(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('tcm-rag-chat', {
+        body: { 
+          message: anxietyInput,
+          context: 'anxiety',
+          patientName: selectedPatientName,
+          history: inlineAnxietyMessages
+        }
+      });
+      if (error) throw error;
+      const assistantMessage = { role: 'assistant' as const, content: data?.response || 'לא התקבלה תשובה' };
+      setInlineAnxietyMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Anxiety Q&A error:', error);
+      toast.error('שגיאה בשליחת השאלה');
+    } finally {
+      setAiQueryLoading(false);
+    }
+  };
+
   if (!tier || !hasFeature('video_sessions')) return null;
 
   return (
@@ -353,7 +425,7 @@ export default function VideoSession() {
         <meta name="description" content="ניהול פגישת וידאו עם מטופלים" />
       </Helmet>
 
-      <div className="min-h-screen bg-background" dir="rtl">
+      <div className="min-h-screen bg-background flex flex-col" dir="rtl">
         {/* Header */}
         <header className="bg-card border-b border-border sticky top-0 z-50">
           <div className="max-w-full mx-auto px-4 py-4 flex items-center justify-between">
@@ -378,58 +450,218 @@ export default function VideoSession() {
           </div>
         </header>
 
+        {/* TCM Session Tools Bar */}
+        <div className="px-4 pt-4 pb-2">
+          <div className="flex flex-wrap gap-2">
+            <Button 
+              variant={activeAiQuery === 'nutrition' ? 'default' : 'outline'} 
+              size="sm" 
+              onClick={() => setActiveAiQuery(activeAiQuery === 'nutrition' ? null : 'nutrition')}
+              className="gap-1.5 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+            >
+              <Apple className="h-4 w-4" />
+              תזונה
+            </Button>
+            <Button 
+              variant={activeAiQuery === 'herbs' ? 'default' : 'outline'} 
+              size="sm" 
+              onClick={() => setActiveAiQuery(activeAiQuery === 'herbs' ? null : 'herbs')}
+              className="gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200"
+            >
+              <Leaf className="h-4 w-4" />
+              צמחי מרפא
+            </Button>
+            <Button 
+              variant={activeAiQuery === 'diagnosis' ? 'default' : 'outline'} 
+              size="sm" 
+              onClick={() => setActiveAiQuery(activeAiQuery === 'diagnosis' ? null : 'diagnosis')}
+              className="gap-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
+            >
+              <Stethoscope className="h-4 w-4" />
+              אבחון TCM
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowAnxietyQA(true)}
+              className="gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200"
+            >
+              <Heart className="h-4 w-4" />
+              שאלון חרדה מלא
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate('/tcm-brain')}
+              className="gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+            >
+              <Brain className="h-4 w-4" />
+              CM Brain
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowSessionReport(true)}
+              disabled={!selectedPatientId || !sessionNotes}
+              className="gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200"
+            >
+              <FileText className="h-4 w-4" />
+              דו"ח AI
+            </Button>
+          </div>
+        </div>
+
+        {/* AI Query Panel */}
+        {activeAiQuery && (
+          <div className="px-4 pb-2">
+            <Card className="border-jade/30 bg-jade/5">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  {activeAiQuery === 'nutrition' && <Apple className="h-4 w-4 text-green-600" />}
+                  {activeAiQuery === 'herbs' && <Leaf className="h-4 w-4 text-amber-600" />}
+                  {activeAiQuery === 'diagnosis' && <Stethoscope className="h-4 w-4 text-purple-600" />}
+                  <span className="text-sm font-medium">
+                    {activeAiQuery === 'nutrition' && 'שאלת תזונה'}
+                    {activeAiQuery === 'herbs' && 'שאלת צמחי מרפא'}
+                    {activeAiQuery === 'diagnosis' && 'שאלת אבחון TCM'}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <Textarea
+                    value={aiQueryInput}
+                    onChange={(e) => setAiQueryInput(e.target.value)}
+                    placeholder={`שאל שאלה בנושא ${activeAiQuery === 'nutrition' ? 'תזונה' : activeAiQuery === 'herbs' ? 'צמחי מרפא' : 'אבחון'}...`}
+                    rows={2}
+                    className="flex-1"
+                  />
+                  <Button 
+                    onClick={() => handleAiQuery(activeAiQuery)} 
+                    disabled={aiQueryLoading}
+                    className="bg-jade hover:bg-jade/90"
+                  >
+                    {aiQueryLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  </Button>
+                </div>
+                {aiQueryResult && (
+                  <div className="mt-3 p-3 bg-background rounded-lg border text-sm">
+                    {aiQueryResult}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Main Content - 2 Column Layout */}
-        <main className="p-4 h-[calc(100vh-73px)]">
+        <main className="p-4 flex-1 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-full">
             
-            {/* Left Column - Video Screen (3/4 width) */}
-            <div className="lg:col-span-3 flex flex-col gap-4">
-              {/* Video Area - Full height */}
-              <Card className="bg-muted/30 flex-1 min-h-[500px]">
-                <CardContent className="p-0 h-full flex items-center justify-center">
-                  <div className="w-full h-full bg-gradient-to-br from-jade/10 to-jade/5 rounded-lg flex flex-col items-center justify-center p-8">
-                    <Video className="h-24 w-24 text-jade/40 mb-4" />
-                    <p className="text-muted-foreground text-2xl">אזור וידאו</p>
-                    <p className="text-sm text-muted-foreground mt-1">Zoom / Google Meet</p>
-                    
-                    {sessionStatus !== 'idle' && (
-                      <Badge className={`mt-6 text-lg px-4 py-2 ${
-                        sessionStatus === 'running' ? 'bg-jade animate-pulse' : 
-                        sessionStatus === 'paused' ? 'bg-gold' : 'bg-destructive'
-                      }`}>
-                        {sessionStatus === 'running' ? '● בשידור חי' :
-                         sessionStatus === 'paused' ? '⏸ מושהה' : '■ הסתיים'}
-                      </Badge>
-                    )}
-                    
-                    <p className="text-5xl font-mono mt-6 text-jade font-bold">
-                      {formatDuration(sessionDuration)}
-                    </p>
-                    
-                    {sessionStartTime && sessionStatus !== 'idle' && (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        התחלה: {getSessionStartTimeDisplay()}
+            {/* Left Column - Video + Anxiety Q&A (3/4 width) */}
+            <div className="lg:col-span-3 flex flex-col gap-4 h-full overflow-hidden">
+              {/* Top Row: Video Area + Anxiety Q&A Chat */}
+              <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
+                {/* Video Area */}
+                <Card className="bg-muted/30 overflow-hidden">
+                  <CardContent className="p-0 h-full flex items-center justify-center min-h-[300px]">
+                    <div className="w-full h-full bg-gradient-to-br from-jade/10 to-jade/5 rounded-lg flex flex-col items-center justify-center p-6">
+                      <Video className="h-16 w-16 text-jade/40 mb-3" />
+                      <p className="text-muted-foreground text-lg">אזור וידאו</p>
+                      <p className="text-xs text-muted-foreground mt-1">Zoom / Google Meet</p>
+                      
+                      {sessionStatus !== 'idle' && (
+                        <Badge className={`mt-4 text-sm px-3 py-1 ${
+                          sessionStatus === 'running' ? 'bg-jade animate-pulse' : 
+                          sessionStatus === 'paused' ? 'bg-gold' : 'bg-destructive'
+                        }`}>
+                          {sessionStatus === 'running' ? '● בשידור חי' :
+                           sessionStatus === 'paused' ? '⏸ מושהה' : '■ הסתיים'}
+                        </Badge>
+                      )}
+                      
+                      <p className="text-4xl font-mono mt-4 text-jade font-bold">
+                        {formatDuration(sessionDuration)}
                       </p>
-                    )}
-                    
-                    {selectedPatientName && sessionStatus === 'running' && (
-                      <Badge variant="outline" className="mt-3 text-lg px-4 py-1">
-                        {selectedPatientName}
-                      </Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                      
+                      {sessionStartTime && sessionStatus !== 'idle' && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          התחלה: {getSessionStartTimeDisplay()}
+                        </p>
+                      )}
+                      
+                      {selectedPatientName && sessionStatus === 'running' && (
+                        <Badge variant="outline" className="mt-2 text-sm px-3">
+                          {selectedPatientName}
+                        </Badge>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
 
-              {/* Session Notes - Below Video */}
+                {/* Anxiety Q&A Chat Panel */}
+                <Card className="border-rose-200 bg-rose-50/30 flex flex-col overflow-hidden">
+                  <CardHeader className="pb-2 pt-3 border-b">
+                    <CardTitle className="text-sm flex items-center gap-2 text-rose-700">
+                      <Heart className="h-4 w-4" />
+                      שאלון חרדה - שיחה עם AI
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col p-3 overflow-hidden">
+                    {/* Messages Area */}
+                    <div className="flex-1 overflow-y-auto space-y-2 mb-3 min-h-[150px]">
+                      {inlineAnxietyMessages.length === 0 ? (
+                        <div className="text-center text-muted-foreground text-sm py-8">
+                          <Heart className="h-8 w-8 mx-auto mb-2 text-rose-300" />
+                          <p>שאל שאלות לגבי חרדה, לחץ נפשי, או רגשות</p>
+                        </div>
+                      ) : (
+                        inlineAnxietyMessages.map((msg, idx) => (
+                          <div key={idx} className={`p-2 rounded-lg text-sm ${
+                            msg.role === 'user' 
+                              ? 'bg-rose-100 text-rose-900 mr-8' 
+                              : 'bg-background border ml-8'
+                          }`}>
+                            {msg.content}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    {/* Input Area */}
+                    <div className="flex gap-2">
+                      <Textarea
+                        value={anxietyInput}
+                        onChange={(e) => setAnxietyInput(e.target.value)}
+                        placeholder="שאל שאלה על חרדה..."
+                        rows={2}
+                        className="flex-1 text-sm"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleAnxietyQuestion();
+                          }
+                        }}
+                      />
+                      <Button 
+                        onClick={handleAnxietyQuestion} 
+                        disabled={aiQueryLoading || !anxietyInput.trim()}
+                        size="sm"
+                        className="bg-rose-600 hover:bg-rose-700"
+                      >
+                        {aiQueryLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Session Notes - Below */}
               <Card>
-                <CardContent className="p-4">
-                  <label className="text-sm font-medium mb-2 block">הערות פגישה:</label>
+                <CardContent className="p-3">
+                  <label className="text-xs font-medium mb-1 block">הערות פגישה:</label>
                   <Textarea
                     value={sessionNotes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="רשום הערות במהלך הפגישה..."
-                    rows={3}
+                    rows={2}
                   />
                 </CardContent>
               </Card>
