@@ -10,9 +10,9 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Progress } from '@/components/ui/progress';
 import { Square, Save, Play, Pause, Trash2, Loader2 } from 'lucide-react';
 import { AnimatedMic } from '@/components/ui/AnimatedMic';
+import { AudioLevelMeter } from '@/components/ui/AudioLevelMeter';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -45,6 +45,7 @@ export function VoiceDictationDialog({
   const [isSaving, setIsSaving] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -54,6 +55,8 @@ export function VoiceDictationDialog({
   const startRecording = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setMediaStream(stream);
+      
       const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
@@ -69,6 +72,7 @@ export function VoiceDictationDialog({
         setAudioBlob(blob);
         setAudioUrl(URL.createObjectURL(blob));
         stream.getTracks().forEach(track => track.stop());
+        setMediaStream(null);
       };
 
       mediaRecorder.start();
@@ -240,8 +244,19 @@ export function VoiceDictationDialog({
 
             {/* Recording Animation - Show animated mic with sound waves when recording */}
             {isRecording && (
-              <div className="flex flex-col items-center gap-4">
+              <div className="flex flex-col items-center gap-4 w-full">
                 <AnimatedMic size="xl" isRecording={true} />
+                
+                {/* Real-time Audio Level Meter */}
+                <div className="w-full">
+                  <AudioLevelMeter 
+                    stream={mediaStream} 
+                    isRecording={isRecording} 
+                    variant="bars"
+                    barCount={16}
+                  />
+                </div>
+                
                 <span className="text-sm text-red-500 font-medium">מקליט...</span>
               </div>
             )}
