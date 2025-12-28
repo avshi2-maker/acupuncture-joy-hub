@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -26,13 +26,16 @@ export function TTSButton({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Load voices on mount
-  useEffect(() => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.getVoices();
+  const stopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
     }
-  }, []);
+    setIsPlaying(false);
+  };
 
   const handleClick = async () => {
     if (!text) {
@@ -46,61 +49,81 @@ export function TTSButton({
 
     // If playing, stop
     if (isPlaying) {
-      window.speechSynthesis.cancel();
-      setIsPlaying(false);
-      return;
-    }
-
-    // Check browser support
-    if (!('speechSynthesis' in window)) {
-      toast({
-        title: "שגיאה",
-        description: "הדפדפן שלך לא תומך בהקראה",
-        variant: "destructive",
-      });
+      stopAudio();
       return;
     }
 
     setIsLoading(true);
 
     try {
-      window.speechSynthesis.cancel();
-
-      const utterance = new SpeechSynthesisUtterance(text);
+      console.log('Calling ElevenLabs TTS for Hebrew text...');
       
-      // Try to find a Hebrew voice
-      const voices = window.speechSynthesis.getVoices();
-      const hebrewVoice = voices.find(voice => 
-        voice.lang.startsWith('he') || voice.lang.startsWith('iw')
+      // Call ElevenLabs TTS edge function
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ 
+            text: text.substring(0, 5000), // ElevenLabs limit
+            voice: 'Sarah' // Good multilingual voice for Hebrew
+          }),
+        }
       );
-      
-      if (hebrewVoice) {
-        utterance.voice = hebrewVoice;
-      }
-      
-      utterance.lang = 'he-IL';
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
 
-      utterance.onstart = () => {
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'TTS request failed');
+      }
+
+      const data = await response.json();
+      
+      if (!data.audioContent) {
+        throw new Error('No audio content received');
+      }
+
+      // Use data URI - browser natively decodes base64 audio
+      const audioUrl = `data:audio/mpeg;base64,${data.audioContent}`;
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+
+      audio.onplay = () => {
         setIsLoading(false);
         setIsPlaying(true);
       };
 
-      utterance.onend = () => {
+      audio.onended = () => {
         setIsPlaying(false);
+        audioRef.current = null;
       };
 
-      utterance.onerror = () => {
+      audio.onerror = (e) => {
+        console.error('Audio playback error:', e);
         setIsLoading(false);
         setIsPlaying(false);
+        audioRef.current = null;
+        toast({
+          title: "שגיאה",
+          description: "שגיאה בהשמעת האודיו",
+          variant: "destructive",
+        });
       };
 
-      window.speechSynthesis.speak(utterance);
+      await audio.play();
+      
     } catch (error) {
       console.error('TTS error:', error);
       setIsLoading(false);
       setIsPlaying(false);
+      toast({
+        title: "שגיאה",
+        description: error instanceof Error ? error.message : "שגיאה בהמרת טקסט לדיבור",
+        variant: "destructive",
+      });
     }
   };
 
