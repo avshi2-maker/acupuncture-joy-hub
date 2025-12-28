@@ -76,6 +76,7 @@ import { useTcmSessionHistory, TcmSession, VoiceNoteData } from '@/hooks/useTcmS
 import { SessionHistoryDialog } from '@/components/tcm/SessionHistoryDialog';
 import { VoiceNoteRecorder, VoiceNote } from '@/components/tcm/VoiceNoteRecorder';
 import { SessionTemplates, SessionTemplate } from '@/components/tcm/SessionTemplates';
+import { MobileVoiceNotesDrawer } from '@/components/tcm/MobileVoiceNotesDrawer';
 
 import {
   herbsQuestions,
@@ -1255,6 +1256,17 @@ export default function TcmBrain() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              
+              {/* Mobile Voice Notes Drawer */}
+              {(sessionStatus === 'running' || sessionStatus === 'paused') && (
+                <MobileVoiceNotesDrawer
+                  voiceNotes={voiceNotes}
+                  onAddNote={handleAddVoiceNote}
+                  onDeleteNote={handleDeleteVoiceNote}
+                  disabled={sessionStatus === 'paused'}
+                />
+              )}
+              
               <Button
                 variant={showDetailedView ? "default" : "outline"}
                 size="sm"
