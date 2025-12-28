@@ -1,11 +1,8 @@
-import { Sparkles, BookOpen, Volume2 } from "lucide-react";
+import { Sparkles, BookOpen, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { TTSButton } from "@/components/audio/TTSButton";
 import heroBg from "@/assets/hero-meridian-bg.png";
 import baziWheel from "@/assets/bazi-wheel.jpg";
-
-const welcomeTextHebrew = `ברוכים הבאים לקליניקה לרפואה סינית מסורתית של דר רוני ספיר. אנחנו משלבים חמשת אלפים שנות חוכמה עתיקה עם טיפול מותאם אישית כדי לעזור לכם להגיע לבריאות ולחיוניות מיטביים. שחזרו את האיזון, חדשו את החיים.`;
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -62,20 +59,8 @@ const Hero = () => {
               <p className="text-xs text-primary-foreground/70 italic">Healing Through Balance with AI</p>
             </div>
 
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-foreground/10 backdrop-blur-sm rounded-full border border-primary-foreground/20 mb-8 animate-fade-in-up">
-              <Sparkles className="w-4 h-4 text-gold" />
-              <span className="text-primary-foreground text-sm font-medium tracking-wide">
-                Ancient Wisdom, Modern Healing
-              </span>
-              <TTSButton
-                text={welcomeTextHebrew}
-                title="Welcome Message"
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-primary-foreground hover:text-gold hover:bg-primary-foreground/10"
-              />
-            </div>
+            {/* Heading placeholder for layout */}
+            <div className="mb-8" />
 
             {/* Heading */}
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-primary-foreground leading-tight mb-6 animate-fade-in-up delay-100">
@@ -106,6 +91,25 @@ const Hero = () => {
           </div>
         </div>
       </div>
+
+      {/* Video CTA - Bottom Left */}
+      <button
+        onClick={() => {
+          const videoSection = document.getElementById('therapist-teaser');
+          if (videoSection) {
+            videoSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        }}
+        className="absolute bottom-8 left-8 z-20 inline-flex items-center gap-2 px-4 py-3 bg-primary-foreground/15 backdrop-blur-md rounded-full border border-primary-foreground/30 hover:bg-primary-foreground/25 transition-all duration-300 cursor-pointer group animate-fade-in-up delay-500"
+      >
+        <div className="w-8 h-8 bg-gold rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+          <Play className="w-4 h-4 text-primary-foreground ml-0.5" />
+        </div>
+        <span className="text-primary-foreground text-sm font-medium tracking-wide">
+          Watch Short Video Clinic Presentation
+        </span>
+      </button>
+
     </section>
   );
 };
