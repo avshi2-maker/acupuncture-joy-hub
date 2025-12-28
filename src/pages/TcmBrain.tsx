@@ -46,7 +46,8 @@ import {
   MessageSquare,
   ChevronRight,
   ChevronLeft,
-  Menu
+  Menu,
+  AlertTriangle
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ElevenLabsWidget } from '@/components/ui/ElevenLabsWidget';
@@ -262,6 +263,11 @@ const mainQueryCategories = [
 
 const DISCLAIMER_STORAGE_KEY = 'tcm_therapist_disclaimer_signed';
 
+type DisclaimerStatus = {
+  signed: boolean;
+  expired: boolean;
+};
+
 export default function TcmBrain() {
   const navigate = useNavigate();
   const { tier, hasFeature } = useTier();
@@ -276,6 +282,21 @@ export default function TcmBrain() {
   const [loadingStartTime, setLoadingStartTime] = useState<number | null>(null);
   const [currentQuery, setCurrentQuery] = useState<string>('');
   const [activeFeatureTab, setActiveFeatureTab] = useState<string>('chat');
+
+  const [disclaimerStatus, setDisclaimerStatus] = useState<DisclaimerStatus>(() => {
+    try {
+      const raw = localStorage.getItem(DISCLAIMER_STORAGE_KEY);
+      if (!raw) return { signed: false, expired: false };
+      const data = JSON.parse(raw);
+      const signedDate = data?.signedAt ? new Date(data.signedAt) : null;
+      if (!signedDate || Number.isNaN(signedDate.getTime())) return { signed: false, expired: false };
+      const oneYearAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+      if (signedDate < oneYearAgo) return { signed: false, expired: true };
+      return { signed: true, expired: false };
+    } catch {
+      return { signed: false, expired: false };
+    }
+  });
   
   // Selected question states for all tabs
   const [selectedSymptomQuestion, setSelectedSymptomQuestion] = useState('');
@@ -300,34 +321,37 @@ export default function TcmBrain() {
   const chatInputRef = useRef<HTMLInputElement>(null);
   const aiResponseRef = useRef<HTMLDivElement>(null);
 
-  // Check if therapist has signed disclaimer
+  // Check if therapist has signed disclaimer (inline banner, no redirect)
   useEffect(() => {
-    const checkDisclaimer = () => {
-      const signed = localStorage.getItem(DISCLAIMER_STORAGE_KEY);
-      if (!signed) {
-        navigate('/therapist-disclaimer');
+    const raw = localStorage.getItem(DISCLAIMER_STORAGE_KEY);
+    if (!raw) {
+      setDisclaimerStatus({ signed: false, expired: false });
+      return;
+    }
+
+    try {
+      const data = JSON.parse(raw);
+      const signedDate = data?.signedAt ? new Date(data.signedAt) : null;
+      const oneYearAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+
+      if (!signedDate || Number.isNaN(signedDate.getTime())) {
+        localStorage.removeItem(DISCLAIMER_STORAGE_KEY);
+        setDisclaimerStatus({ signed: false, expired: false });
         return;
       }
-      
-      try {
-        const signedData = JSON.parse(signed);
-        const signedDate = new Date(signedData.signedAt);
-        const oneYearAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
-        
-        if (signedDate < oneYearAgo) {
-          // Disclaimer expired, need to re-sign
-          localStorage.removeItem(DISCLAIMER_STORAGE_KEY);
-          navigate('/therapist-disclaimer');
-        }
-      } catch {
-        // Invalid data, redirect to sign
+
+      if (signedDate < oneYearAgo) {
         localStorage.removeItem(DISCLAIMER_STORAGE_KEY);
-        navigate('/therapist-disclaimer');
+        setDisclaimerStatus({ signed: false, expired: true });
+        return;
       }
-    };
-    
-    checkDisclaimer();
-  }, [navigate]);
+
+      setDisclaimerStatus({ signed: true, expired: false });
+    } catch {
+      localStorage.removeItem(DISCLAIMER_STORAGE_KEY);
+      setDisclaimerStatus({ signed: false, expired: false });
+    }
+  }, []);
 
   // Ensure we scroll to the AI response panel as soon as loading starts
   useEffect(() => {
@@ -371,10 +395,19 @@ export default function TcmBrain() {
     setLoadingStartTime(Date.now());
     setCurrentQuery(userMessage);
 
+    // Disclaimer gate (inline banner shows; AI actions are blocked until signed)
+    if (!disclaimerStatus.signed) {
+      toast.error(disclaimerStatus.expired ? 'ההצהרה פגה תוקף — נא לחתום מחדש' : 'נא לחתום על ההצהרה לפני שימוש ב‑AI');
+      setIsLoading(false);
+      setLoadingStartTime(null);
+      return;
+    }
+
     // Check for authentication
     if (!session?.access_token) {
       toast.error('Please log in to use TCM Brain');
       setIsLoading(false);
+      setLoadingStartTime(null);
       return;
     }
 
@@ -713,6 +746,26 @@ export default function TcmBrain() {
         <div className="flex-1 flex relative">
           {/* Main Area */}
           <main className="flex-1 flex flex-col max-w-6xl mx-auto w-full">
+            {!disclaimerStatus.signed && (
+              <div className="px-4 pt-3">
+                <Card className="border-destructive/30 bg-destructive/5">
+                  <CardContent className="p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="h-5 w-5 text-destructive mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium">נדרש אישור הצהרה משפטית לפני שימוש ב‑CM Brain</p>
+                        <p className="text-xs text-muted-foreground">אפשר לצפות בעמוד, אבל שליחת שאלות ל‑AI חסומה עד חתימה.</p>
+                      </div>
+                    </div>
+                    <Button size="sm" onClick={() => navigate('/therapist-disclaimer')} className="gap-2">
+                      <FileText className="h-4 w-4" />
+                      חתימה על הצהרה
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
             {/* Feature tabs header */}
             {!showDetailedView && (
               <div className="px-4 pt-4 overflow-x-auto border-b border-border/30 pb-3">
