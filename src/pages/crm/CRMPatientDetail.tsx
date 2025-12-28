@@ -13,8 +13,9 @@ import { toast } from 'sonner';
 import { 
   ArrowLeft, User, Phone, Mail, Calendar, MapPin, Heart, 
   Activity, FileText, Plus, Edit, Trash2, Baby, AlertTriangle,
-  Clock, Stethoscope, Pill, Brain, Moon, Utensils, Video, Mic, Play, Pause
+  Clock, Stethoscope, Pill, Brain, Moon, Utensils, Video, Play, Pause
 } from 'lucide-react';
+import { AnimatedMic } from '@/components/ui/AnimatedMic';
 import { VisitFormDialog } from '@/components/crm/VisitFormDialog';
 
 interface Patient {
@@ -359,8 +360,8 @@ export default function CRMPatientDetail() {
               <Video className="h-4 w-4 mr-1" />
               Video ({videoSessions.length})
             </TabsTrigger>
-            <TabsTrigger value="recordings">
-              <Mic className="h-4 w-4 mr-1" />
+            <TabsTrigger value="recordings" className="flex items-center gap-1">
+              <AnimatedMic size="sm" />
               Recordings ({voiceRecordings.length})
             </TabsTrigger>
             <TabsTrigger value="medical">Medical Info</TabsTrigger>
@@ -639,7 +640,7 @@ export default function CRMPatientDetail() {
             {voiceRecordings.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
-                  <Mic className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
+                  <AnimatedMic size="xl" className="mx-auto mb-3 opacity-50" />
                   <p className="text-muted-foreground">אין הקלטות קוליות</p>
                 </CardContent>
               </Card>
@@ -649,7 +650,7 @@ export default function CRMPatientDetail() {
                   <CardHeader className="flex flex-row items-start justify-between pb-2">
                     <div>
                       <CardTitle className="text-base flex items-center gap-2">
-                        <Mic className="h-4 w-4 text-amber-500" />
+                        <AnimatedMic size="sm" />
                         {format(new Date(recording.created_at), 'EEEE, d בMMMM yyyy HH:mm', { locale: he })}
                       </CardTitle>
                       <CardDescription className="flex items-center gap-3 mt-1">

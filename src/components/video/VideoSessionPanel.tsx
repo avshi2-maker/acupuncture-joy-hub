@@ -24,10 +24,10 @@ import {
   Clock,
   AlertTriangle,
   CalendarPlus,
-  Mic,
   ClipboardList,
   Trash2
 } from 'lucide-react';
+import { AnimatedMic } from '@/components/ui/AnimatedMic';
 import { toast } from 'sonner';
 import { saveSessionReport, printReport, LocalSessionReport } from '@/utils/localDataStorage';
 import { AnxietyQADialog } from './AnxietyQADialog';
@@ -517,7 +517,7 @@ export function VideoSessionPanel({ onSessionEnd }: VideoSessionPanelProps) {
               onClick={() => setShowVoiceDictation(true)}
               className="gap-2 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200"
             >
-              <Mic className="h-4 w-4" />
+              <AnimatedMic size="md" />
               הקלטה קולית
             </Button>
             <Button
