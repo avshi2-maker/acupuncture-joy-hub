@@ -37,7 +37,14 @@ import {
   Brain,
   FileText,
   Send,
-  Loader2
+  Loader2,
+  Moon,
+  Briefcase,
+  Activity,
+  Dumbbell,
+  Compass,
+  Star,
+  MapPin
 } from 'lucide-react';
 import { AnimatedMic } from '@/components/ui/AnimatedMic';
 import { toast } from 'sonner';
@@ -91,7 +98,7 @@ export default function VideoSession() {
   const warningShownRef = useRef(false);
   
   // AI Query states
-  const [activeAiQuery, setActiveAiQuery] = useState<'nutrition' | 'herbs' | 'diagnosis' | null>(null);
+  const [activeAiQuery, setActiveAiQuery] = useState<'nutrition' | 'herbs' | 'diagnosis' | 'mental' | 'sleep' | 'worklife' | 'wellness' | 'sports' | 'bazi' | 'astro' | 'points' | null>(null);
   const [aiQueryInput, setAiQueryInput] = useState('');
   const [aiQueryLoading, setAiQueryLoading] = useState(false);
   const [aiQueryResult, setAiQueryResult] = useState<string | null>(null);
@@ -363,7 +370,7 @@ export default function VideoSession() {
   };
 
   // AI Query handler
-  const handleAiQuery = async (type: 'nutrition' | 'herbs' | 'diagnosis') => {
+  const handleAiQuery = async (type: 'nutrition' | 'herbs' | 'diagnosis' | 'mental' | 'sleep' | 'worklife' | 'wellness' | 'sports' | 'bazi' | 'astro' | 'points') => {
     if (!aiQueryInput.trim()) {
       toast.error('נא להזין שאלה');
       return;
@@ -450,18 +457,10 @@ export default function VideoSession() {
           </div>
         </header>
 
-        {/* TCM Session Tools Bar */}
+        {/* CAF Asset Boxes */}
         <div className="px-4 pt-4 pb-2">
           <div className="flex flex-wrap gap-2">
-            <Button 
-              variant={activeAiQuery === 'nutrition' ? 'default' : 'outline'} 
-              size="sm" 
-              onClick={() => setActiveAiQuery(activeAiQuery === 'nutrition' ? null : 'nutrition')}
-              className="gap-1.5 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
-            >
-              <Apple className="h-4 w-4" />
-              תזונה
-            </Button>
+            {/* Herbs */}
             <Button 
               variant={activeAiQuery === 'herbs' ? 'default' : 'outline'} 
               size="sm" 
@@ -471,6 +470,97 @@ export default function VideoSession() {
               <Leaf className="h-4 w-4" />
               צמחי מרפא
             </Button>
+            {/* Nutrition */}
+            <Button 
+              variant={activeAiQuery === 'nutrition' ? 'default' : 'outline'} 
+              size="sm" 
+              onClick={() => setActiveAiQuery(activeAiQuery === 'nutrition' ? null : 'nutrition')}
+              className="gap-1.5 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+            >
+              <Apple className="h-4 w-4" />
+              תזונה
+            </Button>
+            {/* Mental Health */}
+            <Button 
+              variant={activeAiQuery === 'mental' ? 'default' : 'outline'} 
+              size="sm" 
+              onClick={() => setActiveAiQuery(activeAiQuery === 'mental' ? null : 'mental')}
+              className="gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200"
+            >
+              <Heart className="h-4 w-4" />
+              בריאות הנפש
+            </Button>
+            {/* Sleep */}
+            <Button 
+              variant={activeAiQuery === 'sleep' ? 'default' : 'outline'} 
+              size="sm" 
+              onClick={() => setActiveAiQuery(activeAiQuery === 'sleep' ? null : 'sleep')}
+              className="gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200"
+            >
+              <Moon className="h-4 w-4" />
+              שינה
+            </Button>
+            {/* Work-Life Balance */}
+            <Button 
+              variant={activeAiQuery === 'worklife' ? 'default' : 'outline'} 
+              size="sm" 
+              onClick={() => setActiveAiQuery(activeAiQuery === 'worklife' ? null : 'worklife')}
+              className="gap-1.5 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 border-cyan-200"
+            >
+              <Briefcase className="h-4 w-4" />
+              איזון
+            </Button>
+            {/* Wellness */}
+            <Button 
+              variant={activeAiQuery === 'wellness' ? 'default' : 'outline'} 
+              size="sm" 
+              onClick={() => setActiveAiQuery(activeAiQuery === 'wellness' ? null : 'wellness')}
+              className="gap-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 border-teal-200"
+            >
+              <Activity className="h-4 w-4" />
+              בריאות
+            </Button>
+            {/* Sports */}
+            <Button 
+              variant={activeAiQuery === 'sports' ? 'default' : 'outline'} 
+              size="sm" 
+              onClick={() => setActiveAiQuery(activeAiQuery === 'sports' ? null : 'sports')}
+              className="gap-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200"
+            >
+              <Dumbbell className="h-4 w-4" />
+              ספורט
+            </Button>
+            {/* Bazi */}
+            <Button 
+              variant={activeAiQuery === 'bazi' ? 'default' : 'outline'} 
+              size="sm" 
+              onClick={() => setActiveAiQuery(activeAiQuery === 'bazi' ? null : 'bazi')}
+              className="gap-1.5 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border-yellow-200"
+            >
+              <Compass className="h-4 w-4" />
+              באזי
+            </Button>
+            {/* Astrology */}
+            <Button 
+              variant={activeAiQuery === 'astro' ? 'default' : 'outline'} 
+              size="sm" 
+              onClick={() => setActiveAiQuery(activeAiQuery === 'astro' ? null : 'astro')}
+              className="gap-1.5 bg-violet-50 hover:bg-violet-100 text-violet-700 border-violet-200"
+            >
+              <Star className="h-4 w-4" />
+              אסטרולוגיה
+            </Button>
+            {/* Acupuncture Points */}
+            <Button 
+              variant={activeAiQuery === 'points' ? 'default' : 'outline'} 
+              size="sm" 
+              onClick={() => setActiveAiQuery(activeAiQuery === 'points' ? null : 'points')}
+              className="gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200"
+            >
+              <MapPin className="h-4 w-4" />
+              נקודות
+            </Button>
+            {/* Diagnosis */}
             <Button 
               variant={activeAiQuery === 'diagnosis' ? 'default' : 'outline'} 
               size="sm" 
@@ -478,13 +568,16 @@ export default function VideoSession() {
               className="gap-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
             >
               <Stethoscope className="h-4 w-4" />
-              אבחון TCM
+              אבחון
             </Button>
+          </div>
+          {/* Second Row - Main Actions */}
+          <div className="flex flex-wrap gap-2 mt-2">
             <Button 
               variant="outline" 
               size="sm" 
               onClick={() => setShowAnxietyQA(true)}
-              className="gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200"
+              className="gap-1.5 bg-rose-100 hover:bg-rose-200 text-rose-800 border-rose-300"
             >
               <Heart className="h-4 w-4" />
               שאלון חרדה מלא
@@ -492,18 +585,27 @@ export default function VideoSession() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => navigate('/tcm-brain')}
-              className="gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+              onClick={() => navigate('/cm-brain-questions')}
+              className="gap-1.5 bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-300"
             >
               <Brain className="h-4 w-4" />
-              CM Brain
+              150 שאלות CM
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate('/tcm-brain')}
+              className="gap-1.5 bg-jade/20 hover:bg-jade/30 text-jade-dark border-jade/40"
+            >
+              <Brain className="h-4 w-4" />
+              CM Brain מלא
             </Button>
             <Button 
               variant="outline" 
               size="sm" 
               onClick={() => setShowSessionReport(true)}
               disabled={!selectedPatientId || !sessionNotes}
-              className="gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200"
+              className="gap-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 border-indigo-300"
             >
               <FileText className="h-4 w-4" />
               דו"ח AI
@@ -520,17 +622,23 @@ export default function VideoSession() {
                   {activeAiQuery === 'nutrition' && <Apple className="h-4 w-4 text-green-600" />}
                   {activeAiQuery === 'herbs' && <Leaf className="h-4 w-4 text-amber-600" />}
                   {activeAiQuery === 'diagnosis' && <Stethoscope className="h-4 w-4 text-purple-600" />}
+                  {activeAiQuery === 'mental' && <Heart className="h-4 w-4 text-rose-600" />}
+                  {activeAiQuery === 'sleep' && <Moon className="h-4 w-4 text-indigo-600" />}
+                  {activeAiQuery === 'worklife' && <Briefcase className="h-4 w-4 text-cyan-600" />}
+                  {activeAiQuery === 'wellness' && <Activity className="h-4 w-4 text-teal-600" />}
+                  {activeAiQuery === 'sports' && <Dumbbell className="h-4 w-4 text-orange-600" />}
+                  {activeAiQuery === 'bazi' && <Compass className="h-4 w-4 text-yellow-600" />}
+                  {activeAiQuery === 'astro' && <Star className="h-4 w-4 text-violet-600" />}
+                  {activeAiQuery === 'points' && <MapPin className="h-4 w-4 text-emerald-600" />}
                   <span className="text-sm font-medium">
-                    {activeAiQuery === 'nutrition' && 'שאלת תזונה'}
-                    {activeAiQuery === 'herbs' && 'שאלת צמחי מרפא'}
-                    {activeAiQuery === 'diagnosis' && 'שאלת אבחון TCM'}
+                    שאלה בנושא {activeAiQuery}
                   </span>
                 </div>
                 <div className="flex gap-2">
                   <Textarea
                     value={aiQueryInput}
                     onChange={(e) => setAiQueryInput(e.target.value)}
-                    placeholder={`שאל שאלה בנושא ${activeAiQuery === 'nutrition' ? 'תזונה' : activeAiQuery === 'herbs' ? 'צמחי מרפא' : 'אבחון'}...`}
+                    placeholder="שאל שאלה..."
                     rows={2}
                     className="flex-1"
                   />

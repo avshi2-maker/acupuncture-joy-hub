@@ -42,6 +42,7 @@ import Developers from "./pages/Developers";
 import ScenariosDashboard from "./pages/ScenariosDashboard";
 import TherapistDisclaimer from "./pages/TherapistDisclaimer";
 import AdminDisclaimers from "./pages/AdminDisclaimers";
+import CMBrainQuestions from "./pages/CMBrainQuestions";
 
 const queryClient = new QueryClient();
 
@@ -91,6 +92,7 @@ const App = () => (
                     <Route path="/encyclopedia" element={<EncyclopediaLanding />} />
                     <Route path="/developers" element={<Developers />} />
                     <Route path="/scenarios" element={<ScenariosDashboard />} />
+                    <Route path="/cm-brain-questions" element={<CMBrainQuestions />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>
