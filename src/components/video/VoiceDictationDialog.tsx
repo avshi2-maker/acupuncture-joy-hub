@@ -11,7 +11,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { Mic, Square, Save, Play, Pause, Trash2, Loader2 } from 'lucide-react';
+import { Square, Save, Play, Pause, Trash2, Loader2 } from 'lucide-react';
+import { AnimatedMic } from '@/components/ui/AnimatedMic';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -219,7 +220,7 @@ export function VoiceDictationDialog({
       <DialogContent className="sm:max-w-lg" dir="rtl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Mic className="h-5 w-5 text-jade" />
+            <AnimatedMic size="md" />
             הקלטת תוכנית טיפול
           </DialogTitle>
           <DialogDescription>
@@ -251,7 +252,7 @@ export function VoiceDictationDialog({
             <div className="flex gap-3">
               {!isRecording && !audioBlob && (
                 <Button onClick={startRecording} size="lg" className="gap-2 bg-jade hover:bg-jade/90">
-                  <Mic className="h-5 w-5" />
+                  <AnimatedMic size="md" />
                   התחל הקלטה
                 </Button>
               )}
