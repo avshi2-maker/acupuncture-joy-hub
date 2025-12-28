@@ -10,6 +10,7 @@ interface ZoomTokenResponse {
   access_token: string;
   token_type: string;
   expires_in: number;
+  scope?: string;
 }
 
 interface ZoomMeetingResponse {
@@ -93,7 +94,11 @@ serve(async (req) => {
     }
 
     const tokenData: ZoomTokenResponse = await tokenResponse.json();
-    console.log('Got Zoom access token');
+    console.log('Got Zoom access token', {
+      token_type: tokenData.token_type,
+      expires_in: tokenData.expires_in,
+      scope: tokenData.scope,
+    });
 
     // Create meeting
     const meetingPayload = {
@@ -126,6 +131,25 @@ serve(async (req) => {
     if (!meetingResponse.ok) {
       const errorText = await meetingResponse.text();
       console.error('Meeting creation error:', errorText);
+
+      // Surface missing-scope errors clearly (Zoom error code 4711)
+      try {
+        const parsed = JSON.parse(errorText);
+        const msg: string = parsed?.message || '';
+        if (typeof msg === 'string' && msg.includes('does not contain scopes')) {
+          return new Response(
+            JSON.stringify({
+              error: 'Zoom app missing required scopes',
+              requiredScopes: ['meeting:write:meeting', 'meeting:write:meeting:admin'],
+              details: parsed,
+            }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      } catch {
+        // ignore JSON parse errors
+      }
+
       return new Response(
         JSON.stringify({ error: 'Failed to create Zoom meeting', details: errorText }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
