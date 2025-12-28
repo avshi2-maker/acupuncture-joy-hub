@@ -1,22 +1,17 @@
-import { useState, useEffect } from "react";
-import { Menu, X, Leaf, Code } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Menu, X, Leaf, Code, Volume2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WhatsAppCTA } from "@/components/ui/WhatsAppCTA";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
-
-const drBio = `Dr. Roni Sapir is a licensed practitioner of Traditional Chinese Medicine with over 15 years of experience in acupuncture and holistic healing. Trained in both Western and Eastern medical traditions, Dr. Sapir specializes in pain management, stress relief, and women's health. His integrative approach combines ancient TCM wisdom with modern diagnostic techniques.`;
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isPlayingBio, setIsPlayingBio] = useState(false);
+  const bioAudioRef = useRef<HTMLAudioElement | null>(null);
   const location = useLocation();
   const { t } = useLanguage();
 
@@ -34,6 +29,29 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleBioHover = () => {
+    if (!bioAudioRef.current) {
+      bioAudioRef.current = new Audio('/audio/roni_bio.mp3');
+      bioAudioRef.current.onended = () => setIsPlayingBio(false);
+      bioAudioRef.current.onerror = () => setIsPlayingBio(false);
+    }
+    
+    if (!isPlayingBio) {
+      bioAudioRef.current.currentTime = 0;
+      bioAudioRef.current.play().then(() => {
+        setIsPlayingBio(true);
+      }).catch(console.error);
+    }
+  };
+
+  const handleBioLeave = () => {
+    if (bioAudioRef.current && isPlayingBio) {
+      bioAudioRef.current.pause();
+      bioAudioRef.current.currentTime = 0;
+      setIsPlayingBio(false);
+    }
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
@@ -49,17 +67,16 @@ const Header = () => {
             <Leaf className={`w-6 h-6 transition-colors duration-300 ${isScrolled || !isHomePage ? 'text-jade' : 'text-primary-foreground'}`} />
           </div>
           <div className={`font-display tracking-wide transition-colors duration-300 ${isScrolled || !isHomePage ? 'text-foreground' : 'text-primary-foreground'} hidden sm:flex flex-col leading-tight`}>
-            <HoverCard openDelay={200}>
-              <HoverCardTrigger asChild>
-                <span className="text-lg lg:text-xl font-bold cursor-pointer hover:underline underline-offset-2">Dr Roni Sapir</span>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-80 p-4" side="bottom" align="start">
-                <div className="space-y-3">
-                  <h4 className="font-display font-semibold text-foreground">About Dr. Roni Sapir</h4>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{drBio}</p>
-                </div>
-              </HoverCardContent>
-            </HoverCard>
+            <span 
+              onMouseEnter={handleBioHover}
+              onMouseLeave={handleBioLeave}
+              className="text-lg lg:text-xl font-bold cursor-pointer hover:underline underline-offset-2 inline-flex items-center gap-2"
+            >
+              Dr Roni Sapir
+              {isPlayingBio && (
+                <Volume2 className="w-4 h-4 animate-pulse text-gold" />
+              )}
+            </span>
             <span className="text-sm lg:text-base font-semibold opacity-90">Complementary Medicine - Acupuncture Clinic</span>
             <span className="text-xs lg:text-sm font-normal opacity-70 italic">Healing Through Balance with AI</span>
           </div>
