@@ -6,6 +6,13 @@ import { Link, useLocation } from "react-router-dom";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WhatsAppCTA } from "@/components/ui/WhatsAppCTA";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+
+const drBio = `Dr. Roni Sapir is a licensed practitioner of Traditional Chinese Medicine with over 15 years of experience in acupuncture and holistic healing. Trained in both Western and Eastern medical traditions, Dr. Sapir specializes in pain management, stress relief, and women's health. His integrative approach combines ancient TCM wisdom with modern diagnostic techniques.`;
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -42,7 +49,17 @@ const Header = () => {
             <Leaf className={`w-6 h-6 transition-colors duration-300 ${isScrolled || !isHomePage ? 'text-jade' : 'text-primary-foreground'}`} />
           </div>
           <div className={`font-display tracking-wide transition-colors duration-300 ${isScrolled || !isHomePage ? 'text-foreground' : 'text-primary-foreground'} hidden sm:flex flex-col leading-tight`}>
-            <span className="text-lg lg:text-xl font-bold">Dr Roni Sapir</span>
+            <HoverCard openDelay={200}>
+              <HoverCardTrigger asChild>
+                <span className="text-lg lg:text-xl font-bold cursor-pointer hover:underline underline-offset-2">Dr Roni Sapir</span>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80 p-4" side="bottom" align="start">
+                <div className="space-y-3">
+                  <h4 className="font-display font-semibold text-foreground">About Dr. Roni Sapir</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{drBio}</p>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
             <span className="text-sm lg:text-base font-semibold opacity-90">Complementary Medicine - Acupuncture Clinic</span>
             <span className="text-xs lg:text-sm font-normal opacity-70 italic">Healing Through Balance with AI</span>
           </div>

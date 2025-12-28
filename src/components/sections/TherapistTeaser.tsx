@@ -444,7 +444,7 @@ const TherapistTeaser = () => {
   };
 
   return (
-    <section className="py-16 bg-gradient-to-b from-background to-muted/30">
+    <section id="therapist-teaser" className="py-16 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <span className="inline-block px-4 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
@@ -462,13 +462,13 @@ const TherapistTeaser = () => {
         {/* Video Player Container */}
         <div className="max-w-4xl mx-auto">
           <div 
-            className="relative rounded-2xl overflow-hidden bg-black border border-border/50 shadow-elevated aspect-video"
+            className="relative rounded-2xl overflow-hidden bg-transparent shadow-elevated aspect-video"
           >
             {/* Video Element */}
             <video
               ref={videoRef}
               src={videos[currentVideo]}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain bg-gradient-to-br from-jade/10 to-gold/5"
               muted={isMuted}
               playsInline
               preload="auto"
