@@ -40,6 +40,7 @@ import EncyclopediaLanding from "./pages/EncyclopediaLanding";
 import Developers from "./pages/Developers";
 import ScenariosDashboard from "./pages/ScenariosDashboard";
 import TherapistDisclaimer from "./pages/TherapistDisclaimer";
+import AdminDisclaimers from "./pages/AdminDisclaimers";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +79,7 @@ const App = () => (
                     <Route path="/install" element={<InstallApp />} />
                     <Route path="/admin/feedback" element={<AdminFeedback />} />
                     <Route path="/admin/knowledge" element={<KnowledgeRegistry />} />
+                    <Route path="/admin/disclaimers" element={<AdminDisclaimers />} />
                     <Route path="/knowledge-registry" element={<KnowledgeRegistry />} />
                     <Route path="/bazi-calculator" element={<BaziCalculator />} />
                     <Route path="/legal-report" element={<LegalReport />} />
