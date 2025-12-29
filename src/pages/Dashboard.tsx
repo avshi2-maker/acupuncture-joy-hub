@@ -214,7 +214,14 @@ export default function Dashboard() {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
-  // Fetch notifications (pending follow-ups and today's appointments)
+  // Get time-based greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return 'בוקר טוב';
+    if (hour >= 12 && hour < 17) return 'צהריים טובים';
+    if (hour >= 17 && hour < 21) return 'ערב טוב';
+    return 'לילה טוב';
+  };
   const fetchNotifications = useCallback(async () => {
     try {
       const today = new Date();
@@ -732,7 +739,7 @@ export default function Dashboard() {
         {/* Welcome Section */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="font-display text-3xl mb-2 opacity-0 animate-fade-in" style={{ animationDelay: '250ms', animationFillMode: 'forwards' }}>שלום וברוכים הבאים!</h2>
+            <h2 className="font-display text-3xl mb-2 opacity-0 animate-fade-in" style={{ animationDelay: '250ms', animationFillMode: 'forwards' }}>{getGreeting()}! 👋</h2>
             <p className="text-muted-foreground opacity-0 animate-fade-in" style={{ animationDelay: '350ms', animationFillMode: 'forwards' }}>
               {tier === 'trial' && daysRemaining !== null && (
                 <>נותרו לכם {daysRemaining} ימי ניסיון. <Link to="/pricing" className="text-jade hover:underline">שדרגו עכשיו</Link></>
