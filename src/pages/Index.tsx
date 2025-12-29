@@ -79,7 +79,7 @@ const Index = () => {
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30">
           <Link 
             to="/encyclopedia"
-            className="flex items-center gap-2 bg-gradient-to-r from-gold to-gold/80 hover:from-gold/90 hover:to-gold/70 text-foreground px-6 py-3 rounded-lg transition-all shadow-lg hover:shadow-xl font-medium"
+            className="flex items-center gap-2 bg-gradient-to-r from-gold to-gold/80 hover:from-gold/90 hover:to-gold/70 text-foreground px-6 py-3 rounded-lg transition-all shadow-lg hover:shadow-xl hover:scale-105 font-medium animate-[pulse_3s_ease-in-out_infinite]"
           >
             <BookOpen className="h-5 w-5" />
             <span>CM Digital Encyclopedia</span>
@@ -88,8 +88,8 @@ const Index = () => {
 
         {/* Watch Video Button - Bottom Left */}
         <div className="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-30">
-          <button className="flex items-center gap-3 bg-foreground/80 hover:bg-foreground/90 backdrop-blur-sm text-cream px-4 py-3 rounded-full transition-all shadow-lg hover:shadow-xl group">
-            <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center">
+          <button className="flex items-center gap-3 bg-foreground/80 hover:bg-foreground/90 backdrop-blur-sm text-cream px-4 py-3 rounded-full transition-all shadow-lg hover:shadow-xl hover:scale-105 group">
+            <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center animate-[pulse_2s_ease-in-out_infinite]">
               <Play className="h-4 w-4 text-foreground fill-foreground" />
             </div>
             <span className="text-sm font-medium pr-2">Watch Short Video Clinic Presentation</span>
@@ -102,7 +102,7 @@ const Index = () => {
             <div className="relative">
               <Link 
                 to="/install"
-                className="flex items-center gap-2 bg-jade hover:bg-jade/90 text-white px-4 py-3 rounded-full transition-all shadow-lg hover:shadow-xl font-medium text-sm"
+                className="flex items-center gap-2 bg-jade hover:bg-jade/90 text-white px-4 py-3 rounded-full transition-all shadow-lg hover:shadow-xl hover:scale-105 font-medium text-sm animate-[pulse_2.5s_ease-in-out_infinite]"
               >
                 <Smartphone className="h-4 w-4" />
                 <span>Install App</span>
