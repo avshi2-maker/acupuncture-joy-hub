@@ -34,12 +34,16 @@ interface FeatureCardProps {
   highlighted?: boolean;
   backgroundImage?: string;
   animationDelay?: number;
+  locked?: boolean;
+  lockMessage?: string;
 }
 
-function FeatureCard({ title, description, icon, available, href, highlighted, backgroundImage, animationDelay = 0 }: FeatureCardProps) {
+function FeatureCard({ title, description, icon, available, href, highlighted, backgroundImage, animationDelay = 0, locked, lockMessage }: FeatureCardProps) {
+  const isLocked = locked || !available;
+  
   const content = (
     <Card 
-      className={`transition-all duration-300 h-full relative overflow-hidden transform opacity-0 animate-fade-in ${available ? 'hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-jade/20 hover:scale-[1.03] cursor-pointer' : 'opacity-60'} ${highlighted ? 'ring-2 ring-jade border-jade hover:ring-jade/80 hover:shadow-jade/30' : ''}`}
+      className={`transition-all duration-300 h-full relative overflow-hidden transform opacity-0 animate-fade-in ${!isLocked ? 'hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-jade/20 hover:scale-[1.03] cursor-pointer' : 'opacity-60'} ${highlighted && !isLocked ? 'ring-2 ring-jade border-jade hover:ring-jade/80 hover:shadow-jade/30' : ''}`}
       style={{
         animationDelay: `${animationDelay}ms`,
         animationFillMode: 'forwards',
@@ -52,28 +56,28 @@ function FeatureCard({ title, description, icon, available, href, highlighted, b
     >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${backgroundImage ? 'bg-white/20 backdrop-blur-sm' : available ? 'bg-jade-light' : 'bg-muted'}`}>
+          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${backgroundImage ? 'bg-white/20 backdrop-blur-sm' : !isLocked ? 'bg-jade-light' : 'bg-muted'}`}>
             {icon}
           </div>
-          {!available && <Lock className={`h-5 w-5 ${backgroundImage ? 'text-white/70' : 'text-muted-foreground'}`} />}
+          {isLocked && <Lock className={`h-5 w-5 ${backgroundImage ? 'text-white/70' : 'text-muted-foreground'}`} />}
         </div>
       </CardHeader>
       <CardContent>
         <CardTitle className={`text-lg mb-1 ${backgroundImage ? 'text-white' : ''}`}>{title}</CardTitle>
         <CardDescription className={`text-sm ${backgroundImage ? 'text-white/80' : ''}`}>
-          {available ? description : 'שדרגו לתוכנית גבוהה יותר'}
+          {isLocked ? (lockMessage || 'שדרגו לתוכנית גבוהה יותר') : description}
         </CardDescription>
       </CardContent>
     </Card>
   );
 
-  if (available && href) {
+  if (!isLocked && href) {
     return <Link to={href}>{content}</Link>;
   }
 
-  if (!available) {
+  if (isLocked) {
     return (
-      <div onClick={() => toast.info('שדרגו את התוכנית שלכם לגישה לפיצ׳ר זה')}>
+      <div onClick={() => toast.info(lockMessage || 'שדרגו את התוכנית שלכם לגישה לפיצ׳ר זה')}>
         {content}
       </div>
     );
@@ -120,7 +124,8 @@ export default function Dashboard() {
     },
   ];
 
-  // Row 2: Video Session, Standard Session
+  // Row 2: Video Session, Standard Session - LOCKED (start from calendar)
+  const sessionLockMessage = 'התחל טיפול מיומן התורים לאחר קביעת תור עם מטופל חתום';
   const row2Features = [
     {
       id: 'video_sessions',
@@ -131,6 +136,8 @@ export default function Dashboard() {
       href: '/video-session',
       highlighted: true,
       backgroundImage: deskBg,
+      locked: true,
+      lockMessage: sessionLockMessage,
     },
     {
       id: 'cm_brain',
@@ -140,6 +147,8 @@ export default function Dashboard() {
       feature: 'tcm_brain' as const,
       href: '/tcm-brain',
       backgroundImage: brainBg,
+      locked: true,
+      lockMessage: sessionLockMessage,
     },
   ];
 
@@ -227,7 +236,7 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Row 2: Video Session, CM Brain, Body Map */}
+        {/* Row 2: Session cards - LOCKED (start from calendar) */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {row2Features.map((feature, index) => (
             <FeatureCard
@@ -240,6 +249,8 @@ export default function Dashboard() {
               highlighted={feature.highlighted}
               backgroundImage={feature.backgroundImage}
               animationDelay={300 + index * 100}
+              locked={feature.locked}
+              lockMessage={feature.lockMessage}
             />
           ))}
         </div>
