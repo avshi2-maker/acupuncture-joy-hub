@@ -236,10 +236,12 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
         ...data,
         id_number: data.id_number || '',
         date_of_birth: data.date_of_birth || '',
-        gender: data.gender as 'male' | 'female' | 'other' || 'female',
-        sleep_quality: data.sleep_quality as any,
-        stress_level: data.stress_level as any,
-        exercise_frequency: data.exercise_frequency as any,
+        gender: (data.gender as 'male' | 'female' | 'other') || 'female',
+        // Ensure Radix Select receives `undefined` (not `null`) to avoid controlled-state loops
+        sleep_quality: (data.sleep_quality ?? undefined) as any,
+        stress_level: (data.stress_level ?? undefined) as any,
+        exercise_frequency: (data.exercise_frequency ?? undefined) as any,
+        constitution_type: (data.constitution_type ?? undefined) as any,
       });
     }
   };
@@ -464,7 +466,7 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Gender *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select gender" />
@@ -826,7 +828,7 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
                       <Moon className="h-4 w-4" />
                       Sleep Quality
                     </FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select..." />
@@ -853,7 +855,7 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
                       <Brain className="h-4 w-4" />
                       Stress Level
                     </FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select..." />
@@ -880,7 +882,7 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
                       <Activity className="h-4 w-4" />
                       Exercise Frequency
                     </FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select..." />
@@ -997,7 +999,7 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
               render={({ field }) => (
                 <FormItem className="md:col-span-2">
                   <FormLabel>Constitution Type</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select constitution type..." />
