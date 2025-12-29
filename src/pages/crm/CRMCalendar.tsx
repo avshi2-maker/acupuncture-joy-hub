@@ -96,7 +96,9 @@ function CalendarContent() {
   const [showQuickPatient, setShowQuickPatient] = useState(false);
   const [quickPatientName, setQuickPatientName] = useState('');
   const [quickPatientPhone, setQuickPatientPhone] = useState('');
+  const [quickPatientIdNumber, setQuickPatientIdNumber] = useState('');
   const [creatingPatient, setCreatingPatient] = useState(false);
+  const [patientSearchFilter, setPatientSearchFilter] = useState('');
   
   // Drag state
   const [dragState, setDragState] = useState<DragState | null>(null);
@@ -205,6 +207,7 @@ function CalendarContent() {
         .insert({
           full_name: quickPatientName.trim(),
           phone: quickPatientPhone.trim(),
+          id_number: quickPatientIdNumber.trim() || null,
           therapist_id: userId,
         })
         .select()
@@ -218,6 +221,7 @@ function CalendarContent() {
       setShowQuickPatient(false);
       setQuickPatientName('');
       setQuickPatientPhone('');
+      setQuickPatientIdNumber('');
       toast.success('מטופל נוצר בהצלחה');
     } catch (error: any) {
       console.error('Error creating patient:', error);
@@ -624,6 +628,15 @@ function CalendarContent() {
                             className="h-9"
                           />
                         </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">ID Number</Label>
+                          <Input
+                            value={quickPatientIdNumber}
+                            onChange={(e) => setQuickPatientIdNumber(e.target.value)}
+                            placeholder="ID number (optional)"
+                            className="h-9"
+                          />
+                        </div>
                         <Button
                           type="button"
                           size="sm"
@@ -635,28 +648,41 @@ function CalendarContent() {
                         </Button>
                       </div>
                     ) : (
-                      <Select
-                        value={newAppt.patient_id}
-                        onValueChange={(v) => {
-                          const patient = patients.find(p => p.id === v);
-                          setNewAppt({ 
-                            ...newAppt, 
-                            patient_id: v,
-                            title: patient?.full_name || newAppt.title 
-                          });
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select patient" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {patients.map((p) => (
-                            <SelectItem key={p.id} value={p.id}>
-                              {p.full_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="space-y-2">
+                        <Input
+                          placeholder="Search patients..."
+                          value={patientSearchFilter}
+                          onChange={(e) => setPatientSearchFilter(e.target.value)}
+                          className="h-9"
+                        />
+                        <Select
+                          value={newAppt.patient_id}
+                          onValueChange={(v) => {
+                            const patient = patients.find(p => p.id === v);
+                            setNewAppt({ 
+                              ...newAppt, 
+                              patient_id: v,
+                              title: patient?.full_name || newAppt.title 
+                            });
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select patient" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {patients
+                              .filter((p) => 
+                                p.full_name.toLowerCase().includes(patientSearchFilter.toLowerCase()) ||
+                                (p.phone && p.phone.includes(patientSearchFilter))
+                              )
+                              .map((p) => (
+                                <SelectItem key={p.id} value={p.id}>
+                                  {p.full_name}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     )}
                   </div>
 
