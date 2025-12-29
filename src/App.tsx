@@ -28,6 +28,8 @@ import CRMPatientNew from "./pages/crm/CRMPatientNew";
 import CRMPatientDetail from "./pages/crm/CRMPatientDetail";
 import CRMPatientEdit from "./pages/crm/CRMPatientEdit";
 import CRMRooms from "./pages/crm/CRMRooms";
+import CRMStaff from "./pages/crm/CRMStaff";
+import CRMClinics from "./pages/crm/CRMClinics";
 import PatientConsentForm from "./pages/crm/PatientConsentForm";
 import AppointmentConfirm from "./pages/AppointmentConfirm";
 import TherapistProfile from "./pages/TherapistProfile";
@@ -86,6 +88,8 @@ const App = () => (
                     <Route path="/crm/patients/:id" element={<RequireTier><CRMPatientDetail /></RequireTier>} />
                     <Route path="/crm/patients/:id/edit" element={<RequireTier><CRMPatientEdit /></RequireTier>} />
                     <Route path="/crm/rooms" element={<RequireTier><CRMRooms /></RequireTier>} />
+                    <Route path="/crm/staff" element={<RequireTier><CRMStaff /></RequireTier>} />
+                    <Route path="/crm/clinics" element={<RequireTier><CRMClinics /></RequireTier>} />
                     <Route path="/crm/patients/:patientId/consent" element={<RequireTier><PatientConsentForm /></RequireTier>} />
 
                     <Route path="/therapist-profile" element={<RequireTier><TherapistProfile /></RequireTier>} />
