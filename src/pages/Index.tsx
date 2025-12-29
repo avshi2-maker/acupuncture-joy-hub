@@ -10,6 +10,7 @@ import heroBg from "@/assets/hero-meridian-bg.png";
 const Index = () => {
   const { t } = useLanguage();
   const [showInstallBanner, setShowInstallBanner] = useState(true);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   const handleWhatsApp = () => {
     window.open("https://wa.me/972544634923", "_blank");
@@ -88,7 +89,10 @@ const Index = () => {
 
         {/* Watch Video Button - Bottom Left */}
         <div className="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-30">
-          <button className="flex items-center gap-3 bg-foreground/80 hover:bg-foreground/90 backdrop-blur-sm text-cream px-4 py-3 rounded-full transition-all shadow-lg hover:shadow-xl hover:scale-105 group">
+          <button 
+            onClick={() => setShowVideoModal(true)}
+            className="flex items-center gap-3 bg-foreground/80 hover:bg-foreground/90 backdrop-blur-sm text-cream px-4 py-3 rounded-full transition-all shadow-lg hover:shadow-xl hover:scale-105 group"
+          >
             <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center animate-[pulse_2s_ease-in-out_infinite]">
               <Play className="h-4 w-4 text-foreground fill-foreground" />
             </div>
@@ -118,6 +122,36 @@ const Index = () => {
           </div>
         )}
       </main>
+
+      {/* Video Modal */}
+      {showVideoModal && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setShowVideoModal(false)}
+        >
+          <div 
+            className="relative w-full max-w-4xl bg-black rounded-xl overflow-hidden shadow-2xl animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setShowVideoModal(false)}
+              className="absolute top-3 right-3 z-10 bg-white/20 hover:bg-white/30 text-white rounded-full p-2 transition-colors"
+              aria-label="Close video"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <video 
+              className="w-full aspect-video"
+              controls
+              autoPlay
+              poster="/videos/poster-default.jpg"
+            >
+              <source src="/videos/promo-1.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </div>
+      )}
     </>
   );
 };
