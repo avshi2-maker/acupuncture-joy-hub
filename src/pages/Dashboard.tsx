@@ -158,7 +158,7 @@ export default function Dashboard() {
   const row3Features = [
     {
       id: 'knowledge_registry',
-      title: 'Knowledge Registry',
+      title: 'מאגר ידע',
       description: 'העלאת וניהול קבצי ידע CSV',
       icon: <Database className="h-6 w-6 text-jade" />,
       href: '/knowledge-registry',
