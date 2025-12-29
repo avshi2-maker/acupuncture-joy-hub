@@ -19,6 +19,7 @@ import {
   Info,
   Key,
   Loader2,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -545,83 +546,96 @@ const Index = () => {
       {/* Video Modal - Auto-playing all videos in sequence */}
       {showVideoModal && (
         <div 
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 animate-fade-in"
+          className="fixed inset-0 z-50 bg-black flex flex-col animate-fade-in"
           onClick={() => setShowVideoModal(false)}
         >
-          <div 
-            className="relative w-full max-w-4xl bg-black rounded-xl overflow-hidden shadow-2xl animate-scale-in"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Back button */}
+          {/* Top bar with back button and landscape hint */}
+          <div className="flex items-center justify-between p-3 bg-black/80 backdrop-blur-sm shrink-0">
             <button 
               onClick={() => setShowVideoModal(false)}
-              className="absolute top-3 left-3 z-10 bg-white/20 hover:bg-white/30 text-white rounded-full px-3 py-2 transition-colors flex items-center gap-2"
+              className="flex items-center gap-2 bg-foreground/20 hover:bg-foreground/30 text-cream rounded-full px-4 py-2 transition-colors"
               aria-label={t("back")}
             >
               <Home className="h-4 w-4" />
-              <span className="text-sm">{t("back")}</span>
+              <span className="text-sm font-medium">{t("back")}</span>
             </button>
-
+            
+            {/* Landscape hint - only on mobile portrait */}
+            <div className="flex items-center gap-2 text-cream/70 text-xs sm:hidden">
+              <RotateCcw className="h-4 w-4" />
+              <span>{language === "he" ? "סובב למסך רחב" : "Rotate for fullscreen"}</span>
+            </div>
+            
             {/* Close button */}
             <button 
               onClick={() => setShowVideoModal(false)}
-              className="absolute top-3 right-3 z-10 bg-white/20 hover:bg-white/30 text-white rounded-full p-2 transition-colors"
+              className="bg-foreground/20 hover:bg-foreground/30 text-cream rounded-full p-2 transition-colors"
               aria-label="Close video"
             >
               <X className="h-5 w-5" />
             </button>
+          </div>
+          
+          {/* Video container - fills remaining space */}
+          <div 
+            className="flex-1 flex items-center justify-center p-2 sm:p-4 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative w-full h-full max-w-5xl flex flex-col">
+              {/* Video title */}
+              <div className="bg-black/60 backdrop-blur-sm px-4 py-2 rounded-lg mb-2 shrink-0">
+                <p className="text-cream font-medium text-sm md:text-base" dir="rtl">
+                  {promoVideos[currentVideoIndex].titleHe}
+                </p>
+                <p className="text-cream/70 text-xs md:text-sm">
+                  {promoVideos[currentVideoIndex].titleEn}
+                </p>
+                <p className="text-gold text-xs mt-1">
+                  {language === "he" ? `סרטון ${currentVideoIndex + 1} מתוך ${promoVideos.length}` : `Video ${currentVideoIndex + 1} of ${promoVideos.length}`}
+                </p>
+              </div>
 
-            {/* Video title - show current video info */}
-            <div className="absolute top-14 left-3 z-10 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-lg">
-              <p className="text-white font-medium text-sm md:text-base" dir="rtl">
-                {promoVideos[currentVideoIndex].titleHe}
-              </p>
-              <p className="text-white/70 text-xs md:text-sm">
-                {promoVideos[currentVideoIndex].titleEn}
-              </p>
-              <p className="text-gold text-xs mt-1">
-                {language === "he" ? `סרטון ${currentVideoIndex + 1} מתוך ${promoVideos.length}` : `Video ${currentVideoIndex + 1} of ${promoVideos.length}`}
-              </p>
-            </div>
+              {/* Video player - contained within viewport */}
+              <div className="flex-1 flex items-center justify-center min-h-0">
+                <video 
+                  key={promoVideos[currentVideoIndex].src}
+                  className="w-full h-full max-h-[70vh] object-contain rounded-lg"
+                  controls
+                  autoPlay
+                  playsInline
+                  poster="/videos/poster-default.jpg"
+                  onEnded={() => {
+                    // Auto-advance to next video, or loop if last video
+                    if (currentVideoIndex < promoVideos.length - 1) {
+                      setCurrentVideoIndex(prev => prev + 1);
+                    } else {
+                      setCurrentVideoIndex(0); // Loop back to start
+                    }
+                  }}
+                >
+                  <source src={promoVideos[currentVideoIndex].src} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
 
-            {/* Video player - auto-advances to next video */}
-            <video 
-              key={promoVideos[currentVideoIndex].src}
-              className="w-full aspect-video"
-              controls
-              autoPlay
-              poster="/videos/poster-default.jpg"
-              onEnded={() => {
-                // Auto-advance to next video, or close modal if last video
-                if (currentVideoIndex < promoVideos.length - 1) {
-                  setCurrentVideoIndex(prev => prev + 1);
-                } else {
-                  // Optional: loop back to first video or close
-                  setCurrentVideoIndex(0); // Loop back to start
-                }
-              }}
-            >
-              <source src={promoVideos[currentVideoIndex].src} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-
-            {/* Video progress indicators */}
-            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex gap-2">
-              {promoVideos.map((video, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentVideoIndex(index)}
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    index === currentVideoIndex 
-                      ? "bg-gold scale-125" 
-                      : index < currentVideoIndex 
-                        ? "bg-jade" // Already played
-                        : "bg-white/50 hover:bg-white/80" // Not yet played
-                  }`}
-                  aria-label={`Go to video ${index + 1}`}
-                  title={video.titleEn}
-                />
-              ))}
+              {/* Video progress indicators */}
+              <div className="flex justify-center gap-2 mt-3 shrink-0">
+                {promoVideos.map((video, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentVideoIndex(index)}
+                    className={`w-3 h-3 rounded-full transition-all ${
+                      index === currentVideoIndex 
+                        ? "bg-gold scale-125" 
+                        : index < currentVideoIndex 
+                          ? "bg-primary" // Already played
+                          : "bg-muted hover:bg-muted-foreground" // Not yet played
+                    }`}
+                    aria-label={`Go to video ${index + 1}`}
+                    title={video.titleEn}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
