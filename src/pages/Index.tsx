@@ -27,7 +27,7 @@ const Index = () => {
       </Helmet>
 
       <main
-        className="min-h-screen flex items-center justify-center px-4 bg-cover bg-center bg-no-repeat relative"
+        className="h-screen overflow-hidden flex items-center justify-center px-4 bg-cover bg-center bg-no-repeat relative"
         style={{ backgroundImage: `url(${heroBg})` }}
       >
         {/* Overlay for better text readability */}
