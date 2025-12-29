@@ -44,12 +44,56 @@ const Index = () => {
   const [audioVolume, setAudioVolume] = useState(0.7);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  
+  // Draggable audio player state
+  const [playerPosition, setPlayerPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0, playerX: 0, playerY: 0 });
 
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = audioVolume;
     }
   }, [audioVolume]);
+
+  // Handle mouse move for dragging
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging) {
+        const deltaX = e.clientX - dragStartRef.current.x;
+        const deltaY = e.clientY - dragStartRef.current.y;
+        setPlayerPosition({
+          x: dragStartRef.current.playerX + deltaX,
+          y: dragStartRef.current.playerY + deltaY,
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
+
+  const handleDragStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      playerX: playerPosition.x,
+      playerY: playerPosition.y,
+    };
+  };
 
   const toggleAudio = () => {
     if (audioRef.current) {
@@ -179,13 +223,29 @@ const Index = () => {
               <Volume2 className="h-4 w-4 text-cream/60 group-hover:text-gold transition-colors" />
             </div>
             
-            {/* Audio player popup - positioned ABOVE the name */}
+            {/* Audio player popup - positioned ABOVE the name, draggable */}
             {showAudioPlayer && (
               <div
-                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-cream/95 backdrop-blur-sm rounded-lg p-4 shadow-xl z-20 animate-fade-in min-w-[280px] border border-gold/30"
+                className="fixed bg-cream/95 backdrop-blur-sm rounded-lg p-4 shadow-xl z-50 animate-fade-in min-w-[300px] border-2 border-gold/50"
+                style={{
+                  left: `calc(50% + ${playerPosition.x}px)`,
+                  top: `calc(30% + ${playerPosition.y}px)`,
+                  transform: 'translate(-50%, -50%)',
+                  cursor: isDragging ? 'grabbing' : 'default',
+                }}
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Close button */}
+                {/* Drag handle */}
+                <div 
+                  className="absolute top-0 left-0 right-0 h-8 bg-gold/20 rounded-t-lg cursor-grab flex items-center justify-center"
+                  onMouseDown={handleDragStart}
+                >
+                  <div className="flex gap-1">
+                    <div className="w-8 h-1 bg-foreground/30 rounded-full" />
+                  </div>
+                </div>
+                
+                {/* Close button - more prominent */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -196,10 +256,11 @@ const Index = () => {
                     setIsPlaying(false);
                     setAudioProgress(0);
                     setShowAudioPlayer(false);
+                    setPlayerPosition({ x: 0, y: 0 });
                   }}
-                  className="absolute top-2 right-2 w-6 h-6 rounded-full bg-foreground/80 hover:bg-foreground flex items-center justify-center transition-colors"
+                  className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors shadow-lg border-2 border-white"
                 >
-                  <X className="h-4 w-4 text-cream" />
+                  <X className="h-5 w-5 text-white" />
                 </button>
                 
                 <audio 
@@ -210,8 +271,8 @@ const Index = () => {
                   onLoadedMetadata={handleLoadedMetadata}
                 />
                 
-                {/* Main controls row */}
-                <div className="flex items-center gap-3 mb-3">
+                {/* Main controls row - adjusted top padding for drag handle */}
+                <div className="flex items-center gap-3 mb-3 mt-6">
                   <button
                     onClick={toggleAudio}
                     className="w-10 h-10 rounded-full bg-gold hover:bg-gold/80 flex items-center justify-center transition-colors shrink-0"
