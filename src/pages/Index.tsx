@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { useState, useRef } from "react";
-import { Volume2, VolumeX, Play, Pause } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Volume2, VolumeX, Play, Pause, Volume1 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Leaf, MessageCircle, Smartphone, X, Play as PlayIcon, BookOpen, ChevronLeft, ChevronRight, Home } from "lucide-react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -23,7 +23,17 @@ const Index = () => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [audioProgress, setAudioProgress] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
+  const [audioVolume, setAudioVolume] = useState(0.7);
+  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = audioVolume;
+    }
+  }, [audioVolume]);
 
   const toggleAudio = () => {
     if (audioRef.current) {
@@ -34,6 +44,39 @@ const Index = () => {
       }
       setIsPlaying(!isPlaying);
     }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setAudioProgress(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setAudioDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (audioRef.current && audioDuration) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const percentage = clickX / rect.width;
+      audioRef.current.currentTime = percentage * audioDuration;
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const getVolumeIcon = () => {
+    if (audioVolume === 0) return <VolumeX className="h-4 w-4" />;
+    if (audioVolume < 0.5) return <Volume1 className="h-4 w-4" />;
+    return <Volume2 className="h-4 w-4" />;
   };
 
   const handleWhatsApp = () => {
@@ -120,16 +163,20 @@ const Index = () => {
             
             {/* Audio player popup */}
             {showAudioPlayer && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-foreground/90 backdrop-blur-sm rounded-lg p-3 shadow-xl z-20 animate-fade-in min-w-[200px]">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-foreground/95 backdrop-blur-sm rounded-lg p-4 shadow-xl z-20 animate-fade-in min-w-[280px]">
                 <audio 
                   ref={audioRef} 
                   src="/audio/roni_bio.mp3"
-                  onEnded={() => setIsPlaying(false)}
+                  onEnded={() => { setIsPlaying(false); setAudioProgress(0); }}
+                  onTimeUpdate={handleTimeUpdate}
+                  onLoadedMetadata={handleLoadedMetadata}
                 />
-                <div className="flex items-center gap-3">
+                
+                {/* Main controls row */}
+                <div className="flex items-center gap-3 mb-3">
                   <button
                     onClick={toggleAudio}
-                    className="w-10 h-10 rounded-full bg-gold hover:bg-gold/80 flex items-center justify-center transition-colors"
+                    className="w-10 h-10 rounded-full bg-gold hover:bg-gold/80 flex items-center justify-center transition-colors shrink-0"
                   >
                     {isPlaying ? (
                       <Pause className="h-5 w-5 text-foreground" />
@@ -143,6 +190,36 @@ const Index = () => {
                     </p>
                     <p className="text-cream/60 text-xs">Dr. Roni Sapir</p>
                   </div>
+                  
+                  {/* Volume control */}
+                  <div 
+                    className="relative"
+                    onMouseEnter={() => setShowVolumeSlider(true)}
+                    onMouseLeave={() => setShowVolumeSlider(false)}
+                  >
+                    <button 
+                      onClick={() => setAudioVolume(audioVolume > 0 ? 0 : 0.7)}
+                      className="text-cream/70 hover:text-cream transition-colors p-1"
+                    >
+                      {getVolumeIcon()}
+                    </button>
+                    
+                    {showVolumeSlider && (
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-foreground/95 rounded-lg p-2 shadow-lg">
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.1"
+                          value={audioVolume}
+                          onChange={(e) => setAudioVolume(parseFloat(e.target.value))}
+                          className="w-20 h-1.5 accent-gold cursor-pointer"
+                          style={{ writingMode: 'horizontal-tb' }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  
                   {isPlaying && (
                     <div className="flex gap-0.5">
                       {[1,2,3].map((i) => (
@@ -157,6 +234,25 @@ const Index = () => {
                       ))}
                     </div>
                   )}
+                </div>
+                
+                {/* Progress bar */}
+                <div 
+                  className="h-1.5 bg-cream/20 rounded-full cursor-pointer group"
+                  onClick={handleProgressClick}
+                >
+                  <div 
+                    className="h-full bg-gold rounded-full relative transition-all"
+                    style={{ width: audioDuration ? `${(audioProgress / audioDuration) * 100}%` : '0%' }}
+                  >
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-gold rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </div>
+                
+                {/* Time display */}
+                <div className="flex justify-between mt-1 text-cream/50 text-xs">
+                  <span>{formatTime(audioProgress)}</span>
+                  <span>{formatTime(audioDuration)}</span>
                 </div>
               </div>
             )}
