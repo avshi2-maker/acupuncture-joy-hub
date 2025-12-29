@@ -306,11 +306,20 @@ export default function CRMPatientDetail() {
         {/* Header */}
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/crm/patients">
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/crm/calendar">
+                  <Calendar className="h-4 w-4 mr-1" />
+                  Calendar
+                </Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/crm/patients">
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Patients
+                </Link>
+              </Button>
+            </div>
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-jade/10 flex items-center justify-center">
                 <User className="h-8 w-8 text-jade" />

@@ -22,6 +22,7 @@ import {
   CheckCircle2,
   ArrowLeft,
   User,
+  Calendar,
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 
@@ -260,7 +261,13 @@ export default function PatientConsentForm() {
                   />
                 </div>
               )}
-              <div className="pt-4">
+              <div className="pt-4 flex gap-2 justify-center">
+                <Button variant="outline" asChild>
+                  <Link to="/crm/calendar">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Calendar
+                  </Link>
+                </Button>
                 <Button asChild>
                   <Link to={`/crm/patients/${patient.id}`}>
                     <ArrowLeft className="h-4 w-4 mr-2" />
@@ -280,12 +287,20 @@ export default function PatientConsentForm() {
       {/* Header */}
       <div className="bg-jade text-white py-6 px-4">
         <div className="max-w-2xl mx-auto">
-          <div className="flex items-center gap-3 mb-2">
-            <FileSignature className="h-8 w-8" />
-            <div>
-              <h1 className="text-2xl font-display font-semibold">{siteConfig.name}</h1>
-              <p className="text-jade-light/80 text-sm">Informed Consent Form</p>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <FileSignature className="h-8 w-8" />
+              <div>
+                <h1 className="text-2xl font-display font-semibold">{siteConfig.name}</h1>
+                <p className="text-jade-light/80 text-sm">Informed Consent Form</p>
+              </div>
             </div>
+            <Button variant="ghost" size="sm" className="text-white hover:bg-white/10" asChild>
+              <Link to="/crm/calendar">
+                <Calendar className="h-4 w-4 mr-1" />
+                Calendar
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
