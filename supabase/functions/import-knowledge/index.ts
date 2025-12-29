@@ -211,6 +211,18 @@ serve(async (req) => {
             answer = `Stage: ${stage}\nNotes: ${notes}\nTreatment Suggestions: ${treatmentSuggestions}`;
             content = `Patient Q&A - ${stage}\nQ: ${questionText}\nNotes: ${notes}\nTreatment: ${treatmentSuggestions}`;
             contentType = 'qa';
+          } else if (row.Category && row.Diet_Habit && (row.TCM_Perspective || row.Western_Perspective)) {
+            // Diet & Nutrition Intake format
+            const category = row.Category || '';
+            const habit = row.Diet_Habit || '';
+            const western = row.Western_Perspective || '';
+            const tcm = row.TCM_Perspective || '';
+            const calories = row.Estimated_Calories_Per_Day || '';
+            
+            question = `What are the health implications of "${habit}" (${category})?`;
+            answer = `Western Perspective: ${western}\nTCM Perspective: ${tcm}${calories ? `\nEstimated Calories: ${calories}` : ''}`;
+            content = `Diet & Nutrition: ${category}\nHabit: ${habit}\nWestern View: ${western}\nTCM View: ${tcm}${calories ? `\nCalories: ${calories}` : ''}`;
+            contentType = 'qa';
           } else {
             // Generic: join all values
             content = Object.values(row).filter(Boolean).join(' | ');
