@@ -13,6 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTier } from '@/hooks/useTier';
 import { TierBadge } from '@/components/layout/TierBadge';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { ChatMessage, ChatTypingIndicator } from '@/components/chat/ChatMessage';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -1285,6 +1286,7 @@ export default function TcmBrain() {
                   </>
                 )}
               </Button>
+              <LanguageSwitcher variant="ghost" isScrolled={true} />
               <TierBadge />
               <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={handleLogout}>
                 <LogOut className="h-3.5 w-3.5" />

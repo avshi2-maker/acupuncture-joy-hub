@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { FileText, Download, CheckCircle, Clock, AlertCircle, Shield, Database, FileCheck, Upload, Trash2, Pause, Play, RotateCcw, XCircle, ArrowLeft } from 'lucide-react';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { format } from 'date-fns';
 
 // Simple CSV parser
@@ -538,19 +539,23 @@ ${report.legalDeclaration.declarationText}
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
-      {/* Animated Back to Dashboard */}
-      <Link
-        to="/dashboard"
-        className="group inline-flex items-center gap-2 text-sm font-medium py-1.5 px-3 rounded-lg mb-4
-                   bg-gradient-to-r from-jade-600/10 to-jade-500/5
-                   text-jade-700 dark:text-jade-300
-                   hover:from-jade-600/20 hover:to-jade-500/10
-                   transition-all duration-300 hover:-translate-x-1"
-      >
-        <ArrowLeft className="h-4 w-4 animate-pulse-arrow" />
-        <span className="animate-bounce-subtle">🏠</span>
-        Dashboard
-      </Link>
+      {/* Header with Navigation and Language Switcher */}
+      <div className="flex items-center justify-between mb-4">
+        {/* Animated Back to Dashboard */}
+        <Link
+          to="/dashboard"
+          className="group inline-flex items-center gap-2 text-sm font-medium py-1.5 px-3 rounded-lg
+                     bg-gradient-to-r from-jade-600/10 to-jade-500/5
+                     text-jade-700 dark:text-jade-300
+                     hover:from-jade-600/20 hover:to-jade-500/10
+                     transition-all duration-300 hover:-translate-x-1"
+        >
+          <ArrowLeft className="h-4 w-4 animate-pulse-arrow" />
+          <span className="animate-bounce-subtle">🏠</span>
+          Dashboard
+        </Link>
+        <LanguageSwitcher variant="ghost" isScrolled={true} />
+      </div>
       
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
