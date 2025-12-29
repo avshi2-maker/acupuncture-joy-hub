@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { TierBadge } from '@/components/layout/TierBadge';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 const mainNavItems = [
   { title: 'Dashboard', url: '/crm', icon: LayoutDashboard },
@@ -193,17 +194,22 @@ export function CRMSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border/30 p-4">
-        <div className="flex items-center justify-between gap-2">
-          {(!isCollapsed || isMobile) && <TierBadge />}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
-            onClick={handleLogout}
-            title="Logout"
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-2">
+            {(!isCollapsed || isMobile) && <TierBadge />}
+            <div className="flex items-center gap-1">
+              <LanguageSwitcher variant="ghost" isScrolled={true} />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                onClick={handleLogout}
+                title="Logout"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
       </SidebarFooter>
     </Sidebar>
