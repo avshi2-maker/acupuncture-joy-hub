@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, Users, Clock, TrendingUp, Plus, ArrowRight, Video } from 'lucide-react';
@@ -7,6 +7,8 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { CRMLayout } from '@/components/crm/CRMLayout';
+import { PullToRefreshContainer } from '@/components/ui/PullToRefreshContainer';
+import { toast } from 'sonner';
 
 interface DashboardStats {
   totalPatients: number;
@@ -29,7 +31,7 @@ export default function CRMDashboard() {
     fetchDashboardData();
   }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     setLoading(true);
     const today = new Date();
     const startOfDay = new Date(today.setHours(0, 0, 0, 0)).toISOString();
@@ -75,6 +77,12 @@ export default function CRMDashboard() {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  // Pull-to-refresh handler
+  const handleRefresh = async () => {
+    await fetchDashboardData();
+    toast.success('Dashboard updated', { duration: 2000 });
   };
 
   const statCards = [
@@ -86,7 +94,8 @@ export default function CRMDashboard() {
 
   return (
     <CRMLayout>
-      <div className="space-y-4 md:space-y-6">
+      <PullToRefreshContainer onRefresh={handleRefresh} className="min-h-full">
+        <div className="space-y-4 md:space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -260,7 +269,8 @@ export default function CRMDashboard() {
             </CardContent>
           </Card>
         </div>
-      </div>
+        </div>
+      </PullToRefreshContainer>
     </CRMLayout>
   );
 }

@@ -59,6 +59,8 @@ import { VoiceDictationDialog } from '@/components/video/VoiceDictationDialog';
 import { CalendarInviteDialog } from '@/components/video/CalendarInviteDialog';
 import { SessionReportDialog } from '@/components/video/SessionReportDialog';
 import { MobileSessionBar } from '@/components/video/MobileSessionBar';
+import { MobileToolsDrawer } from '@/components/video/MobileToolsDrawer';
+import { CrossPlatformBackButton } from '@/components/ui/CrossPlatformBackButton';
 import { SessionTimerWidget } from '@/components/crm/SessionTimerWidget';
 import { SessionTimerProvider } from '@/contexts/SessionTimerContext';
 import { useSessionPersistence } from '@/hooks/useSessionPersistence';
@@ -452,15 +454,24 @@ export default function VideoSession() {
         {/* Header - Optimized for mobile */}
         <header className="bg-card border-b border-border sticky top-0 z-50">
           <div className="max-w-full mx-auto px-3 md:px-4 py-2 md:py-4 relative flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2 md:gap-4 hover:opacity-90 transition-opacity">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-jade-light rounded-full flex items-center justify-center">
-                <Leaf className="h-4 w-4 md:h-5 md:w-5 text-jade" />
-              </div>
-              <div className="hidden sm:block">
-                <h1 className="font-display text-lg md:text-xl">TCM Clinic</h1>
-                <p className="text-xs md:text-sm text-muted-foreground">פגישת וידאו</p>
-              </div>
-            </Link>
+            {/* Mobile: Back button + Logo */}
+            <div className="flex items-center gap-1 md:gap-4">
+              <CrossPlatformBackButton 
+                fallbackPath="/dashboard" 
+                variant="ghost" 
+                size="icon"
+                className="md:hidden h-9 w-9"
+              />
+              <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-jade-light rounded-full flex items-center justify-center">
+                  <Leaf className="h-4 w-4 md:h-5 md:w-5 text-jade" />
+                </div>
+                <div className="hidden sm:block">
+                  <h1 className="font-display text-lg md:text-xl">TCM Clinic</h1>
+                  <p className="text-xs md:text-sm text-muted-foreground">פגישת וידאו</p>
+                </div>
+              </Link>
+            </div>
 
             {/* Mobile Patient Selector - Quick access */}
             <div className="flex md:hidden items-center gap-2 flex-1 mx-2">
@@ -1096,6 +1107,21 @@ export default function VideoSession() {
           onZoomInvite={() => setShowZoomInvite(true)}
           zoomTimeRemaining={getZoomTimeRemaining()}
         />
+
+        {/* Mobile Tools Drawer - Floating button */}
+        <div className="md:hidden fixed bottom-28 right-4 z-40">
+          <MobileToolsDrawer
+            onVoiceDictation={() => setShowVoiceDictation(true)}
+            onAIQuery={(type) => setActiveAiQuery(type as any)}
+            onAnxietyQA={() => setShowAnxietyQA(true)}
+            onFollowUpPlan={() => setShowFollowUpPlan(true)}
+            onQuickAppointment={() => setShowQuickAppointment(true)}
+            onZoomInvite={() => setShowZoomInvite(true)}
+            onSessionReport={() => setShowSessionReport(true)}
+            onSettings={() => setShowSettings(true)}
+            disabled={{ sessionReport: !selectedPatientId || !sessionNotes }}
+          />
+        </div>
       </div>
 
       {/* Dialogs */}
