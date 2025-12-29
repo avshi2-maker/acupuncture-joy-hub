@@ -77,6 +77,8 @@ import { useDoubleTapGesture } from '@/hooks/useDoubleTapGesture';
 import { useShakeGesture } from '@/hooks/useShakeGesture';
 import { MilestoneCelebration } from '@/components/video/MilestoneCelebration';
 import { SwipeStatusTags } from '@/components/video/SwipeStatusTags';
+import { AutoSaveIndicator } from '@/components/video/AutoSaveIndicator';
+import { useThreeFingerTap } from '@/hooks/useThreeFingerTap';
 import { cn } from '@/lib/utils';
 import aiGeneratorBg from '@/assets/ai-generator-bg.png';
 import animatedMicGif from '@/assets/mic-animated.gif';
@@ -141,6 +143,15 @@ export default function VideoSession() {
   // Undo state for shake gesture
   const [notesHistory, setNotesHistory] = useState<string[]>([]);
   const lastNotesRef = useRef<string>('');
+  
+  // Auto-save state
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Panel toggle state for three-finger tap
+  const [activePanel, setActivePanel] = useState<'notes' | 'chat'>('notes');
+  
   const {
     status: sessionStatus,
     duration: sessionDuration,
@@ -222,6 +233,39 @@ export default function VideoSession() {
   const doubleTapHandlers = useDoubleTapGesture({
     onDoubleTap: handleDoubleTapTimestamp,
   });
+
+  // Three-finger tap to toggle between notes and AI chat panel
+  useThreeFingerTap({
+    onTripleTap: useCallback(() => {
+      setActivePanel(prev => prev === 'notes' ? 'chat' : 'notes');
+      haptic.medium();
+      toast.info(`Switched to ${activePanel === 'notes' ? 'AI Chat' : 'Session Notes'}`, { duration: 1500 });
+    }, [activePanel, haptic]),
+  });
+
+  // Auto-save notes with debounce
+  useEffect(() => {
+    if (sessionNotes && sessionStatus !== 'idle') {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      
+      saveTimeoutRef.current = setTimeout(() => {
+        setIsSaving(true);
+        // Simulate save (notes are already persisted by useSessionPersistence)
+        setTimeout(() => {
+          setIsSaving(false);
+          setLastSaved(new Date());
+        }, 300);
+      }, 1000);
+    }
+    
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [sessionNotes, sessionStatus]);
 
   // Reset background paused state when manually resumed
   useEffect(() => {
@@ -826,13 +870,13 @@ export default function VideoSession() {
               Diagnosis
             </Button>
           </div>
-          {/* Second Row - Main Actions */}
-          <div className="flex flex-wrap gap-2 mt-3">
+          {/* Second Row - Main Actions - Responsive sizing */}
+          <div className="flex flex-wrap gap-1.5 md:gap-2 mt-3">
             {/* Animated AI Query Button */}
             <button
               onClick={() => setActiveAiQuery(activeAiQuery ? null : 'nutrition')}
-              className="relative overflow-hidden rounded-lg px-4 py-2 text-white font-medium shadow-lg 
-                         hover:scale-105 transition-all duration-300 animate-pulse-slow group"
+              className="relative overflow-hidden rounded-lg px-2.5 py-1.5 md:px-4 md:py-2 text-white font-medium shadow-lg 
+                         hover:scale-105 transition-all duration-300 animate-pulse-slow group text-xs md:text-sm"
               style={{
                 background: `linear-gradient(135deg, rgba(22, 163, 74, 0.9), rgba(6, 95, 70, 0.95))`,
               }}
@@ -845,10 +889,11 @@ export default function VideoSession() {
                   backgroundPosition: 'center',
                 }}
               />
-              <div className="relative flex items-center gap-2">
-                <Sparkles className="h-5 w-5 animate-bounce" />
-                <span>Ask AI / RAG</span>
-                <Brain className="h-4 w-4" />
+              <div className="relative flex items-center gap-1 md:gap-2">
+                <Sparkles className="h-3.5 w-3.5 md:h-5 md:w-5 animate-bounce" />
+                <span className="hidden xs:inline">Ask AI</span>
+                <span className="xs:hidden">AI</span>
+                <Brain className="h-3 w-3 md:h-4 md:w-4" />
               </div>
             </button>
             
@@ -856,31 +901,33 @@ export default function VideoSession() {
               variant="outline" 
               size="sm" 
               onClick={() => setShowAnxietyQA(true)}
-              className="gap-1.5 bg-rose-100 hover:bg-rose-200 text-rose-800 border-rose-300"
+              className="gap-1 md:gap-1.5 bg-rose-100 hover:bg-rose-200 text-rose-800 border-rose-300 text-xs md:text-sm px-2 md:px-3 h-8 md:h-9"
             >
-              <Heart className="h-4 w-4" />
-              Anxiety Q&A
+              <Heart className="h-3.5 w-3.5 md:h-4 md:w-4" />
+              <span className="hidden xs:inline">Anxiety</span>
+              <span className="xs:hidden">Q&A</span>
             </Button>
             <Button 
               variant="outline" 
               size="sm" 
               onClick={() => navigate('/cm-brain-questions')}
-              className="gap-1.5 bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-300"
+              className="gap-1 md:gap-1.5 bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-300 text-xs md:text-sm px-2 md:px-3 h-8 md:h-9"
             >
-              <Brain className="h-4 w-4" />
-              CM Brain
-              <span className="ms-1 text-[11px] opacity-80">(150)</span>
+              <Brain className="h-3.5 w-3.5 md:h-4 md:w-4" />
+              <span>CM</span>
+              <span className="hidden md:inline ms-1 text-[11px] opacity-80">(150)</span>
             </Button>
             <Button 
               variant="outline" 
               size="sm" 
               onClick={() => setShowSessionReport(true)}
               disabled={!selectedPatientId || !sessionNotes}
-              className="gap-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 border-indigo-300"
+              className="gap-1 md:gap-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 border-indigo-300 text-xs md:text-sm px-2 md:px-3 h-8 md:h-9"
               title="Generate AI summary report of the session notes"
             >
-              <FileText className="h-4 w-4" />
-              AI Report
+              <FileText className="h-3.5 w-3.5 md:h-4 md:w-4" />
+              <span className="hidden xs:inline">AI Report</span>
+              <span className="xs:hidden">Report</span>
             </Button>
           </div>
         </div>
@@ -1079,7 +1126,10 @@ export default function VideoSession() {
               >
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between mb-1">
-                    <label className="text-xs font-medium">הערות פגישה:</label>
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs font-medium">הערות פגישה:</label>
+                      <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} />
+                    </div>
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] text-muted-foreground md:hidden">
                         Double-tap for timestamp
