@@ -6,7 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { Send, Loader2, BookOpen, FileText, AlertCircle } from 'lucide-react';
+import { Send, Loader2, BookOpen, FileText, AlertCircle, Printer } from 'lucide-react';
+import { VoiceInputButton } from '@/components/ui/VoiceInputButton';
+import { usePrintContent } from '@/hooks/usePrintContent';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -27,6 +29,16 @@ export function RAGChatInterface({ className }: RAGChatInterfaceProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const { printContent } = usePrintContent();
+
+  const handleVoiceTranscription = (text: string) => {
+    setInput(prev => prev ? `${prev} ${text}` : text);
+  };
+
+  const handlePrint = () => {
+    printContent(contentRef.current, { title: 'TCM Knowledge Base Chat' });
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -82,12 +94,24 @@ export function RAGChatInterface({ className }: RAGChatInterfaceProps) {
   };
 
   return (
-    <Card className={className}>
+    <Card className={className} ref={contentRef}>
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <BookOpen className="w-5 h-5" />
-          Dr. Sapir's TCM Knowledge Base
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <BookOpen className="w-5 h-5" />
+            Dr. Sapir's TCM Knowledge Base
+          </CardTitle>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handlePrint}
+            className="no-print"
+          >
+            <Printer className="h-4 w-4 mr-2" />
+            Print
+          </Button>
+        </div>
         <p className="text-sm text-muted-foreground">
           Answers powered exclusively by proprietary clinical materials
         </p>
@@ -151,8 +175,13 @@ export function RAGChatInterface({ className }: RAGChatInterfaceProps) {
           )}
         </ScrollArea>
 
-        <div className="p-4 border-t">
+        <div className="p-4 border-t no-print">
           <div className="flex gap-2">
+            <VoiceInputButton
+              onTranscription={handleVoiceTranscription}
+              disabled={isLoading}
+              size="sm"
+            />
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
