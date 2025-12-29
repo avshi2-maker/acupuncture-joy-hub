@@ -23,6 +23,11 @@ export const translations: Translations = {
   therapistLogin: { en: "Therapist Login", he: "כניסת מטפלים", ru: "Вход для терапевтов" },
   dashboard: { en: "Dashboard", he: "לוח בקרה", ru: "Панель управления" },
   
+  // Clinic branding
+  drRoniSapir: { en: "Dr Roni Sapir", he: "ד״ר רוני ספיר", ru: "Др. Рони Сапир" },
+  clinicSubtitle: { en: "Complementary Medicine - Acupuncture Clinic", he: "רפואה משלימה - מרפאת דיקור", ru: "Комплементарная медицина - Клиника акупунктуры" },
+  clinicTagline: { en: "Healing Through Balance with AI", he: "ריפוי דרך איזון עם AI", ru: "Исцеление через баланс с ИИ" },
+  
   // Hero
   ancientWisdom: { en: "Ancient Wisdom, Modern Healing", he: "חכמה עתיקה, ריפוי מודרני", ru: "Древняя мудрость, современное исцеление" },
   restoreBalance: { en: "Restore Balance.", he: "שחזר איזון.", ru: "Восстановите баланс." },
