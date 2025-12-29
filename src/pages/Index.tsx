@@ -1,10 +1,14 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Leaf, Globe, MessageCircle } from "lucide-react";
+import { Leaf, MessageCircle } from "lucide-react";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/contexts/LanguageContext";
 import heroBg from "@/assets/hero-meridian-bg.png";
 
 const Index = () => {
+  const { t } = useLanguage();
+
   const handleWhatsApp = () => {
     window.open("https://wa.me/972544634923", "_blank");
   };
@@ -29,10 +33,7 @@ const Index = () => {
 
         {/* Top right navigation */}
         <nav className="absolute top-4 right-4 md:top-6 md:right-6 z-20 flex items-center gap-3">
-          <button className="flex items-center gap-1.5 text-cream/90 hover:text-cream text-sm transition-colors">
-            <Globe className="h-4 w-4" />
-            <span>English</span>
-          </button>
+          <LanguageSwitcher />
           
           <button 
             onClick={handleWhatsApp}
@@ -43,7 +44,7 @@ const Index = () => {
           </button>
           
           <Button asChild variant="outline" size="sm" className="border-cream/50 text-cream hover:bg-cream/10 hover:text-cream">
-            <Link to="/gate">Therapist Login</Link>
+            <Link to="/gate">{t("therapistLogin")}</Link>
           </Button>
         </nav>
 
