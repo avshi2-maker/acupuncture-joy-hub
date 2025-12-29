@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { useTheme } from 'next-themes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,7 +27,9 @@ import {
   Bell,
   Search,
   X,
-  Phone
+  Phone,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
@@ -190,6 +193,7 @@ interface DashboardStats {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { tier, hasFeature, daysRemaining } = useTier();
+  const { theme, setTheme } = useTheme();
   const [stats, setStats] = useState<DashboardStats>({
     totalPatients: 0,
     appointmentsToday: 0,
@@ -205,6 +209,10 @@ export default function Dashboard() {
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
 
   // Fetch notifications (pending follow-ups and today's appointments)
   const fetchNotifications = useCallback(async () => {
@@ -629,6 +637,15 @@ export default function Dashboard() {
                 )}
               </PopoverContent>
             </Popover>
+            
+            {/* Dark Mode Toggle */}
+            <Button variant="ghost" size="icon" onClick={toggleTheme} title={theme === 'dark' ? 'מצב יום' : 'מצב לילה'}>
+              {theme === 'dark' ? (
+                <Sun className="h-5 w-5 text-amber-400" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
             
             <TierBadge />
             <LanguageSwitcher variant="ghost" isScrolled={true} />
