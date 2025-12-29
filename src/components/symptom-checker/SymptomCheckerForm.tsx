@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Stethoscope, User, Loader2 } from 'lucide-react';
+import { Stethoscope, User, Loader2, Printer } from 'lucide-react';
+import { VoiceInputButton } from '@/components/ui/VoiceInputButton';
+import { usePrintContent } from '@/hooks/usePrintContent';
 
 interface PatientInfo {
   ageGroup?: string;
@@ -28,12 +30,23 @@ export function SymptomCheckerForm({ onSubmit, isLoading }: SymptomCheckerFormPr
     constitution: '',
     isPregnant: false,
   });
+  
+  const formRef = useRef<HTMLDivElement>(null);
+  const { printContent } = usePrintContent();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (symptoms.trim()) {
       onSubmit(symptoms, patientInfo);
     }
+  };
+
+  const handleVoiceTranscription = (text: string) => {
+    setSymptoms(prev => prev ? `${prev} ${text}` : text);
+  };
+
+  const handlePrint = () => {
+    printContent(formRef.current, { title: 'Symptom Checker Form' });
   };
 
   const exampleSymptoms = [
@@ -44,12 +57,24 @@ export function SymptomCheckerForm({ onSubmit, isLoading }: SymptomCheckerFormPr
   ];
 
   return (
-    <Card className="border-jade/20">
+    <Card className="border-jade/20" ref={formRef}>
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2">
-          <Stethoscope className="h-5 w-5 text-jade" />
-          Describe Patient Symptoms
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Stethoscope className="h-5 w-5 text-jade" />
+            Describe Patient Symptoms
+          </CardTitle>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handlePrint}
+            className="no-print"
+          >
+            <Printer className="h-4 w-4 mr-2" />
+            Print
+          </Button>
+        </div>
         <CardDescription>
           Enter symptoms in any language. The AI will analyze and suggest TCM patterns.
         </CardDescription>
@@ -58,7 +83,15 @@ export function SymptomCheckerForm({ onSubmit, isLoading }: SymptomCheckerFormPr
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Symptoms Input */}
           <div className="space-y-2">
-            <Label htmlFor="symptoms">Symptoms Description *</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="symptoms">Symptoms Description *</Label>
+              <VoiceInputButton
+                onTranscription={handleVoiceTranscription}
+                disabled={isLoading}
+                size="sm"
+                className="no-print"
+              />
+            </div>
             <Textarea
               id="symptoms"
               value={symptoms}
@@ -69,7 +102,7 @@ export function SymptomCheckerForm({ onSubmit, isLoading }: SymptomCheckerFormPr
             />
             
             {/* Quick Examples */}
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="flex flex-wrap gap-2 mt-2 no-print">
               <span className="text-xs text-muted-foreground">Examples:</span>
               {exampleSymptoms.map((example, i) => (
                 <button
@@ -86,7 +119,7 @@ export function SymptomCheckerForm({ onSubmit, isLoading }: SymptomCheckerFormPr
           </div>
 
           {/* Optional Patient Info Toggle */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 no-print">
             <Switch
               id="patient-info"
               checked={showPatientInfo}
@@ -183,7 +216,7 @@ export function SymptomCheckerForm({ onSubmit, isLoading }: SymptomCheckerFormPr
           <Button
             type="submit"
             size="lg"
-            className="w-full bg-jade hover:bg-jade/90"
+            className="w-full bg-jade hover:bg-jade/90 no-print"
             disabled={!symptoms.trim() || isLoading}
           >
             {isLoading ? (

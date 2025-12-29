@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,10 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { Printer } from 'lucide-react';
+import { VoiceInputButton } from '@/components/ui/VoiceInputButton';
+import { usePrintContent } from '@/hooks/usePrintContent';
 
 const visitSchema = z.object({
   visit_date: z.string().min(1, 'Visit date is required'),
@@ -61,6 +63,18 @@ export function VisitFormDialog({ open, onOpenChange, patientId, visit, onSaved 
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const isEditing = !!visit;
+  const formRef = useRef<HTMLDivElement>(null);
+  const { printContent } = usePrintContent();
+
+  const handlePrint = () => {
+    printContent(formRef.current, { title: isEditing ? 'Edit Visit Record' : 'New Visit Record' });
+  };
+
+  const createVoiceHandler = (fieldName: keyof VisitFormData) => (text: string) => {
+    const currentValue = form.getValues(fieldName);
+    const newValue = currentValue ? `${currentValue} ${text}` : text;
+    form.setValue(fieldName, newValue as any);
+  };
 
   const form = useForm<VisitFormData>({
     resolver: zodResolver(visitSchema),
@@ -148,18 +162,11 @@ export function VisitFormDialog({ open, onOpenChange, patientId, visit, onSaved 
       };
 
       if (isEditing && visit) {
-        const { error } = await supabase
-          .from('visits')
-          .update(visitData)
-          .eq('id', visit.id);
-
+        const { error } = await supabase.from('visits').update(visitData).eq('id', visit.id);
         if (error) throw error;
         toast.success('Visit updated');
       } else {
-        const { error } = await supabase
-          .from('visits')
-          .insert([visitData]);
-
+        const { error } = await supabase.from('visits').insert([visitData]);
         if (error) throw error;
         toast.success('Visit recorded');
       }
@@ -177,225 +184,147 @@ export function VisitFormDialog({ open, onOpenChange, patientId, visit, onSaved 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Visit' : 'Record New Visit'}</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle>{isEditing ? 'Edit Visit' : 'Record New Visit'}</DialogTitle>
+            <Button type="button" variant="outline" size="sm" onClick={handlePrint} className="no-print">
+              <Printer className="h-4 w-4 mr-2" />
+              Print
+            </Button>
+          </div>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Date & Chief Complaint */}
-            <div className="grid gap-4 md:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="visit_date"
-                render={({ field }) => (
+        <div ref={formRef}>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField control={form.control} name="visit_date" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Visit Date *</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
+                    <FormControl><Input type="date" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="chief_complaint"
-                render={({ field }) => (
+                )} />
+                <FormField control={form.control} name="chief_complaint" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Chief Complaint</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Main reason for visit" {...field} />
-                    </FormControl>
+                    <FormControl><Input placeholder="Main reason for visit" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
-                )}
-              />
-            </div>
+                )} />
+              </div>
 
-            {/* Diagnosis */}
-            <div className="grid gap-4 md:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="tongue_diagnosis"
-                render={({ field }) => (
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField control={form.control} name="tongue_diagnosis" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tongue Diagnosis</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Color, coating, shape..." {...field} />
-                    </FormControl>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Tongue Diagnosis</FormLabel>
+                      <VoiceInputButton onTranscription={createVoiceHandler('tongue_diagnosis')} size="sm" className="no-print" />
+                    </div>
+                    <FormControl><Textarea placeholder="Color, coating, shape..." {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="pulse_diagnosis"
-                render={({ field }) => (
+                )} />
+                <FormField control={form.control} name="pulse_diagnosis" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Pulse Diagnosis</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Rate, quality, position..." {...field} />
-                    </FormControl>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Pulse Diagnosis</FormLabel>
+                      <VoiceInputButton onTranscription={createVoiceHandler('pulse_diagnosis')} size="sm" className="no-print" />
+                    </div>
+                    <FormControl><Textarea placeholder="Rate, quality, position..." {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
-                )}
-              />
-            </div>
+                )} />
+              </div>
 
-            {/* TCM Pattern & Treatment */}
-            <FormField
-              control={form.control}
-              name="tcm_pattern"
-              render={({ field }) => (
+              <FormField control={form.control} name="tcm_pattern" render={({ field }) => (
                 <FormItem>
                   <FormLabel>TCM Pattern/Diagnosis</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Liver Qi Stagnation, Kidney Yang Deficiency" {...field} />
-                  </FormControl>
+                  <FormControl><Input placeholder="e.g., Liver Qi Stagnation" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
+              )} />
 
-            <FormField
-              control={form.control}
-              name="treatment_principle"
-              render={({ field }) => (
+              <FormField control={form.control} name="treatment_principle" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Treatment Principle</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Soothe Liver, Tonify Kidney Yang" {...field} />
-                  </FormControl>
+                  <FormControl><Input placeholder="e.g., Soothe Liver, Tonify Kidney Yang" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
+              )} />
 
-            {/* Treatment Modalities */}
-            <div className="flex gap-6">
-              <FormField
-                control={form.control}
-                name="cupping"
-                render={({ field }) => (
+              <div className="flex gap-6">
+                <FormField control={form.control} name="cupping" render={({ field }) => (
                   <FormItem className="flex items-center gap-2 space-y-0">
-                    <FormControl>
-                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
+                    <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                     <FormLabel className="font-normal">Cupping</FormLabel>
                   </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="moxa"
-                render={({ field }) => (
+                )} />
+                <FormField control={form.control} name="moxa" render={({ field }) => (
                   <FormItem className="flex items-center gap-2 space-y-0">
-                    <FormControl>
-                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
+                    <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                     <FormLabel className="font-normal">Moxibustion</FormLabel>
                   </FormItem>
-                )}
-              />
-            </div>
+                )} />
+              </div>
 
-            {/* Points Used */}
-            <FormField
-              control={form.control}
-              name="points_used"
-              render={({ field }) => (
+              <FormField control={form.control} name="points_used" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Acupuncture Points Used</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Enter points separated by commas (e.g., LI4, ST36, SP6, LV3)" 
-                      {...field} 
-                    />
-                  </FormControl>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Acupuncture Points Used</FormLabel>
+                    <VoiceInputButton onTranscription={createVoiceHandler('points_used')} size="sm" className="no-print" />
+                  </div>
+                  <FormControl><Textarea placeholder="Enter points separated by commas (e.g., LI4, ST36, SP6)" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
+              )} />
 
-            {/* Herbs */}
-            <FormField
-              control={form.control}
-              name="herbs_prescribed"
-              render={({ field }) => (
+              <FormField control={form.control} name="herbs_prescribed" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Herbs Prescribed</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Formula name and/or individual herbs with dosages" 
-                      {...field} 
-                    />
-                  </FormControl>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Herbs Prescribed</FormLabel>
+                    <VoiceInputButton onTranscription={createVoiceHandler('herbs_prescribed')} size="sm" className="no-print" />
+                  </div>
+                  <FormControl><Textarea placeholder="Formula name and/or individual herbs with dosages" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
+              )} />
 
-            {/* Other Techniques */}
-            <FormField
-              control={form.control}
-              name="other_techniques"
-              render={({ field }) => (
+              <FormField control={form.control} name="other_techniques" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Other Techniques</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Gua Sha, Tui Na, Ear Seeds" {...field} />
-                  </FormControl>
+                  <FormControl><Input placeholder="e.g., Gua Sha, Tui Na, Ear Seeds" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
+              )} />
 
-            {/* Notes & Follow-up */}
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
+              <FormField control={form.control} name="notes" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Visit Notes</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Additional observations, patient response, etc." 
-                      {...field} 
-                    />
-                  </FormControl>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Visit Notes</FormLabel>
+                    <VoiceInputButton onTranscription={createVoiceHandler('notes')} size="sm" className="no-print" />
+                  </div>
+                  <FormControl><Textarea placeholder="Additional observations, patient response, etc." {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
+              )} />
 
-            <FormField
-              control={form.control}
-              name="follow_up_recommended"
-              render={({ field }) => (
+              <FormField control={form.control} name="follow_up_recommended" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Follow-up Recommendations</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Return in 1 week, continue herbs for 2 weeks" {...field} />
-                  </FormControl>
+                  <FormControl><Input placeholder="e.g., Return in 1 week" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
+              )} />
 
-            {/* Actions */}
-            <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading} className="bg-jade hover:bg-jade/90">
-                {loading ? 'Saving...' : isEditing ? 'Update Visit' : 'Save Visit'}
-              </Button>
-            </div>
-          </form>
-        </Form>
+              <div className="flex justify-end gap-3 no-print">
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+                <Button type="submit" disabled={loading} className="bg-jade hover:bg-jade/90">
+                  {loading ? 'Saving...' : isEditing ? 'Update Visit' : 'Save Visit'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

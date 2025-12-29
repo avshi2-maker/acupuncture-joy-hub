@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -9,8 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ClipboardList, User, Loader2, Search, UserCheck } from 'lucide-react';
+import { ClipboardList, User, Loader2, Search, UserCheck, Printer } from 'lucide-react';
 import { toast } from 'sonner';
+import { VoiceInputButton } from '@/components/ui/VoiceInputButton';
+import { usePrintContent } from '@/hooks/usePrintContent';
 
 interface PatientContext {
   ageGroup?: string;
@@ -52,6 +54,9 @@ export function TreatmentPlannerForm({ onSubmit, isLoading }: TreatmentPlannerFo
     medications: '',
     medicalHistory: '',
   });
+  
+  const formRef = useRef<HTMLDivElement>(null);
+  const { printContent } = usePrintContent();
 
   // Fetch patients when in patient mode
   useEffect(() => {
@@ -95,6 +100,26 @@ export function TreatmentPlannerForm({ onSubmit, isLoading }: TreatmentPlannerFo
     }
   };
 
+  const handleVoiceTranscription = (text: string) => {
+    setDiagnosis(prev => prev ? `${prev} ${text}` : text);
+  };
+
+  const handleAllergiesVoice = (text: string) => {
+    setPatientContext(prev => ({ ...prev, allergies: prev.allergies ? `${prev.allergies} ${text}` : text }));
+  };
+
+  const handleMedicationsVoice = (text: string) => {
+    setPatientContext(prev => ({ ...prev, medications: prev.medications ? `${prev.medications} ${text}` : text }));
+  };
+
+  const handleHistoryVoice = (text: string) => {
+    setPatientContext(prev => ({ ...prev, medicalHistory: prev.medicalHistory ? `${prev.medicalHistory} ${text}` : text }));
+  };
+
+  const handlePrint = () => {
+    printContent(formRef.current, { title: 'Treatment Plan Generator' });
+  };
+
   const exampleDiagnoses = [
     "Liver Qi Stagnation with Spleen Qi Deficiency",
     "Kidney Yang Deficiency with Lower Back Pain",
@@ -104,12 +129,24 @@ export function TreatmentPlannerForm({ onSubmit, isLoading }: TreatmentPlannerFo
   ];
 
   return (
-    <Card className="border-jade/20">
+    <Card className="border-jade/20" ref={formRef}>
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2">
-          <ClipboardList className="h-5 w-5 text-jade" />
-          Treatment Plan Generator
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <ClipboardList className="h-5 w-5 text-jade" />
+            Treatment Plan Generator
+          </CardTitle>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handlePrint}
+            className="no-print"
+          >
+            <Printer className="h-4 w-4 mr-2" />
+            Print
+          </Button>
+        </div>
         <CardDescription>
           Enter a TCM diagnosis and optionally link to a patient for personalized protocols.
         </CardDescription>
@@ -118,7 +155,15 @@ export function TreatmentPlannerForm({ onSubmit, isLoading }: TreatmentPlannerFo
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Diagnosis Input */}
           <div className="space-y-2">
-            <Label htmlFor="diagnosis">TCM Diagnosis / Pattern *</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="diagnosis">TCM Diagnosis / Pattern *</Label>
+              <VoiceInputButton
+                onTranscription={handleVoiceTranscription}
+                disabled={isLoading}
+                size="sm"
+                className="no-print"
+              />
+            </div>
             <Textarea
               id="diagnosis"
               value={diagnosis}
@@ -129,7 +174,7 @@ export function TreatmentPlannerForm({ onSubmit, isLoading }: TreatmentPlannerFo
             />
             
             {/* Quick Examples */}
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="flex flex-wrap gap-2 mt-2 no-print">
               <span className="text-xs text-muted-foreground">Examples:</span>
               {exampleDiagnoses.map((example, i) => (
                 <button
@@ -147,7 +192,7 @@ export function TreatmentPlannerForm({ onSubmit, isLoading }: TreatmentPlannerFo
 
           {/* Patient Context Tabs */}
           <Tabs value={inputMode} onValueChange={(v) => setInputMode(v as 'manual' | 'patient')}>
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-2 no-print">
               <TabsTrigger value="manual" className="gap-2">
                 <User className="h-4 w-4" />
                 Manual Entry
@@ -235,7 +280,15 @@ export function TreatmentPlannerForm({ onSubmit, isLoading }: TreatmentPlannerFo
                   )}
 
                   <div className="space-y-2 sm:col-span-2">
-                    <Label>Allergies</Label>
+                    <div className="flex items-center justify-between">
+                      <Label>Allergies</Label>
+                      <VoiceInputButton
+                        onTranscription={handleAllergiesVoice}
+                        disabled={isLoading}
+                        size="sm"
+                        className="no-print"
+                      />
+                    </div>
                     <Input
                       value={patientContext.allergies}
                       onChange={(e) => setPatientContext(prev => ({ ...prev, allergies: e.target.value }))}
@@ -245,7 +298,15 @@ export function TreatmentPlannerForm({ onSubmit, isLoading }: TreatmentPlannerFo
                   </div>
 
                   <div className="space-y-2 sm:col-span-2">
-                    <Label>Current Medications</Label>
+                    <div className="flex items-center justify-between">
+                      <Label>Current Medications</Label>
+                      <VoiceInputButton
+                        onTranscription={handleMedicationsVoice}
+                        disabled={isLoading}
+                        size="sm"
+                        className="no-print"
+                      />
+                    </div>
                     <Input
                       value={patientContext.medications}
                       onChange={(e) => setPatientContext(prev => ({ ...prev, medications: e.target.value }))}
@@ -255,7 +316,15 @@ export function TreatmentPlannerForm({ onSubmit, isLoading }: TreatmentPlannerFo
                   </div>
 
                   <div className="space-y-2 sm:col-span-2">
-                    <Label>Medical History</Label>
+                    <div className="flex items-center justify-between">
+                      <Label>Medical History</Label>
+                      <VoiceInputButton
+                        onTranscription={handleHistoryVoice}
+                        disabled={isLoading}
+                        size="sm"
+                        className="no-print"
+                      />
+                    </div>
                     <Textarea
                       value={patientContext.medicalHistory}
                       onChange={(e) => setPatientContext(prev => ({ ...prev, medicalHistory: e.target.value }))}
@@ -330,7 +399,7 @@ export function TreatmentPlannerForm({ onSubmit, isLoading }: TreatmentPlannerFo
           <Button
             type="submit"
             size="lg"
-            className="w-full bg-jade hover:bg-jade/90"
+            className="w-full bg-jade hover:bg-jade/90 no-print"
             disabled={!diagnosis.trim() || isLoading}
           >
             {isLoading ? (
