@@ -43,9 +43,8 @@ const managementItems = [
   { title: 'Clinics', url: '/crm/clinics', icon: Building2 },
 ];
 
-const toolsItems = [
-  { title: 'TCM Brain', url: '/tcm-brain', icon: Brain },
-  { title: 'Settings', url: '/crm/settings', icon: Settings },
+const toolsItems: { title: string; url: string; icon: any }[] = [
+  // Items removed per user request
 ];
 
 export function CRMSidebar() {
