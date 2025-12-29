@@ -670,6 +670,10 @@ function CalendarContent() {
           }}
           onStatusChange={async (apptId, newStatus) => {
             try {
+              // Get the current status before changing (for undo)
+              const currentAppt = appointments.find(a => a.id === apptId);
+              const previousStatus = currentAppt?.status || 'scheduled';
+              
               const { error } = await supabase
                 .from('appointments')
                 .update({ status: newStatus })
@@ -682,7 +686,31 @@ function CalendarContent() {
                 prev.map(a => a.id === apptId ? { ...a, status: newStatus } : a)
               );
               
-              toast.success(`Appointment ${newStatus}`);
+              // Show toast with undo action
+              toast.success(`Appointment ${newStatus}`, {
+                action: {
+                  label: 'Undo',
+                  onClick: async () => {
+                    try {
+                      const { error: undoError } = await supabase
+                        .from('appointments')
+                        .update({ status: previousStatus })
+                        .eq('id', apptId);
+                      
+                      if (undoError) throw undoError;
+                      
+                      setAppointments(prev => 
+                        prev.map(a => a.id === apptId ? { ...a, status: previousStatus } : a)
+                      );
+                      toast.success('Status reverted');
+                    } catch (undoErr) {
+                      console.error('Error undoing status change:', undoErr);
+                      toast.error('Failed to undo');
+                    }
+                  },
+                },
+                duration: 5000,
+              });
             } catch (error) {
               console.error('Error updating appointment status:', error);
               toast.error('Failed to update status');
