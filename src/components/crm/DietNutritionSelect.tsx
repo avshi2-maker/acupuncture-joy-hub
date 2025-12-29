@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -9,7 +9,7 @@ import { ChevronDown, ChevronUp, X, Utensils } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // Diet options organized by category
-const dietOptions = {
+const dietOptions: Record<string, string[]> = {
   'Meal Pattern': [
     'Three regular meals per day',
     'Two meals per day (intermittent fasting)',
@@ -155,25 +155,30 @@ interface DietNutritionSelectProps {
   className?: string;
 }
 
-export function DietNutritionSelect({ value, onChange, className }: DietNutritionSelectProps) {
+export const DietNutritionSelect = memo(function DietNutritionSelect({ 
+  value = [], 
+  onChange, 
+  className 
+}: DietNutritionSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
 
-  const toggleCategory = (category: string) => {
+  const toggleCategory = useCallback((category: string) => {
     setExpandedCategories(prev =>
       prev.includes(category)
         ? prev.filter(c => c !== category)
         : [...prev, category]
     );
-  };
+  }, []);
 
-  const toggleOption = (option: string) => {
+  const toggleOption = useCallback((option: string) => {
+    const currentValue = value || [];
     onChange(
-      value.includes(option)
-        ? value.filter(v => v !== option)
-        : [...value, option]
+      currentValue.includes(option)
+        ? currentValue.filter(v => v !== option)
+        : [...currentValue, option]
     );
-  };
+  }, [value, onChange]);
 
   const removeOption = (option: string) => {
     onChange(value.filter(v => v !== option));
@@ -308,4 +313,4 @@ export function DietNutritionSelect({ value, onChange, className }: DietNutritio
       )}
     </div>
   );
-}
+});
