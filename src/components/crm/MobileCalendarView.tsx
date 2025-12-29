@@ -131,14 +131,20 @@ export function MobileCalendarView({
     return eachDayOfInterval({ start, end });
   }, [selectedDate]);
 
-  const weekAppointmentCounts = useMemo(() => {
-    return weekDays.map(day => ({
-      date: day,
-      count: appointments.filter(a => isSameDay(new Date(a.start_time), day)).length,
-    }));
+  const weekAppointmentData = useMemo(() => {
+    return weekDays.map(day => {
+      const dayAppointments = appointments.filter(a => isSameDay(new Date(a.start_time), day));
+      return {
+        date: day,
+        count: dayAppointments.length,
+        completed: dayAppointments.filter(a => a.status === 'completed').length,
+        cancelled: dayAppointments.filter(a => a.status === 'cancelled').length,
+        scheduled: dayAppointments.filter(a => a.status === 'scheduled').length,
+      };
+    });
   }, [weekDays, appointments]);
 
-  const maxAppointments = Math.max(...weekAppointmentCounts.map(d => d.count), 1);
+  const maxAppointments = Math.max(...weekAppointmentData.map(d => d.count), 1);
 
   // Get available time slots for the selected day
   const getAvailableSlots = useCallback(() => {
@@ -226,9 +232,19 @@ export function MobileCalendarView({
         <div className="mt-3 pt-3 border-t border-border/30">
           <p className="text-[10px] uppercase text-muted-foreground mb-2 font-medium">Week Overview</p>
           <div className="flex gap-1">
-            {weekAppointmentCounts.map(({ date, count }) => {
+            {weekAppointmentData.map(({ date, count, completed, cancelled, scheduled }) => {
               const isSelected = isSameDay(date, selectedDate);
               const heightPercent = count > 0 ? Math.max((count / maxAppointments) * 100, 20) : 8;
+              
+              // Determine bar color based on status breakdown
+              const getBarColor = () => {
+                if (count === 0) return 'bg-muted';
+                if (isSelected) return 'bg-jade';
+                if (cancelled > 0 && cancelled === count) return 'bg-destructive/60';
+                if (completed > 0 && completed === count) return 'bg-jade/80';
+                if (completed > scheduled) return 'bg-jade/60';
+                return 'bg-primary/50';
+              };
               
               return (
                 <button
@@ -242,14 +258,23 @@ export function MobileCalendarView({
                     isSelected && 'bg-jade/10'
                   )}
                 >
-                  <div className="h-8 w-full flex items-end justify-center">
-                    <div 
-                      className={cn(
-                        'w-3 rounded-t transition-all',
-                        isSelected ? 'bg-jade' : count > 0 ? 'bg-jade/40' : 'bg-muted'
-                      )}
-                      style={{ height: `${heightPercent}%` }}
-                    />
+                  <div className="h-8 w-full flex items-end justify-center gap-[1px]">
+                    {/* Stacked status dots */}
+                    {count > 0 ? (
+                      <div className="flex flex-col items-center gap-[2px]">
+                        {completed > 0 && (
+                          <div className="w-2 h-2 rounded-full bg-jade" title={`${completed} completed`} />
+                        )}
+                        {scheduled > 0 && (
+                          <div className="w-2 h-2 rounded-full bg-primary/60" title={`${scheduled} scheduled`} />
+                        )}
+                        {cancelled > 0 && (
+                          <div className="w-2 h-2 rounded-full bg-destructive/60" title={`${cancelled} cancelled`} />
+                        )}
+                      </div>
+                    ) : (
+                      <div className="w-2 h-2 rounded-full bg-muted" />
+                    )}
                   </div>
                   <span className={cn(
                     'text-[9px]',
