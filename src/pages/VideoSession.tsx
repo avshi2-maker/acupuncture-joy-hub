@@ -60,6 +60,8 @@ import { CalendarInviteDialog } from '@/components/video/CalendarInviteDialog';
 import { SessionReportDialog } from '@/components/video/SessionReportDialog';
 import { MobileSessionBar } from '@/components/video/MobileSessionBar';
 import { MobileToolsDrawer } from '@/components/video/MobileToolsDrawer';
+import { FloatingSessionTimer } from '@/components/video/FloatingSessionTimer';
+import { LongPressVoiceNote } from '@/components/video/LongPressVoiceNote';
 import { CrossPlatformBackButton } from '@/components/ui/CrossPlatformBackButton';
 import { SessionTimerWidget } from '@/components/crm/SessionTimerWidget';
 import { SessionTimerProvider } from '@/contexts/SessionTimerContext';
@@ -204,6 +206,14 @@ export default function VideoSession() {
       setIsBackgroundPaused(false);
     }
   }, [sessionStatus]);
+
+  // Handler for long-press voice note transcription
+  const handleVoiceNoteTranscription = useCallback((text: string) => {
+    const timestamp = formatDuration(sessionDuration);
+    const voiceNote = `\n🎙️ [${timestamp}] ${text}`;
+    setNotes(sessionNotes + voiceNote);
+    haptic.success();
+  }, [sessionDuration, sessionNotes, setNotes, haptic]);
 
   // Check access
   // Clock update effect
@@ -578,6 +588,13 @@ export default function VideoSession() {
             </div>
           </div>
         )}
+
+        {/* Floating Session Timer - Mobile only */}
+        <FloatingSessionTimer
+          status={sessionStatus}
+          duration={sessionDuration}
+          patientName={selectedPatientName}
+        />
         
         {/* Header - Optimized for mobile */}
         <header className="bg-card border-b border-border sticky top-0 z-50">
@@ -1020,7 +1037,7 @@ export default function VideoSession() {
                 </Card>
               </div>
 
-              {/* Session Notes - Below with double-tap gesture */}
+              {/* Session Notes - Below with double-tap gesture and voice note */}
               <Card 
                 className="touch-manipulation"
                 {...doubleTapHandlers}
@@ -1028,9 +1045,18 @@ export default function VideoSession() {
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-xs font-medium">הערות פגישה:</label>
-                    <span className="text-[10px] text-muted-foreground md:hidden">
-                      Double-tap to add timestamp
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-muted-foreground md:hidden">
+                        Double-tap for timestamp
+                      </span>
+                      {/* Long-press voice note button - Mobile only */}
+                      <div className="md:hidden">
+                        <LongPressVoiceNote 
+                          onTranscription={handleVoiceNoteTranscription}
+                          className="scale-75 origin-right"
+                        />
+                      </div>
+                    </div>
                   </div>
                   <Textarea
                     value={sessionNotes}
