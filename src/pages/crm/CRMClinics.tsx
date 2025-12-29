@@ -2,7 +2,7 @@ import { useState } from "react";
 import { CRMLayout } from "@/components/crm/CRMLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Building2, Plus, MapPin, Phone, Mail, Settings } from "lucide-react";
+import { Building2, Plus, MapPin, Phone, Mail, Settings, User } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,6 +21,8 @@ export default function CRMClinics() {
     address: '',
     phone: '',
     email: '',
+    booking_contact_name: '',
+    booking_contact_phone: '',
   });
 
   const { data: clinics, isLoading } = useQuery({
@@ -54,7 +56,7 @@ export default function CRMClinics() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clinics'] });
       setIsDialogOpen(false);
-      setNewClinic({ name: '', address: '', phone: '', email: '' });
+      setNewClinic({ name: '', address: '', phone: '', email: '', booking_contact_name: '', booking_contact_phone: '' });
       toast.success('Clinic created successfully');
     },
     onError: (error) => {
@@ -133,7 +135,30 @@ export default function CRMClinics() {
                     placeholder="Enter email address"
                   />
                 </div>
-                <div className="flex justify-end gap-2">
+                <div className="border-t pt-4 mt-4">
+                  <p className="text-sm font-medium text-foreground mb-3">Booking Contact</p>
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="booking_contact_name">Contact Name</Label>
+                      <Input
+                        id="booking_contact_name"
+                        value={newClinic.booking_contact_name}
+                        onChange={(e) => setNewClinic({ ...newClinic, booking_contact_name: e.target.value })}
+                        placeholder="Main contact for bookings"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="booking_contact_phone">Contact Phone</Label>
+                      <Input
+                        id="booking_contact_phone"
+                        value={newClinic.booking_contact_phone}
+                        onChange={(e) => setNewClinic({ ...newClinic, booking_contact_phone: e.target.value })}
+                        placeholder="Booking contact phone"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancel
                   </Button>
@@ -188,6 +213,23 @@ export default function CRMClinics() {
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Mail className="h-4 w-4" />
                       {clinic.email}
+                    </div>
+                  )}
+                  {(clinic.booking_contact_name || clinic.booking_contact_phone) && (
+                    <div className="border-t pt-2 mt-2">
+                      <p className="text-xs font-medium text-foreground mb-1">Booking Contact</p>
+                      {clinic.booking_contact_name && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <User className="h-4 w-4" />
+                          {clinic.booking_contact_name}
+                        </div>
+                      )}
+                      {clinic.booking_contact_phone && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Phone className="h-4 w-4" />
+                          {clinic.booking_contact_phone}
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>
