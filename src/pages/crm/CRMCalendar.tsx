@@ -81,7 +81,7 @@ interface DragState {
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 8); // 8am to 7pm
 const SLOT_HEIGHT = 60; // pixels per hour
 
-export default function CRMCalendar() {
+function CalendarContent() {
   const { startTimer, status: timerStatus } = useSessionTimer();
   
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -476,8 +476,7 @@ export default function CRMCalendar() {
   };
 
   return (
-    <CRMLayout>
-      <div className="space-y-4">
+    <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
@@ -986,6 +985,13 @@ export default function CRMCalendar() {
           </DialogContent>
         </Dialog>
       </div>
+  );
+}
+
+export default function CRMCalendar() {
+  return (
+    <CRMLayout>
+      <CalendarContent />
     </CRMLayout>
   );
 }
