@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import {
   Leaf,
@@ -17,10 +17,24 @@ import {
   Pause,
   Volume1,
   Info,
+  Key,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTier } from "@/hooks/useTier";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import heroBg from "@/assets/hero-meridian-bg.png";
 // tcm-organ-clock image removed
 
@@ -33,6 +47,8 @@ const promoVideos = [
 
 const Index = () => {
   const { t, language } = useLanguage();
+  const navigate = useNavigate();
+  const { setTier, setExpiresAt } = useTier();
   const [showInstallBanner, setShowInstallBanner] = useState(true);
   const [showInstallTooltip, setShowInstallTooltip] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -43,9 +59,54 @@ const Index = () => {
   const [audioDuration, setAudioDuration] = useState(0);
   const [audioVolume, setAudioVolume] = useState(0.7);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  
+  // Password testing dialog state
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [testPassword, setTestPassword] = useState("");
+  const [isValidating, setIsValidating] = useState(false);
   // Audio player is fixed to screen (not draggable) to ensure it never covers the hero name.
 
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Password validation handler
+  const handlePasswordSubmit = async () => {
+    if (!testPassword.trim()) {
+      toast.error('נא להזין סיסמה');
+      return;
+    }
+
+    setIsValidating(true);
+    try {
+      const { data: validationResult, error } = await supabase
+        .rpc('validate_access_password', { password_input: testPassword.trim() });
+
+      if (error) throw error;
+
+      const result = validationResult?.[0];
+      if (!result || !result.valid) {
+        toast.error('סיסמה לא תקינה, בשימוש, או שפג תוקפה.');
+        return;
+      }
+
+      setTier(result.tier as 'trial' | 'standard' | 'premium');
+      if (result.expires_at) {
+        setExpiresAt(new Date(result.expires_at));
+      }
+
+      await supabase.from('access_logs').insert({
+        action: 'password_login',
+        details: { tier: result.tier, source: 'index_test_button' },
+      });
+
+      toast.success('ברוכים הבאים!');
+      setShowPasswordDialog(false);
+      navigate('/dashboard', { replace: true });
+    } catch (error) {
+      toast.error('שגיאה בכניסה. נסו שוב.');
+    } finally {
+      setIsValidating(false);
+    }
+  };
 
   const toggleAudio = () => {
     if (audioRef.current) {
@@ -399,6 +460,55 @@ const Index = () => {
               </button>
             </div>
           )}
+
+          {/* Test with Password Button for Dr. Roni */}
+          <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+            <DialogTrigger asChild>
+              <button
+                className="flex items-center gap-2 bg-muted/80 hover:bg-muted backdrop-blur-sm text-foreground px-3 py-2 rounded-full transition-all shadow-md hover:shadow-lg text-xs border border-border"
+              >
+                <Key className="h-3 w-3" />
+                <span>בדיקה עם סיסמה</span>
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md" dir="rtl">
+              <DialogHeader>
+                <DialogTitle className="text-right">כניסה עם סיסמה</DialogTitle>
+                <DialogDescription className="text-right">
+                  הזינו את הסיסמה שקיבלתם מד״ר רוני ספיר
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 pt-4">
+                <Input
+                  type="password"
+                  placeholder="הזינו סיסמה..."
+                  value={testPassword}
+                  onChange={(e) => setTestPassword(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handlePasswordSubmit();
+                    }
+                  }}
+                  className="text-right"
+                  dir="rtl"
+                />
+                <Button
+                  onClick={handlePasswordSubmit}
+                  disabled={isValidating || !testPassword.trim()}
+                  className="w-full"
+                >
+                  {isValidating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 ml-2 animate-spin" />
+                      בודק...
+                    </>
+                  ) : (
+                    'כניסה'
+                  )}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </main>
 
