@@ -1,13 +1,15 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Leaf, MessageCircle } from "lucide-react";
+import { Leaf, MessageCircle, Smartphone, X, Download } from "lucide-react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import heroBg from "@/assets/hero-meridian-bg.png";
 
 const Index = () => {
   const { t } = useLanguage();
+  const [showInstallBanner, setShowInstallBanner] = useState(true);
 
   const handleWhatsApp = () => {
     window.open("https://wa.me/972544634923", "_blank");
@@ -71,8 +73,41 @@ const Index = () => {
           <p className="mt-6 text-cream/90 text-base md:text-lg leading-relaxed">
             {t("heroDescription")}
           </p>
-
         </section>
+
+        {/* Install App Banner - Bottom Right */}
+        {showInstallBanner && (
+          <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-30 animate-fade-in">
+            <div className="bg-card border border-border rounded-lg shadow-elevated p-4 w-72">
+              <button 
+                onClick={() => setShowInstallBanner(false)}
+                className="absolute top-2 right-2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg border border-jade/30 bg-jade/5">
+                  <Smartphone className="h-6 w-6 text-jade animate-pulse" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-foreground text-sm">Install Our App</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Install for faster access and offline support.
+                  </p>
+                </div>
+              </div>
+              
+              <Button asChild size="sm" className="w-full mt-3 bg-jade hover:bg-jade/90 text-white">
+                <Link to="/install" className="flex items-center justify-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Install Mobile App Android/iOS
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
       </main>
     </>
   );
