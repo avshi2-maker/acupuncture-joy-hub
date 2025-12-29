@@ -325,6 +325,8 @@ export type Database = {
       clinics: {
         Row: {
           address: string | null
+          booking_contact_name: string | null
+          booking_contact_phone: string | null
           created_at: string
           email: string | null
           id: string
@@ -336,6 +338,8 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          booking_contact_name?: string | null
+          booking_contact_phone?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -347,6 +351,8 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          booking_contact_name?: string | null
+          booking_contact_phone?: string | null
           created_at?: string
           email?: string | null
           id?: string
