@@ -403,9 +403,17 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
   const currentAgeQuestions = ageGroup ? ageGroupQuestions[ageGroup] : [];
   const showPregnancySection = watchGender === 'female' && watchIsPregnant;
 
+  // Handle form errors - show toast with first error
+  const handleFormErrors = (errors: any) => {
+    const firstErrorKey = Object.keys(errors)[0];
+    const firstError = errors[firstErrorKey];
+    const errorMessage = firstError?.message || 'Please fill in all required fields';
+    toast.error(`Validation Error: ${errorMessage}`);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit, handleFormErrors)} className="space-y-8 scroll-smooth">
         {/* Basic Information */}
         <Card>
           <CardHeader>
