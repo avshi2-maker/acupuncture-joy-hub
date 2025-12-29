@@ -222,6 +222,54 @@ export default function Dashboard() {
           </p>
         </div>
 
+        {/* Workflow Stepper Guide */}
+        <Card className="mb-8 border-jade/20 bg-gradient-to-l from-jade/5 to-transparent opacity-0 animate-fade-in" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
+          <CardContent className="py-6">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-0">
+              {/* Step 1: Schedule */}
+              <Link to="/crm/calendar" className="flex flex-col items-center group cursor-pointer">
+                <div className="w-14 h-14 rounded-full bg-jade/10 border-2 border-jade flex items-center justify-center group-hover:bg-jade group-hover:scale-110 transition-all duration-300">
+                  <Calendar className="h-6 w-6 text-jade group-hover:text-white transition-colors" />
+                </div>
+                <span className="mt-2 text-sm font-medium text-jade">1. קביעת תור</span>
+                <span className="text-xs text-muted-foreground">ביומן</span>
+              </Link>
+
+              {/* Arrow 1 */}
+              <div className="hidden sm:flex items-center px-4">
+                <div className="w-16 h-0.5 bg-gradient-to-l from-jade/60 to-jade/20"></div>
+                <div className="w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-jade/60"></div>
+              </div>
+              <div className="sm:hidden h-6 w-0.5 bg-gradient-to-b from-jade/60 to-jade/20"></div>
+
+              {/* Step 2: Patient Consent */}
+              <Link to="/crm/patients" className="flex flex-col items-center group cursor-pointer">
+                <div className="w-14 h-14 rounded-full bg-jade/10 border-2 border-jade/60 flex items-center justify-center group-hover:bg-jade group-hover:border-jade group-hover:scale-110 transition-all duration-300">
+                  <Users className="h-6 w-6 text-jade/80 group-hover:text-white transition-colors" />
+                </div>
+                <span className="mt-2 text-sm font-medium text-jade/80">2. הסכמת מטופל</span>
+                <span className="text-xs text-muted-foreground">חתימה על טופס</span>
+              </Link>
+
+              {/* Arrow 2 */}
+              <div className="hidden sm:flex items-center px-4">
+                <div className="w-16 h-0.5 bg-gradient-to-l from-jade/60 to-jade/20"></div>
+                <div className="w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-jade/60"></div>
+              </div>
+              <div className="sm:hidden h-6 w-0.5 bg-gradient-to-b from-jade/60 to-jade/20"></div>
+
+              {/* Step 3: Start Session */}
+              <div className="flex flex-col items-center">
+                <div className="w-14 h-14 rounded-full bg-jade/10 border-2 border-jade/40 flex items-center justify-center">
+                  <Video className="h-6 w-6 text-jade/60" />
+                </div>
+                <span className="mt-2 text-sm font-medium text-jade/60">3. התחלת טיפול</span>
+                <span className="text-xs text-muted-foreground">מהיומן</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Row 1: Calendar, Patient Management, Reminders */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {row1Features.map((feature, index) => (
