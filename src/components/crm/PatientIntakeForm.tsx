@@ -16,8 +16,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { User, Heart, Baby, Activity, Utensils, Moon, Brain, AlertTriangle, FileSignature, PenTool, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { User, Heart, Baby, Activity, Utensils, Moon, Brain, AlertTriangle, FileSignature, PenTool, CheckCircle2, XCircle, Loader2, Calendar, BrainCircuit, Save } from 'lucide-react';
 import { SignaturePad } from './SignaturePad';
 import { MedicalDocumentUpload } from './MedicalDocumentUpload';
 import { DietNutritionSelect } from './DietNutritionSelect';
@@ -132,6 +133,10 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const [medicalDocuments, setMedicalDocuments] = useState<File[]>([]);
   const [dietHabits, setDietHabits] = useState<string[]>([]);
+  
+  // Post-save navigation dialog
+  const [showNavigationDialog, setShowNavigationDialog] = useState(false);
+  const [savedPatientId, setSavedPatientId] = useState<string | null>(null);
   
   // ID Number validation state
   const [idCheckStatus, setIdCheckStatus] = useState<'idle' | 'checking' | 'valid' | 'duplicate' | 'invalid_checksum'>('idle');
@@ -361,6 +366,8 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
         consent_signed_at: data.consent_signed ? new Date().toISOString() : null,
       };
 
+      let resultPatientId = patientId;
+      
       if (patientId) {
         const { error } = await supabase
           .from('patients')
@@ -370,15 +377,21 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
         if (error) throw error;
         toast.success('Patient updated successfully');
       } else {
-        const { error } = await supabase
+        const { data: insertedPatient, error } = await supabase
           .from('patients')
-          .insert([patientData]);
+          .insert([patientData])
+          .select('id')
+          .single();
         if (error) throw error;
+        resultPatientId = insertedPatient?.id;
         toast.success('Patient created successfully');
       }
 
       onSuccess?.();
-      navigate('/crm/patients');
+      
+      // Show navigation dialog instead of auto-navigating
+      setSavedPatientId(resultPatientId || null);
+      setShowNavigationDialog(true);
     } catch (error: any) {
       console.error('Error saving patient:', error);
       toast.error(error.message || 'Failed to save patient');
@@ -1131,24 +1144,83 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
           </CardContent>
         </Card>
 
-        {/* Submit */}
-        <div className="flex justify-end gap-4">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={() => navigate('/crm/patients')}
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="submit" 
-            disabled={loading}
-            className="bg-jade hover:bg-jade/90"
-          >
-            {loading ? 'Saving...' : patientId ? 'Update Patient' : 'Create Patient'}
-          </Button>
+        {/* Sticky Save Bar */}
+        <div className="sticky bottom-0 z-10 -mx-4 px-4 py-4 bg-background/95 backdrop-blur border-t shadow-lg">
+          <div className="flex items-center justify-between gap-4">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => navigate('/crm/patients')}
+            >
+              Cancel
+            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                type="submit" 
+                disabled={loading}
+                className="bg-jade hover:bg-jade/90 gap-2"
+              >
+                <Save className="h-4 w-4" />
+                {loading ? 'Saving...' : patientId ? 'Update & Choose Next' : 'Save & Choose Next'}
+              </Button>
+            </div>
+          </div>
         </div>
       </form>
+
+      {/* Post-Save Navigation Dialog */}
+      <Dialog open={showNavigationDialog} onOpenChange={setShowNavigationDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-jade">
+              <CheckCircle2 className="h-5 w-5" />
+              Patient Saved Successfully
+            </DialogTitle>
+            <DialogDescription>
+              Where would you like to go next?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 pt-4">
+            <Button
+              variant="outline"
+              className="h-24 flex-col gap-2"
+              onClick={() => {
+                setShowNavigationDialog(false);
+                navigate('/crm/calendar');
+              }}
+            >
+              <Calendar className="h-8 w-8 text-gold" />
+              <span>Calendar</span>
+            </Button>
+            <Button
+              className="h-24 flex-col gap-2 bg-jade hover:bg-jade/90"
+              onClick={() => {
+                setShowNavigationDialog(false);
+                if (savedPatientId) {
+                  navigate(`/tcm-brain?patientId=${savedPatientId}`);
+                } else {
+                  navigate('/tcm-brain');
+                }
+              }}
+            >
+              <BrainCircuit className="h-8 w-8" />
+              <span>TCM Brain Session</span>
+            </Button>
+          </div>
+          <div className="pt-2">
+            <Button
+              variant="ghost"
+              className="w-full text-muted-foreground"
+              onClick={() => {
+                setShowNavigationDialog(false);
+                navigate('/crm/patients');
+              }}
+            >
+              Go to Patient List
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Form>
   );
 }
