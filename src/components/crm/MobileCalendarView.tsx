@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef } from 'react';
-import { format, addDays, isSameDay, differenceInMinutes } from 'date-fns';
+import { useState, useCallback, useMemo } from 'react';
+import { format, addDays, isSameDay, differenceInMinutes, startOfWeek, endOfWeek, eachDayOfInterval, setHours } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +20,12 @@ import {
   CalendarDays,
   RefreshCw,
   Loader2,
+  Plus,
+  X,
 } from 'lucide-react';
+
+// Time slots for quick create (8am to 7pm)
+const TIME_SLOTS = Array.from({ length: 12 }, (_, i) => i + 8);
 
 interface Appointment {
   id: string;
@@ -53,6 +58,7 @@ interface MobileCalendarViewProps {
   onAppointmentClick: (appt: Appointment) => void;
   onStartSession?: (appt: Appointment) => void;
   onRefresh?: () => Promise<void>;
+  onQuickCreate?: (date: Date, hour: number) => void;
 }
 
 export function MobileCalendarView({
@@ -63,8 +69,10 @@ export function MobileCalendarView({
   onAppointmentClick,
   onStartSession,
   onRefresh,
+  onQuickCreate,
 }: MobileCalendarViewProps) {
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [showTimeSlots, setShowTimeSlots] = useState(false);
   const haptic = useHapticFeedback();
 
   // Pull to refresh
@@ -112,6 +120,36 @@ export function MobileCalendarView({
 
   // Generate quick date navigation (today ± 3 days)
   const dateRange = Array.from({ length: 7 }, (_, i) => addDays(new Date(), i - 3));
+
+  // Week overview data - count appointments per day for the current week
+  const weekDays = useMemo(() => {
+    const start = startOfWeek(selectedDate, { weekStartsOn: 0 });
+    const end = endOfWeek(selectedDate, { weekStartsOn: 0 });
+    return eachDayOfInterval({ start, end });
+  }, [selectedDate]);
+
+  const weekAppointmentCounts = useMemo(() => {
+    return weekDays.map(day => ({
+      date: day,
+      count: appointments.filter(a => isSameDay(new Date(a.start_time), day)).length,
+    }));
+  }, [weekDays, appointments]);
+
+  const maxAppointments = Math.max(...weekAppointmentCounts.map(d => d.count), 1);
+
+  // Get available time slots for the selected day
+  const getAvailableSlots = useCallback(() => {
+    const bookedHours = todayAppointments.map(a => new Date(a.start_time).getHours());
+    return TIME_SLOTS.filter(hour => !bookedHours.includes(hour));
+  }, [todayAppointments]);
+
+  const handleQuickCreate = (hour: number) => {
+    haptic.medium();
+    if (onQuickCreate) {
+      onQuickCreate(selectedDate, hour);
+    }
+    setShowTimeSlots(false);
+  };
 
   return (
     <div className="flex flex-col h-full" {...swipeHandlers}>
@@ -180,6 +218,47 @@ export function MobileCalendarView({
             );
           })}
         </div>
+
+        {/* Week Overview Strip - Appointment density */}
+        <div className="mt-3 pt-3 border-t border-border/30">
+          <p className="text-[10px] uppercase text-muted-foreground mb-2 font-medium">Week Overview</p>
+          <div className="flex gap-1">
+            {weekAppointmentCounts.map(({ date, count }) => {
+              const isSelected = isSameDay(date, selectedDate);
+              const heightPercent = count > 0 ? Math.max((count / maxAppointments) * 100, 20) : 8;
+              
+              return (
+                <button
+                  key={date.toISOString()}
+                  onClick={() => {
+                    haptic.light();
+                    onDateChange(date);
+                  }}
+                  className={cn(
+                    'flex-1 flex flex-col items-center gap-1 py-1 rounded transition-all',
+                    isSelected && 'bg-jade/10'
+                  )}
+                >
+                  <div className="h-8 w-full flex items-end justify-center">
+                    <div 
+                      className={cn(
+                        'w-3 rounded-t transition-all',
+                        isSelected ? 'bg-jade' : count > 0 ? 'bg-jade/40' : 'bg-muted'
+                      )}
+                      style={{ height: `${heightPercent}%` }}
+                    />
+                  </div>
+                  <span className={cn(
+                    'text-[9px]',
+                    isSelected ? 'text-jade font-semibold' : 'text-muted-foreground'
+                  )}>
+                    {format(date, 'EEE')[0]}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Pull to refresh indicator */}
@@ -210,11 +289,53 @@ export function MobileCalendarView({
         )}
       </div>
 
-      {/* Swipe hint */}
-      <div className="text-center py-2 text-xs text-muted-foreground bg-muted/30">
-        <CalendarDays className="h-3 w-3 inline mr-1" />
-        Swipe left/right • Pull down to refresh
+      {/* Swipe hint + Quick create toggle */}
+      <div className="flex items-center justify-between px-3 py-2 text-xs text-muted-foreground bg-muted/30">
+        <div className="flex items-center gap-1">
+          <CalendarDays className="h-3 w-3" />
+          <span>Swipe left/right • Pull to refresh</span>
+        </div>
+        {onQuickCreate && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "h-6 px-2 text-xs",
+              showTimeSlots ? "text-jade" : "text-muted-foreground"
+            )}
+            onClick={() => {
+              haptic.light();
+              setShowTimeSlots(!showTimeSlots);
+            }}
+          >
+            {showTimeSlots ? <X className="h-3 w-3 mr-1" /> : <Plus className="h-3 w-3 mr-1" />}
+            {showTimeSlots ? 'Cancel' : 'Quick Add'}
+          </Button>
+        )}
       </div>
+
+      {/* Time Slots for Quick Create */}
+      {showTimeSlots && onQuickCreate && (
+        <div className="bg-jade/5 border-b border-jade/20 p-3">
+          <p className="text-xs text-jade font-medium mb-2">Tap a time slot to create appointment:</p>
+          <div className="grid grid-cols-4 gap-2">
+            {getAvailableSlots().map((hour) => (
+              <button
+                key={hour}
+                onClick={() => handleQuickCreate(hour)}
+                className="py-2 px-3 rounded-lg bg-background border border-jade/30 text-sm font-medium text-jade hover:bg-jade/10 active:scale-95 transition-all"
+              >
+                {format(setHours(new Date(), hour), 'h a')}
+              </button>
+            ))}
+          </div>
+          {getAvailableSlots().length === 0 && (
+            <p className="text-xs text-muted-foreground text-center py-2">
+              All time slots are booked for this day
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Appointments List */}
       <div 
@@ -232,9 +353,23 @@ export function MobileCalendarView({
             <div className="text-center py-12">
               <CalendarDays className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
               <p className="text-muted-foreground font-medium">No appointments</p>
-              <p className="text-sm text-muted-foreground/70">
+              <p className="text-sm text-muted-foreground/70 mb-4">
                 {isToday ? 'Nothing scheduled for today' : 'Nothing scheduled for this day'}
               </p>
+              {onQuickCreate && !showTimeSlots && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-jade/30 text-jade"
+                  onClick={() => {
+                    haptic.light();
+                    setShowTimeSlots(true);
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Appointment
+                </Button>
+              )}
             </div>
           ) : (
             todayAppointments.map((appt) => {

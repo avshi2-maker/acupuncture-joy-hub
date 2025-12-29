@@ -659,6 +659,15 @@ function CalendarContent() {
           onAppointmentClick={setEditingAppt}
           onStartSession={handleStartSession}
           onRefresh={fetchData}
+          onQuickCreate={(date, hour) => {
+            setNewAppt(prev => ({
+              ...prev,
+              date,
+              start_hour: hour,
+              start_minute: 0,
+            }));
+            setShowNewAppt(true);
+          }}
         />
         
         {/* Edit Appointment Dialog - Also available on mobile */}
