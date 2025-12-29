@@ -52,31 +52,29 @@ const Index = () => {
         <section className="relative z-10 w-full max-w-2xl text-center p-8 md:p-12">
           <div className="flex items-center justify-center gap-2 mb-1">
             <Leaf className="h-6 w-6 text-cream" />
-            <p className="text-lg md:text-xl font-display text-cream">Dr Roni Sapir</p>
+            <p className="text-lg md:text-xl font-display text-cream">{t("drRoniSapir")}</p>
           </div>
           <p className="text-sm md:text-base text-cream/80">
-            Complementary Medicine - Acupuncture Clinic
+            {t("clinicSubtitle")}
           </p>
           <p className="text-xs text-cream/60 italic mb-8">
-            Healing Through Balance with AI
+            {t("clinicTagline")}
           </p>
 
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight text-cream">
-            Restore Balance.
+            {t("restoreBalance")}
           </h1>
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl tracking-tight text-gold mt-2">
-            Renew Life.
+            {t("renewLife")}
           </h2>
 
           <p className="mt-6 text-cream/90 text-base md:text-lg leading-relaxed">
-            Experience the transformative power of Traditional Chinese Medicine. 
-            Our certified practitioners combine 5,000 years of wisdom with personalized care 
-            to help you achieve optimal health and vitality.
+            {t("heroDescription")}
           </p>
 
           <div className="mt-8">
             <Button asChild size="lg" variant="hero">
-              <Link to="/gate">Therapist Login</Link>
+              <Link to="/gate">{t("therapistLogin")}</Link>
             </Button>
           </div>
         </section>
