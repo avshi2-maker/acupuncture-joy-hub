@@ -229,8 +229,8 @@ const Index = () => {
                 className="fixed bg-cream rounded-lg p-4 shadow-2xl z-50 animate-fade-in min-w-[300px] border-2 border-gold"
                 style={{
                   left: `calc(50% + ${playerPosition.x}px)`,
-                  top: `calc(20% + ${playerPosition.y}px)`,
-                  transform: 'translate(-50%, -50%)',
+                  top: `calc(10% + ${playerPosition.y}px)`,
+                  transform: 'translate(-50%, 0)',
                   cursor: isDragging ? 'grabbing' : 'default',
                 }}
                 onClick={(e) => e.stopPropagation()}
