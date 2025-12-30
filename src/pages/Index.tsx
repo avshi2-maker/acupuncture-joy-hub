@@ -38,6 +38,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ThemedClockWidget, getClockTheme, type ClockTheme } from "@/components/ui/ThemedClockWidget";
 import heroBg from "@/assets/hero-meridian-bg.png";
 // tcm-organ-clock image removed
 
@@ -62,6 +63,21 @@ const Index = () => {
   const [audioDuration, setAudioDuration] = useState(0);
   const [audioVolume, setAudioVolume] = useState(0.7);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const [clockTheme, setClockTheme] = useState<ClockTheme>('gold');
+  
+  // Load clock theme from settings
+  useEffect(() => {
+    setClockTheme(getClockTheme());
+    
+    // Listen for storage changes
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'therapist_clock_theme' && e.newValue) {
+        setClockTheme(e.newValue as ClockTheme);
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
   
   // Password testing dialog state
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
@@ -206,6 +222,11 @@ const Index = () => {
 
         {/* Top right navigation */}
         <nav className="absolute top-4 right-4 md:top-6 md:right-6 z-20 flex items-center gap-3">
+          {/* Themed Clock Widget - Desktop only */}
+          <div className="hidden md:block">
+            <ThemedClockWidget theme={clockTheme} />
+          </div>
+          
           <LanguageSwitcher />
           
           <button 
