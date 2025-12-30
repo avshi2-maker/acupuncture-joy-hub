@@ -215,6 +215,13 @@ const BUILTIN_ASSETS = [
     defaultCategory: 'anxiety_mental',
     defaultLanguage: 'en',
   },
+  {
+    id: 'extreme-weather-climate',
+    label: 'extreme-weather-climate.csv',
+    path: '/knowledge-assets/extreme-weather-climate.csv',
+    defaultCategory: 'general_health',
+    defaultLanguage: 'en',
+  },
 ] as const;
 
 type QueueItemStatus = 'pending' | 'importing' | 'done' | 'error';
