@@ -32,10 +32,12 @@ import {
   Phone,
   Sun,
   Moon,
-  KeyRound
+  KeyRound,
+  LockKeyhole
 } from 'lucide-react';
 import { PinSetupDialog } from '@/components/auth/PinSetupDialog';
 import { usePinAuth } from '@/hooks/usePinAuth';
+import { useSessionLock } from '@/contexts/SessionLockContext';
 import { ShareQRButton } from '@/components/ui/ShareQRButton';
 import { Link } from 'react-router-dom';
 import {
@@ -218,6 +220,7 @@ export default function Dashboard() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [showPinSetup, setShowPinSetup] = useState(false);
   const { progress, hasProgress, resetProgress } = useWorkflowProgress();
+  const { lock } = useSessionLock();
   const { hasPin } = usePinAuth();
 
   const toggleTheme = () => {
@@ -681,6 +684,19 @@ export default function Dashboard() {
             >
               <KeyRound className="h-5 w-5" />
             </Button>
+
+            {/* Manual Lock Button - only show if PIN is set */}
+            {hasPin && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={lock}
+                title="נעל מסך עכשיו"
+                className="text-amber-500 hover:text-amber-600 hover:bg-amber-500/10"
+              >
+                <LockKeyhole className="h-5 w-5" />
+              </Button>
+            )}
             
             {/* Share App QR Code */}
             <ShareQRButton 

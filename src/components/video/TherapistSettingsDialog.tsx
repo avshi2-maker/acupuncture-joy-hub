@@ -11,8 +11,17 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Settings, Video, Save, Bell } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Settings, Video, Save, Bell, Shield, Clock } from 'lucide-react';
 import { toast } from 'sonner';
+import { useSessionLock } from '@/contexts/SessionLockContext';
+import { usePinAuth } from '@/hooks/usePinAuth';
 
 interface TherapistSettingsDialogProps {
   open: boolean;
@@ -32,6 +41,13 @@ export function getAudioAlertsEnabled(): boolean {
   }
 }
 
+const TIMEOUT_OPTIONS = [
+  { value: '5', label: '5 דקות' },
+  { value: '10', label: '10 דקות' },
+  { value: '15', label: '15 דקות' },
+  { value: '30', label: '30 דקות' },
+];
+
 export function TherapistSettingsDialog({
   open,
   onOpenChange,
@@ -39,6 +55,10 @@ export function TherapistSettingsDialog({
   const [zoomLink, setZoomLink] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [audioAlertsEnabled, setAudioAlertsEnabled] = useState(true);
+  const [selectedTimeout, setSelectedTimeout] = useState('15');
+  
+  const { timeoutMinutes, setTimeoutMinutes } = useSessionLock();
+  const { hasPin } = usePinAuth();
 
   // Load saved settings on mount
   useEffect(() => {
@@ -49,13 +69,15 @@ export function TherapistSettingsDialog({
       setZoomLink(savedLink);
       setDisplayName(savedName);
       setAudioAlertsEnabled(savedAudioAlerts);
+      setSelectedTimeout(timeoutMinutes.toString());
     }
-  }, [open]);
+  }, [open, timeoutMinutes]);
 
   const handleSave = () => {
     localStorage.setItem(ZOOM_LINK_STORAGE_KEY, zoomLink);
     localStorage.setItem(THERAPIST_NAME_KEY, displayName);
     localStorage.setItem(AUDIO_ALERTS_ENABLED_KEY, audioAlertsEnabled.toString());
+    setTimeoutMinutes(parseInt(selectedTimeout, 10));
     toast.success('ההגדרות נשמרו בהצלחה');
     onOpenChange(false);
   };
@@ -122,6 +144,37 @@ export function TherapistSettingsDialog({
               onCheckedChange={setAudioAlertsEnabled}
             />
           </div>
+
+          {/* Session Lock Timeout - only show if PIN is set */}
+          {hasPin && (
+            <div className="space-y-2 p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Shield className="h-4 w-4 text-jade" />
+                <Label className="text-sm font-medium">אבטחת מסך</Label>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">נעילה אוטומטית לאחר</span>
+                </div>
+                <Select value={selectedTimeout} onValueChange={setSelectedTimeout}>
+                  <SelectTrigger className="w-28">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TIMEOUT_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                המסך יינעל אוטומטית לאחר חוסר פעילות
+              </p>
+            </div>
+          )}
 
           {/* Info box */}
           <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
