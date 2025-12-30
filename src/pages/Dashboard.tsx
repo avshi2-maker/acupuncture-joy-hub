@@ -34,7 +34,10 @@ import {
   Moon,
   KeyRound,
   LockKeyhole,
-  ShieldOff
+  ShieldOff,
+  ShieldCheck,
+  PauseCircle,
+  PlayCircle
 } from 'lucide-react';
 import { PinSetupDialog } from '@/components/auth/PinSetupDialog';
 import { usePinAuth } from '@/hooks/usePinAuth';
@@ -53,7 +56,7 @@ import brainBg from '@/assets/brain-bg.png';
 import knowledgeBg from '@/assets/knowledge-bg.png';
 
 
-// Phosphor-style glowing clock component
+// Phosphor-style glowing clock component (mobile - small version)
 function PhosphorClock() {
   const [time, setTime] = useState(new Date());
 
@@ -71,7 +74,7 @@ function PhosphorClock() {
   const secondDeg = seconds * 6;
 
   return (
-    <div className="relative w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm border border-jade/30 flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+    <div className="relative w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm border border-jade/30 flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.3)] md:hidden">
       {/* Clock face glow */}
       <div className="absolute inset-0 rounded-full bg-jade/5" />
       
@@ -116,6 +119,98 @@ function PhosphorClock() {
       
       {/* Center dot */}
       <div className="absolute w-1 h-1 bg-jade rounded-full shadow-[0_0_4px_rgba(34,197,94,0.8)]" />
+    </div>
+  );
+}
+
+// Gold clock widget with date - Desktop only
+function GoldClockWidget() {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const hours = time.getHours() % 12;
+  const minutes = time.getMinutes();
+  const seconds = time.getSeconds();
+
+  const hourDeg = (hours * 30) + (minutes * 0.5);
+  const minuteDeg = minutes * 6;
+  const secondDeg = seconds * 6;
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('he-IL', { 
+      weekday: 'short', 
+      day: 'numeric', 
+      month: 'short' 
+    });
+  };
+
+  return (
+    <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/10 rounded-xl border border-amber-400/30 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
+      {/* Analog Clock */}
+      <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-amber-100 to-yellow-200 dark:from-amber-900/50 dark:to-yellow-800/50 border-2 border-amber-400/50 flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.3),inset_0_1px_3px_rgba(255,255,255,0.3)]">
+        {/* Clock face */}
+        <div className="absolute inset-1 rounded-full bg-gradient-to-br from-amber-50 to-yellow-100 dark:from-amber-950/80 dark:to-yellow-900/80" />
+        
+        {/* Hour markers */}
+        {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
+          <div
+            key={deg}
+            className={`absolute rounded-full ${deg % 90 === 0 ? 'w-0.5 h-1.5 bg-amber-600 dark:bg-amber-400' : 'w-px h-1 bg-amber-400/60 dark:bg-amber-500/60'}`}
+            style={{
+              transform: `rotate(${deg}deg) translateY(-18px)`,
+              transformOrigin: 'center center',
+            }}
+          />
+        ))}
+        
+        {/* Hour hand */}
+        <div
+          className="absolute w-1 h-3 bg-gradient-to-t from-amber-700 to-amber-500 dark:from-amber-400 dark:to-amber-300 rounded-full origin-bottom shadow-md"
+          style={{
+            transform: `rotate(${hourDeg}deg)`,
+            bottom: '50%',
+          }}
+        />
+        
+        {/* Minute hand */}
+        <div
+          className="absolute w-0.5 h-4 bg-gradient-to-t from-amber-600 to-amber-400 dark:from-amber-300 dark:to-amber-200 rounded-full origin-bottom shadow-sm"
+          style={{
+            transform: `rotate(${minuteDeg}deg)`,
+            bottom: '50%',
+          }}
+        />
+        
+        {/* Second hand */}
+        <div
+          className="absolute w-px h-4.5 bg-red-500 rounded-full origin-bottom shadow-[0_0_4px_rgba(239,68,68,0.6)] transition-transform duration-100"
+          style={{
+            transform: `rotate(${secondDeg}deg)`,
+            bottom: '50%',
+          }}
+        />
+        
+        {/* Center dot */}
+        <div className="absolute w-1.5 h-1.5 bg-gradient-to-br from-amber-500 to-amber-700 dark:from-amber-300 dark:to-amber-500 rounded-full shadow-md border border-amber-400/50" />
+      </div>
+
+      {/* Digital Time & Date */}
+      <div className="flex flex-col items-start">
+        <span className="text-lg font-mono font-bold text-amber-700 dark:text-amber-300 tracking-wider">
+          {formatTime(time)}
+        </span>
+        <span className="text-xs text-amber-600/80 dark:text-amber-400/80">
+          {formatDate(time)}
+        </span>
+      </div>
     </div>
   );
 }
@@ -222,7 +317,7 @@ export default function Dashboard() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [showPinSetup, setShowPinSetup] = useState(false);
   const { progress, hasProgress, resetProgress } = useWorkflowProgress();
-  const { lock, isPaused, pauseReason } = useSessionLock();
+  const { lock, isPaused, pauseReason, pauseLock, resumeLock } = useSessionLock();
   const { hasPin } = usePinAuth();
 
   const toggleTheme = () => {
@@ -604,7 +699,10 @@ export default function Dashboard() {
               <Search className="h-5 w-5" />
             </Button>
             
-            {/* Phosphor Clock */}
+            {/* Gold Clock Widget - Desktop only */}
+            <GoldClockWidget />
+            
+            {/* Phosphor Clock - Mobile only */}
             <PhosphorClock />
             
             {/* Notifications Bell */}
@@ -687,34 +785,66 @@ export default function Dashboard() {
               <KeyRound className="h-5 w-5" />
             </Button>
 
-            {/* Lock Status Indicator - show when paused */}
-            {hasPin && isPaused && (
+            {/* Lock Status & Pause Toggle */}
+            {hasPin && (
               <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1 px-2 py-1 bg-amber-500/10 text-amber-600 rounded-full text-xs">
-                      <ShieldOff className="h-3.5 w-3.5" />
-                      <span className="hidden sm:inline">נעילה מושהית</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">
-                    <p>{pauseReason || 'Auto-lock is paused'}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
+                <div className="flex items-center gap-1">
+                  {/* Pause/Resume Toggle */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => isPaused ? resumeLock() : pauseLock('Manual pause')}
+                        className={isPaused ? 'text-amber-500 hover:text-amber-600' : 'text-jade hover:text-jade-dark'}
+                      >
+                        {isPaused ? (
+                          <PlayCircle className="h-5 w-5" />
+                        ) : (
+                          <PauseCircle className="h-5 w-5" />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p>{isPaused ? 'הפעל נעילה אוטומטית' : 'השהה נעילה אוטומטית'}</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-            {/* Manual Lock Button - only show if PIN is set and not paused */}
-            {hasPin && !isPaused && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={lock}
-                title="נעל מסך עכשיו"
-                className="text-amber-500 hover:text-amber-600 hover:bg-amber-500/10"
-              >
-                <LockKeyhole className="h-5 w-5" />
-              </Button>
+                  {/* Status Badge */}
+                  {isPaused && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="hidden sm:flex items-center gap-1 px-2 py-1 bg-amber-500/10 text-amber-600 rounded-full text-xs">
+                          <ShieldOff className="h-3.5 w-3.5" />
+                          <span>מושהה</span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p>{pauseReason || 'Auto-lock is paused'}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+
+                  {/* Manual Lock Button - only when not paused */}
+                  {!isPaused && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={lock}
+                          className="text-amber-500 hover:text-amber-600 hover:bg-amber-500/10"
+                        >
+                          <LockKeyhole className="h-5 w-5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p>נעל מסך עכשיו</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+              </TooltipProvider>
             )}
             
             {/* Share App QR Code */}
