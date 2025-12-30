@@ -5,149 +5,10 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronUp, X, Utensils } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ChevronDown, ChevronUp, X, Utensils, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-// Diet options organized by category
-const dietOptions: Record<string, string[]> = {
-  'Meal Pattern': [
-    'Three regular meals per day',
-    'Two meals per day (intermittent fasting)',
-    '5-6 small meals per day (grazing)',
-    'One meal per day (OMAD)',
-    'Irregular eating times',
-    'Skipping breakfast',
-    'Large dinner, light breakfast/lunch',
-    'Eating largest meal at lunch',
-  ],
-  'Dietary Approach': [
-    'Standard Western diet',
-    'Mediterranean diet',
-    'Vegetarian diet',
-    'Vegan diet',
-    'Ketogenic diet',
-    'Paleo diet',
-    'Raw food diet',
-    'Macrobiotic diet',
-    'DASH diet (blood pressure)',
-    'Carnivore diet',
-    'Gluten-free diet',
-    'Low FODMAP diet',
-  ],
-  'Grain Consumption': [
-    'White rice daily',
-    'Brown rice daily',
-    'Wheat/bread products daily',
-    'Oats regularly',
-    'No grains (grain-free)',
-  ],
-  'Protein Source': [
-    'Red meat 4+ times/week',
-    'Poultry as main protein',
-    'Fish/seafood regularly (3+ times/week)',
-    'Legumes as primary protein',
-    'Eggs daily',
-    'Dairy products daily',
-    'Protein supplements/powders',
-  ],
-  'Vegetable Intake': [
-    '5+ servings vegetables daily',
-    'Mostly cooked vegetables',
-    'Mostly raw vegetables/salads',
-    'Minimal vegetables (1-2 servings/day)',
-  ],
-  'Fruit Intake': [
-    '3+ servings fruit daily',
-    'Tropical fruits regularly',
-    'Dried fruits regularly',
-    'Low fruit intake (avoiding sugar)',
-  ],
-  'Beverage': [
-    'Water as primary beverage (8+ cups)',
-    'Coffee daily (1-3 cups)',
-    'Coffee daily (4+ cups)',
-    'Green tea daily',
-    'Black tea daily',
-    'Herbal teas regularly',
-    'Alcohol regularly (daily or most days)',
-    'Alcohol moderately (1-3 times/week)',
-    'Sugary drinks/soda regularly',
-    'Fruit juice daily',
-    'Energy drinks regularly',
-    'Milk/plant milk daily',
-    'Smoothies regularly',
-    'Bone broth regularly',
-  ],
-  'Eating Behavior': [
-    'Eating slowly, chewing thoroughly',
-    'Eating quickly, poor chewing',
-    'Eating while distracted (TV, phone, work)',
-    'Eating until very full',
-    'Eating until 80% full (Hara Hachi Bu)',
-    'Late night eating (after 8-9pm)',
-    'Emotional eating',
-    'Restrictive eating/dieting cycles',
-  ],
-  'Food Temperature': [
-    'Mostly warm/cooked foods',
-    'Cold/iced foods and drinks regularly',
-    'Room temperature foods preferred',
-  ],
-  'Preparation Method': [
-    'Steamed and boiled foods primarily',
-    'Stir-fried foods regularly',
-    'Deep-fried foods regularly',
-    'Grilled/roasted foods frequently',
-    'Slow-cooked soups and stews',
-    'Microwaved meals regularly',
-  ],
-  'Flavor Preference': [
-    'Sweet flavor dominant',
-    'Salty flavor dominant',
-    'Spicy/pungent foods regularly',
-    'Sour flavor preference',
-    'Bitter flavor foods',
-  ],
-  'Snacking': [
-    'Frequent snacking throughout day',
-    'No snacking between meals',
-    'Nuts and seeds regularly',
-    'Chips/crackers/processed snacks',
-  ],
-  'Sweet Foods': [
-    'Dessert daily',
-    'Refined sugar avoidance',
-    'Natural sweeteners (honey, maple syrup)',
-    'Artificial sweeteners use',
-  ],
-  'Processed Foods': [
-    'Highly processed foods daily',
-    'Mostly whole, unprocessed foods',
-    'Fast food regularly (3+ times/week)',
-    'Frozen meals regularly',
-    'Home-cooked meals primarily',
-  ],
-  'Special Foods': [
-    'Fermented foods regularly (kimchi, sauerkraut)',
-    'Probiotic supplements',
-    'Supplements and vitamins daily',
-    'Protein bars/meal replacements',
-    'Superfoods focus (chia, goji, spirulina)',
-    'Organic foods exclusively',
-  ],
-  'Hydration': [
-    'Adequate hydration (clear urine)',
-    'Insufficient water intake',
-    'Excessive water intake (water intoxication risk)',
-  ],
-  'Activity Level Context': [
-    'Sedentary lifestyle (desk job, minimal exercise)',
-    'Lightly active (1-3 days exercise/week)',
-    'Moderately active (3-5 days exercise/week)',
-    'Very active (6-7 days intense exercise/week)',
-    'Physical labor job',
-  ],
-};
+import { dietNutritionData, getDietHabitDetails } from '@/data/diet-nutrition-data';
 
 interface DietNutritionSelectProps {
   value: string[];
@@ -193,125 +54,153 @@ export const DietNutritionSelect = memo(function DietNutritionSelect({
   const minHeight = value.length === 0 ? 'auto' : Math.min(56 + value.length * 32, 200);
 
   return (
-    <div className={cn('space-y-2', className)}>
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger asChild>
-          <Button
-            type="button"
-            variant="outline"
-            className={cn(
-              'w-full justify-between text-left font-normal',
-              !value.length && 'text-muted-foreground'
-            )}
-          >
-            <span className="flex items-center gap-2">
-              <Utensils className="h-4 w-4" />
-              {value.length === 0
-                ? 'Select dietary habits...'
-                : `${value.length} habit${value.length > 1 ? 's' : ''} selected`}
-            </span>
-            {isOpen ? (
-              <ChevronUp className="h-4 w-4 shrink-0" />
-            ) : (
-              <ChevronDown className="h-4 w-4 shrink-0" />
-            )}
-          </Button>
-        </CollapsibleTrigger>
-
-        <CollapsibleContent className="mt-2">
-          <div className="border rounded-lg bg-background">
-            <ScrollArea className="h-[300px]">
-              <div className="p-3 space-y-2">
-                {Object.entries(dietOptions).map(([category, options]) => (
-                  <Collapsible
-                    key={category}
-                    open={expandedCategories.includes(category)}
-                    onOpenChange={(open) => setCategoryOpen(category, open)}
-                  >
-                    <CollapsibleTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="w-full justify-between px-2 h-8 font-medium text-sm"
-                      >
-                        <span>{category}</span>
-                        {expandedCategories.includes(category) ? (
-                          <ChevronUp className="h-3 w-3" />
-                        ) : (
-                          <ChevronDown className="h-3 w-3" />
-                        )}
-                      </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="pl-4 mt-1 space-y-1">
-                      {options.map((option) => (
-                        <div
-                          key={option}
-                          className="flex items-center gap-2 py-1 px-2 rounded hover:bg-muted/50 cursor-pointer"
-                          onClick={() => toggleOption(option)}
-                        >
-                          <Checkbox
-                            checked={value.includes(option)}
-                            onCheckedChange={() => toggleOption(option)}
-                            className="pointer-events-none"
-                          />
-                          <Label className="text-sm cursor-pointer flex-1">
-                            {option}
-                          </Label>
-                        </div>
-                      ))}
-                    </CollapsibleContent>
-                  </Collapsible>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-
-      {/* Selected items display - expands based on count */}
-      {value.length > 0 && (
-        <div
-          className="border rounded-lg p-3 bg-muted/30 transition-all duration-200"
-          style={{ minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight }}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-muted-foreground font-medium">
-              Selected ({value.length})
-            </span>
+    <TooltipProvider>
+      <div className={cn('space-y-2', className)}>
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <CollapsibleTrigger asChild>
             <Button
               type="button"
-              variant="ghost"
-              size="sm"
-              onClick={clearAll}
-              className="h-6 px-2 text-xs text-destructive hover:text-destructive"
+              variant="outline"
+              className={cn(
+                'w-full justify-between text-left font-normal',
+                !value.length && 'text-muted-foreground'
+              )}
             >
-              Clear all
+              <span className="flex items-center gap-2">
+                <Utensils className="h-4 w-4" />
+                {value.length === 0
+                  ? 'Select dietary habits...'
+                  : `${value.length} habit${value.length > 1 ? 's' : ''} selected`}
+              </span>
+              {isOpen ? (
+                <ChevronUp className="h-4 w-4 shrink-0" />
+              ) : (
+                <ChevronDown className="h-4 w-4 shrink-0" />
+              )}
             </Button>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {value.map((item) => (
-              <Badge
-                key={item}
-                variant="secondary"
-                className="text-xs pr-1 gap-1"
+          </CollapsibleTrigger>
+
+          <CollapsibleContent className="mt-2">
+            <div className="border rounded-lg bg-background">
+              <ScrollArea className="h-[300px]">
+                <div className="p-3 space-y-2">
+                  {dietNutritionData.map((category) => (
+                    <Collapsible
+                      key={category.category}
+                      open={expandedCategories.includes(category.category)}
+                      onOpenChange={(open) => setCategoryOpen(category.category, open)}
+                    >
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="w-full justify-between px-2 h-8 font-medium text-sm"
+                        >
+                          <span>{category.category}</span>
+                          {expandedCategories.includes(category.category) ? (
+                            <ChevronUp className="h-3 w-3" />
+                          ) : (
+                            <ChevronDown className="h-3 w-3" />
+                          )}
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="pl-4 mt-1 space-y-1">
+                        {category.habits.map((habit) => (
+                          <div
+                            key={habit.habit}
+                            className="flex items-center gap-2 py-1 px-2 rounded hover:bg-muted/50 cursor-pointer"
+                            onClick={() => toggleOption(habit.habit)}
+                          >
+                            <Checkbox
+                              checked={value.includes(habit.habit)}
+                              onCheckedChange={() => toggleOption(habit.habit)}
+                              className="pointer-events-none"
+                            />
+                            <Label className="text-sm cursor-pointer flex-1">
+                              {habit.habit}
+                            </Label>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0 cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent side="right" className="max-w-[300px] z-[100]">
+                                <div className="space-y-1 text-xs">
+                                  <p><strong>Western:</strong> {habit.westernPerspective}</p>
+                                  <p><strong>TCM:</strong> {habit.tcmPerspective}</p>
+                                  <p className="text-muted-foreground"><strong>Calories:</strong> {habit.estimatedCalories}</p>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Selected items display - expands based on count */}
+        {value.length > 0 && (
+          <div
+            className="border rounded-lg p-3 bg-muted/30 transition-all duration-200"
+            style={{ minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-muted-foreground font-medium">
+                Selected ({value.length})
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={clearAll}
+                className="h-6 px-2 text-xs text-destructive hover:text-destructive"
               >
-                {item}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeOption(item);
-                  }}
-                  className="ml-1 hover:bg-muted rounded-full p-0.5"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
+                Clear all
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {value.map((item) => {
+                const details = getDietHabitDetails(item);
+                return (
+                  <Tooltip key={item}>
+                    <TooltipTrigger asChild>
+                      <Badge
+                        variant="secondary"
+                        className="text-xs pr-1 gap-1 cursor-pointer"
+                      >
+                        {item.length > 35 ? item.substring(0, 35) + '...' : item}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeOption(item);
+                          }}
+                          className="ml-1 hover:bg-muted rounded-full p-0.5"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    </TooltipTrigger>
+                    {details && (
+                      <TooltipContent className="max-w-[300px]">
+                        <div className="space-y-1 text-xs">
+                          <p><strong>TCM:</strong> {details.tcmPerspective}</p>
+                          <p className="text-muted-foreground italic">Click × to remove</p>
+                        </div>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </TooltipProvider>
   );
 });
