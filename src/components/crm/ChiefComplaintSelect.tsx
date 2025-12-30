@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, forwardRef } from 'react';
 import { Check, ChevronDown, Search, Stethoscope, Pill, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -44,11 +44,11 @@ const categoryIcons: Record<string, string> = {
   'Eye/Vision': '👁️',
 };
 
-export function ChiefComplaintSelect({ 
+export const ChiefComplaintSelect = forwardRef<HTMLDivElement, ChiefComplaintSelectProps>(({ 
   value, 
   onValueChange,
   className 
-}: ChiefComplaintSelectProps) {
+}, ref) => {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const selectedComplaint = value ? getComplaintById(value) : undefined;
@@ -177,7 +177,9 @@ export function ChiefComplaintSelect({
       )}
     </div>
   );
-}
+});
+
+ChiefComplaintSelect.displayName = 'ChiefComplaintSelect';
 
 interface ComplaintItemProps {
   complaint: ChiefComplaint;
