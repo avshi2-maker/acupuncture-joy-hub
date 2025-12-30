@@ -172,7 +172,7 @@ export const AllergiesSelect = memo(function AllergiesSelect({
                 const severityColor = details ? getSeverityColor(details.severity) : 'secondary';
                 return (
                   <Tooltip key={item}>
-                    <TooltipTrigger asChild>
+                    <TooltipTrigger>
                       <Badge
                         variant={severityColor as any}
                         className="text-xs pr-1 gap-1 cursor-pointer"
@@ -194,7 +194,7 @@ export const AllergiesSelect = memo(function AllergiesSelect({
                       </Badge>
                     </TooltipTrigger>
                     {details && (
-                      <TooltipContent className="max-w-[300px]">
+                      <TooltipContent className="max-w-[300px] z-50">
                         <div className="space-y-1 text-xs">
                           <p><strong>Symptoms:</strong> {details.symptoms}</p>
                           <p><strong>TCM:</strong> {details.tcmPerspective}</p>
