@@ -402,6 +402,9 @@ export default function TcmBrain() {
     diagnosisData: '',
     treatmentData: '',
   });
+
+  // Voice input language for auto-chain workflow
+  const [voiceLanguage, setVoiceLanguage] = useState<'en-US' | 'he-IL'>('en-US');
   
   // Session history hook
   const { sessions, saveSession, exportSessionAsPDF, openGmailWithSession, openWhatsAppWithSession } = useTcmSessionHistory();
@@ -1966,15 +1969,37 @@ Based on this framework, provide a complete treatment protocol:
                         disabled={isLoading}
                         className="flex-1"
                       />
-                      <BrowserVoiceInput
-                        onTranscription={(text) => {
-                          setInput(prev => prev ? `${prev} ${text}` : text);
-                        }}
-                        disabled={isLoading}
-                        language="en-US"
-                        size="md"
-                        variant="outline"
-                      />
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          variant={voiceLanguage === 'en-US' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setVoiceLanguage('en-US')}
+                          className="h-10 px-2 text-xs"
+                          disabled={isLoading}
+                        >
+                          EN
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={voiceLanguage === 'he-IL' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setVoiceLanguage('he-IL')}
+                          className="h-10 px-2 text-xs"
+                          disabled={isLoading}
+                        >
+                          עב
+                        </Button>
+                        <BrowserVoiceInput
+                          onTranscription={(text) => {
+                            setInput(prev => prev ? `${prev} ${text}` : text);
+                          }}
+                          disabled={isLoading}
+                          language={voiceLanguage}
+                          size="md"
+                          variant="outline"
+                        />
+                      </div>
                       <Button
                         onClick={() => {
                           if (input.trim() && !isLoading) {
