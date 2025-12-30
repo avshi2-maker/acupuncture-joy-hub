@@ -7,6 +7,7 @@ import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 import { toast } from 'sonner';
 import { Lock, LogOut, AlertTriangle, Fingerprint } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { getBiometricEnabled } from '@/components/video/TherapistSettingsDialog';
 
 interface PinUnlockScreenProps {
   onUnlock: () => void;
@@ -22,13 +23,17 @@ export function PinUnlockScreen({ onUnlock, onLogout }: PinUnlockScreenProps) {
   const { isAvailable: biometricAvailable, isEnabled: biometricEnabled, authenticate: biometricAuth, isAuthenticating } = useBiometricAuth();
   const haptic = useHapticFeedback();
   const [lockoutCountdown, setLockoutCountdown] = useState<string | null>(null);
+  
+  // Check if biometric is enabled in settings
+  const biometricSettingEnabled = getBiometricEnabled();
+  const showBiometric = biometricAvailable && biometricEnabled && biometricSettingEnabled;
 
-  // Auto-trigger biometric on mount if available and enabled
+  // Auto-trigger biometric on mount if available and enabled in settings
   useEffect(() => {
-    if (biometricAvailable && biometricEnabled && !isLocked) {
+    if (showBiometric && !isLocked) {
       handleBiometricUnlock();
     }
-  }, [biometricAvailable, biometricEnabled, isLocked]);
+  }, [showBiometric, isLocked]);
 
   const handleBiometricUnlock = async () => {
     haptic.light();
@@ -170,7 +175,7 @@ export function PinUnlockScreen({ onUnlock, onLogout }: PinUnlockScreenProps) {
         )}
 
         {/* Biometric button */}
-        {biometricAvailable && biometricEnabled && (
+        {showBiometric && (
           <Button 
             variant="outline" 
             onClick={handleBiometricUnlock}

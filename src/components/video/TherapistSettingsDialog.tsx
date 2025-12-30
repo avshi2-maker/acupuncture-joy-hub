@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Settings, Video, Save, Bell, Shield, Clock } from 'lucide-react';
+import { Settings, Video, Save, Bell, Shield, Clock, Fingerprint } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSessionLock } from '@/contexts/SessionLockContext';
 import { usePinAuth } from '@/hooks/usePinAuth';
@@ -31,10 +31,20 @@ interface TherapistSettingsDialogProps {
 export const ZOOM_LINK_STORAGE_KEY = 'therapist_zoom_link';
 export const THERAPIST_NAME_KEY = 'therapist_display_name';
 export const AUDIO_ALERTS_ENABLED_KEY = 'therapist_audio_alerts_enabled';
+export const BIOMETRIC_ENABLED_KEY = 'therapist_biometric_enabled';
 
 export function getAudioAlertsEnabled(): boolean {
   try {
     const saved = localStorage.getItem(AUDIO_ALERTS_ENABLED_KEY);
+    return saved === null ? true : saved === 'true';
+  } catch {
+    return true;
+  }
+}
+
+export function getBiometricEnabled(): boolean {
+  try {
+    const saved = localStorage.getItem(BIOMETRIC_ENABLED_KEY);
     return saved === null ? true : saved === 'true'; // Default to enabled
   } catch {
     return true;
@@ -55,6 +65,7 @@ export function TherapistSettingsDialog({
   const [zoomLink, setZoomLink] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [audioAlertsEnabled, setAudioAlertsEnabled] = useState(true);
+  const [biometricEnabled, setBiometricEnabled] = useState(true);
   const [selectedTimeout, setSelectedTimeout] = useState('15');
   
   const { timeoutMinutes, setTimeoutMinutes } = useSessionLock();
@@ -66,9 +77,11 @@ export function TherapistSettingsDialog({
       const savedLink = localStorage.getItem(ZOOM_LINK_STORAGE_KEY) || '';
       const savedName = localStorage.getItem(THERAPIST_NAME_KEY) || '';
       const savedAudioAlerts = getAudioAlertsEnabled();
+      const savedBiometric = getBiometricEnabled();
       setZoomLink(savedLink);
       setDisplayName(savedName);
       setAudioAlertsEnabled(savedAudioAlerts);
+      setBiometricEnabled(savedBiometric);
       setSelectedTimeout(timeoutMinutes.toString());
     }
   }, [open, timeoutMinutes]);
@@ -77,6 +90,7 @@ export function TherapistSettingsDialog({
     localStorage.setItem(ZOOM_LINK_STORAGE_KEY, zoomLink);
     localStorage.setItem(THERAPIST_NAME_KEY, displayName);
     localStorage.setItem(AUDIO_ALERTS_ENABLED_KEY, audioAlertsEnabled.toString());
+    localStorage.setItem(BIOMETRIC_ENABLED_KEY, biometricEnabled.toString());
     setTimeoutMinutes(parseInt(selectedTimeout, 10));
     toast.success('ההגדרות נשמרו בהצלחה');
     onOpenChange(false);
@@ -147,11 +161,13 @@ export function TherapistSettingsDialog({
 
           {/* Session Lock Timeout - only show if PIN is set */}
           {hasPin && (
-            <div className="space-y-2 p-3 bg-muted/50 rounded-lg">
+            <div className="space-y-3 p-3 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="h-4 w-4 text-jade" />
                 <Label className="text-sm font-medium">אבטחת מסך</Label>
               </div>
+              
+              {/* Timeout Setting */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-muted-foreground" />
@@ -170,6 +186,24 @@ export function TherapistSettingsDialog({
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Biometric Toggle */}
+              <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                <div className="flex items-center gap-2">
+                  <Fingerprint className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <span className="text-sm">זיהוי ביומטרי</span>
+                    <p className="text-xs text-muted-foreground">
+                      טביעת אצבע / Face ID
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  checked={biometricEnabled}
+                  onCheckedChange={setBiometricEnabled}
+                />
+              </div>
+
               <p className="text-xs text-muted-foreground">
                 המסך יינעל אוטומטית לאחר חוסר פעילות
               </p>
