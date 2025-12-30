@@ -47,7 +47,7 @@ export function ThemedClockWidget({ theme = 'gold', className = '' }: ThemedCloc
   // Theme-specific styles
   const themeStyles = {
     gold: {
-      container: 'from-amber-500/10 via-yellow-500/10 to-amber-500/10 border-amber-400/30 shadow-[0_0_20px_rgba(245,158,11,0.15)]',
+      container: 'from-amber-500/20 via-yellow-500/20 to-amber-500/20 border-amber-400/40 shadow-[0_0_20px_rgba(245,158,11,0.2)]',
       clockFace: 'from-amber-100 to-yellow-200 dark:from-amber-900/50 dark:to-yellow-800/50 border-amber-400/50',
       innerFace: 'from-amber-50 to-yellow-100 dark:from-amber-950/80 dark:to-yellow-900/80',
       majorMarker: 'bg-amber-600 dark:bg-amber-400',
@@ -55,11 +55,11 @@ export function ThemedClockWidget({ theme = 'gold', className = '' }: ThemedCloc
       hourHand: 'from-amber-700 to-amber-500 dark:from-amber-400 dark:to-amber-300',
       minuteHand: 'from-amber-600 to-amber-400 dark:from-amber-300 dark:to-amber-200',
       centerDot: 'from-amber-500 to-amber-700 dark:from-amber-300 dark:to-amber-500 border-amber-400/50',
-      digitalTime: 'text-amber-700 dark:text-amber-300',
-      digitalDate: 'text-amber-600/80 dark:text-amber-400/80',
+      digitalTime: 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]',
+      digitalDate: 'text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]',
     },
     silver: {
-      container: 'from-slate-400/10 via-gray-300/10 to-slate-400/10 border-slate-400/30 shadow-[0_0_20px_rgba(148,163,184,0.15)]',
+      container: 'from-slate-400/20 via-gray-300/20 to-slate-400/20 border-slate-400/40 shadow-[0_0_20px_rgba(148,163,184,0.2)]',
       clockFace: 'from-slate-100 to-gray-200 dark:from-slate-800/50 dark:to-gray-700/50 border-slate-400/50',
       innerFace: 'from-slate-50 to-gray-100 dark:from-slate-900/80 dark:to-gray-800/80',
       majorMarker: 'bg-slate-600 dark:bg-slate-300',
@@ -67,11 +67,11 @@ export function ThemedClockWidget({ theme = 'gold', className = '' }: ThemedCloc
       hourHand: 'from-slate-700 to-slate-500 dark:from-slate-300 dark:to-slate-200',
       minuteHand: 'from-slate-600 to-slate-400 dark:from-slate-200 dark:to-slate-100',
       centerDot: 'from-slate-500 to-slate-700 dark:from-slate-300 dark:to-slate-500 border-slate-400/50',
-      digitalTime: 'text-slate-700 dark:text-slate-200',
-      digitalDate: 'text-slate-600/80 dark:text-slate-400/80',
+      digitalTime: 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]',
+      digitalDate: 'text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]',
     },
     jade: {
-      container: 'from-emerald-500/10 via-jade/10 to-emerald-500/10 border-jade/30 shadow-[0_0_20px_rgba(34,197,94,0.15)]',
+      container: 'from-emerald-500/20 via-jade/20 to-emerald-500/20 border-jade/40 shadow-[0_0_20px_rgba(34,197,94,0.2)]',
       clockFace: 'from-emerald-100 to-jade-light dark:from-emerald-900/50 dark:to-jade/30 border-jade/50',
       innerFace: 'from-emerald-50 to-jade-light dark:from-emerald-950/80 dark:to-jade/20',
       majorMarker: 'bg-jade dark:bg-emerald-400',
@@ -79,8 +79,8 @@ export function ThemedClockWidget({ theme = 'gold', className = '' }: ThemedCloc
       hourHand: 'from-emerald-700 to-jade dark:from-emerald-400 dark:to-emerald-300',
       minuteHand: 'from-emerald-600 to-jade dark:from-emerald-300 dark:to-emerald-200',
       centerDot: 'from-jade to-emerald-700 dark:from-emerald-300 dark:to-jade border-jade/50',
-      digitalTime: 'text-jade dark:text-emerald-300',
-      digitalDate: 'text-emerald-600/80 dark:text-emerald-400/80',
+      digitalTime: 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]',
+      digitalDate: 'text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]',
     },
   };
 
