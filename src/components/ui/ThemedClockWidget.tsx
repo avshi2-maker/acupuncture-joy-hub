@@ -55,8 +55,8 @@ export function ThemedClockWidget({ theme = 'gold', className = '' }: ThemedCloc
       hourHand: 'from-amber-700 to-amber-500 dark:from-amber-400 dark:to-amber-300',
       minuteHand: 'from-amber-600 to-amber-400 dark:from-amber-300 dark:to-amber-200',
       centerDot: 'from-amber-500 to-amber-700 dark:from-amber-300 dark:to-amber-500 border-amber-400/50',
-      digitalTime: 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]',
-      digitalDate: 'text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]',
+      digitalTime: 'text-amber-900 dark:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]',
+      digitalDate: 'text-amber-800 dark:text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]',
     },
     silver: {
       container: 'from-slate-400/20 via-gray-300/20 to-slate-400/20 border-slate-400/40 shadow-[0_0_20px_rgba(148,163,184,0.2)]',
