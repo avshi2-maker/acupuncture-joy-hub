@@ -172,16 +172,16 @@ export function RAGSearchAnimation({
                     )}
 
                     {/* Not Found Message */}
-                    {phase === 'rag-not-found' && (
-                      <div className="space-y-2">
-                        <p className="text-sm text-amber-600">
-                          We could not find this symptom/topic in our proprietary knowledge assets.
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Our closed-data hub searched all {RAG_ASSETS.length} knowledge files but found no relevant matches.
-                        </p>
-                      </div>
-                    )}
+                     {phase === 'rag-not-found' && (
+                       <div className="space-y-2">
+                         <p className="text-sm text-amber-600">
+                           We could not find this symptom/topic in our proprietary knowledge base.
+                         </p>
+                         <p className="text-xs text-muted-foreground">
+                           Note: The rotating file list above is a visual animation. The actual search queries the indexed knowledge base in real time.
+                         </p>
+                       </div>
+                     )}
                   </div>
                 </div>
               </CardContent>
@@ -333,30 +333,41 @@ export function RAGVerificationStatus({
     );
   }
 
-  // If we have live stats from a recent query, show them
-  const hasLiveStats = liveStats?.timestamp && 
-    (new Date().getTime() - liveStats.timestamp.getTime()) < 60000; // Within last minute
+   // If we have live stats from a recent query, show them
+   const hasLiveStats = liveStats?.timestamp &&
+     (new Date().getTime() - liveStats.timestamp.getTime()) < 60000; // Within last minute
 
-  if (hasLiveStats && liveStats) {
-    return (
-      <Badge 
-        variant="outline" 
-        className="text-xs bg-blue-500/10 text-blue-600 border-blue-500/30 animate-pulse"
-      >
-        <Search className="w-3 h-3 mr-1" />
-        Last Query: {liveStats.chunksFound} chunks / {liveStats.documentsSearched} docs
-      </Badge>
-    );
-  }
+   if (hasLiveStats && liveStats) {
+     return (
+       <Badge 
+         variant="outline" 
+         className="text-xs bg-blue-500/10 text-blue-600 border-blue-500/30 animate-pulse"
+       >
+         <Search className="w-3 h-3 mr-1" />
+         Last Query: {liveStats.chunksFound} chunks / {liveStats.documentsSearched} docs matched
+       </Badge>
+     );
+   }
 
-  // Default: show database totals
-  return (
-    <Badge 
-      variant="outline" 
-      className="text-xs bg-green-500/10 text-green-600 border-green-500/30"
-    >
-      <Database className="w-3 h-3 mr-1" />
-      KB: {dbStatus.indexed} docs / {dbStatus.totalChunks} chunks
-    </Badge>
-  );
+   // Default: show database totals + minimum required level
+   const minRequiredDocs = RAG_ASSETS.length;
+   const isCritical = dbStatus.indexed === 0;
+   const isBelowMinimum = dbStatus.indexed > 0 && dbStatus.indexed < minRequiredDocs;
+
+   const statusClass = isCritical
+     ? 'bg-red-500/10 text-red-600 border-red-500/30'
+     : isBelowMinimum
+       ? 'bg-amber-500/10 text-amber-700 border-amber-500/30'
+       : 'bg-green-500/10 text-green-600 border-green-500/30';
+
+   return (
+     <Badge 
+       variant="outline" 
+       className={`text-xs ${statusClass}`}
+       title={`Minimum required: ${minRequiredDocs} indexed documents`}
+     >
+       <Database className="w-3 h-3 mr-1" />
+       KB: {dbStatus.indexed}/{minRequiredDocs}+ docs • {dbStatus.totalChunks} chunks
+     </Badge>
+   );
 }

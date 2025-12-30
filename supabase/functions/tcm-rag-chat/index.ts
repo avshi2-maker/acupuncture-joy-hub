@@ -216,7 +216,7 @@ ${chunk.content}`;
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { error: logError } = await serviceClient
+    const { data: logRow, error: logError } = await serviceClient
       .from('rag_query_logs')
       .insert({
         user_id: user.id,
@@ -227,12 +227,14 @@ ${chunk.content}`;
         sources_used: useExternalAI ? [{ type: 'external_ai', liability_waived: true }] : sources.map(s => ({ fileName: s.fileName, category: s.category, chunkIndex: s.chunkIndex })),
         response_preview: responseContent.substring(0, 500),
         ai_model: useExternalAI ? 'google/gemini-2.5-flash (external)' : 'google/gemini-2.5-flash'
-      });
+      })
+      .select('id, created_at')
+      .single();
 
     if (logError) {
       console.error('Failed to log query:', logError);
     } else {
-      console.log('Query logged for audit trail');
+      console.log('Query logged for audit trail', logRow?.id);
     }
 
     // Get unique documents used
@@ -243,8 +245,11 @@ ${chunk.content}`;
       sources: useExternalAI ? [] : sources,
       chunksFound: useExternalAI ? 0 : (chunks?.length || 0),
       documentsSearched: useExternalAI ? 0 : uniqueDocuments.length,
+      documentsMatched: useExternalAI ? 0 : uniqueDocuments.length,
       searchTermsUsed: searchTerms,
       auditLogged: !logError,
+      auditLogId: logRow?.id ?? null,
+      auditLoggedAt: logRow?.created_at ?? null,
       isExternal: useExternalAI || false,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

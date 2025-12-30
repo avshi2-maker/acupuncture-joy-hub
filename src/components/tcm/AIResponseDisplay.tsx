@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -42,6 +42,14 @@ interface AIResponseDisplayProps {
   onViewBodyMap: (points: string[]) => void;
   loadingStartTime?: number;
   language?: 'he' | 'en' | 'ru';
+  ragMeta?: {
+    chunksFound: number;
+    documentsSearched: number;
+    isExternal?: boolean;
+    auditLogged?: boolean;
+    auditLogId?: string | null;
+    auditLoggedAt?: string | null;
+  };
 }
 
 interface PointInfo {
@@ -326,6 +334,7 @@ export function AIResponseDisplay({
   onViewBodyMap,
   loadingStartTime,
   language = 'he',
+  ragMeta,
 }: AIResponseDisplayProps) {
   const { printContent } = usePrintContent();
   const printRef = useRef<HTMLDivElement>(null);
@@ -799,9 +808,34 @@ export function AIResponseDisplay({
             )}
           </div>
         </div>
-      </CardHeader>
+       </CardHeader>
 
-      <CardContent className="p-4">
+       <CardContent className="p-4">
+         {/* Evidence / liability meter (based on last backend query stats) */}
+         {ragMeta && !isLoading && (
+           <div className="mb-3 flex flex-wrap items-center gap-2">
+             <Badge
+               variant="outline"
+               className={ragMeta.isExternal ? 'border-amber-500/30 text-amber-700 bg-amber-500/10' : 'border-green-500/30 text-green-700 bg-green-500/10'}
+             >
+               {ragMeta.isExternal
+                 ? 'External AI (0% proprietary)'
+                 : ragMeta.chunksFound > 0
+                   ? 'Proprietary KB (100% proprietary)'
+                   : 'No KB matches (0% proprietary)'}
+             </Badge>
+
+             <Badge variant="outline" className="text-xs">
+               Evidence: {ragMeta.chunksFound} chunks • {ragMeta.documentsSearched} docs matched
+             </Badge>
+
+             {ragMeta.auditLogged && ragMeta.auditLogId && (
+               <Badge variant="outline" className="text-xs">
+                 Audit log: {ragMeta.auditLogId}
+               </Badge>
+             )}
+           </div>
+         )
         {isLoading && !content && (
           <div className="flex flex-col items-center justify-center py-10 gap-4">
             <div className="relative">
@@ -817,8 +851,49 @@ export function AIResponseDisplay({
           </div>
         )}
 
-        {content && (
-          <div ref={printRef} className={`space-y-4 ${textAlign}`}>
+         {content && (
+           <div ref={printRef} className={`space-y-4 ${textAlign}`}>
+             {/* Active asset tabs (animated) */}
+             {!showBrief && !showFullReport && activeSections.length > 0 && (
+               <div className="-mt-1">
+                 <div className="flex gap-2 overflow-x-auto pb-2">
+                   {(() => {
+                     const priority: SectionKey[] = ['herbs', 'diagnosis', 'points', 'safety'];
+                     const ordered = [
+                       ...priority.filter(k => activeSections.includes(k)),
+                       ...activeSections.filter(k => !priority.includes(k)),
+                     ];
+
+                     return ordered.map((key, idx) => {
+                       const cfg = SECTION_CONFIG[key];
+                       const itemCount = key === 'points' ? points.length : key === 'herbs' ? herbs.length : sections[key].length;
+                       const active = expandedSection === key;
+
+                       return (
+                         <motion.button
+                           key={key}
+                           type="button"
+                           initial={{ opacity: 0, y: 6 }}
+                           animate={{ opacity: 1, y: 0 }}
+                           transition={{ delay: Math.min(0.2, idx * 0.02) }}
+                           onClick={() => {
+                             setExpandedSection(active ? null : key);
+                             setAlphabetFilter(null);
+                           }}
+                           className={`shrink-0 rounded-full border px-3 py-1 text-xs flex items-center gap-2 ${cfg.borderColor} ${cfg.bgColor} hover:opacity-90 transition-all ${active ? 'ring-2 ring-primary/30' : ''}`}
+                           title={`Open ${cfg.label}`}
+                         >
+                           <span className="text-sm leading-none">{cfg.emoji}</span>
+                           <span className="whitespace-nowrap">{cfg.label}</span>
+                           <Badge variant="secondary" className="h-5 text-[10px] px-1.5">{itemCount}</Badge>
+                         </motion.button>
+                       );
+                     });
+                   })()}
+                 </div>
+               </div>
+             )}
+
             {/* Brief View */}
             {showBrief && (
               <div className="rounded-md border border-primary/30 bg-primary/5 p-4 space-y-3">

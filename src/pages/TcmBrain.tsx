@@ -356,7 +356,20 @@ export default function TcmBrain() {
     documentsSearched: number;
     searchTerms: string;
     timestamp: Date | null;
-  }>({ chunksFound: 0, documentsSearched: 0, searchTerms: '', timestamp: null });
+    isExternal?: boolean;
+    auditLogged?: boolean;
+    auditLogId?: string | null;
+    auditLoggedAt?: string | null;
+  }>({
+    chunksFound: 0,
+    documentsSearched: 0,
+    searchTerms: '',
+    timestamp: null,
+    isExternal: false,
+    auditLogged: false,
+    auditLogId: null,
+    auditLoggedAt: null,
+  });
   
   // Session history hook
   const { sessions, saveSession, exportSessionAsPDF, openGmailWithSession, openWhatsAppWithSession } = useTcmSessionHistory();
@@ -856,19 +869,25 @@ export default function TcmBrain() {
       // tcm-rag-chat returns JSON with response and RAG stats
       const data = await response.json();
       
-      // Update real-time RAG stats
+      // Update real-time RAG query stats
       setLastRagStats({
         chunksFound: data.chunksFound || 0,
         documentsSearched: data.documentsSearched || 0,
         searchTerms: data.searchTermsUsed || '',
         timestamp: new Date(),
+        isExternal: !!data.isExternal,
+        auditLogged: !!data.auditLogged,
+        auditLogId: data.auditLogId ?? null,
+        auditLoggedAt: data.auditLoggedAt ?? null,
       });
       
-      // Show RAG search results in toast
-      if (data.chunksFound > 0) {
-        toast.success(`Found ${data.chunksFound} knowledge chunks from ${data.documentsSearched} documents`);
-      } else if (!data.isExternal) {
-        toast.info('No matching knowledge found - using general AI knowledge');
+      // Show accurate backend verification status
+      if (data.isExternal) {
+        toast.warning('External AI used — not from proprietary materials');
+      } else if ((data.chunksFound || 0) > 0) {
+        toast.success(`Verified KB: ${data.chunksFound} chunks / ${data.documentsSearched} docs matched`);
+      } else {
+        toast.info('0 matches in proprietary knowledge base (no external AI used).');
       }
       
       // Add the assistant message
@@ -1912,6 +1931,7 @@ export default function TcmBrain() {
                       content={messages.filter(m => m.role === 'assistant').pop()?.content || ''}
                       query={currentQuery || messages.filter(m => m.role === 'user').pop()?.content || ''}
                       loadingStartTime={loadingStartTime || undefined}
+                      ragMeta={lastRagStats}
                       onViewBodyMap={(points) => {
                         setHighlightedPoints(points);
                         setShowDetailedView(true);
