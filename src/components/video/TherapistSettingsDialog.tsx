@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Settings, Video, Save, Bell, Shield, Clock, Fingerprint } from 'lucide-react';
+import { Settings, Video, Save, Bell, Shield, Clock, Fingerprint, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSessionLock } from '@/contexts/SessionLockContext';
 import { usePinAuth } from '@/hooks/usePinAuth';
@@ -32,6 +32,7 @@ export const ZOOM_LINK_STORAGE_KEY = 'therapist_zoom_link';
 export const THERAPIST_NAME_KEY = 'therapist_display_name';
 export const AUDIO_ALERTS_ENABLED_KEY = 'therapist_audio_alerts_enabled';
 export const BIOMETRIC_ENABLED_KEY = 'therapist_biometric_enabled';
+export const LOCK_ON_TAB_SWITCH_KEY = 'therapist_lock_on_tab_switch';
 
 export function getAudioAlertsEnabled(): boolean {
   try {
@@ -45,9 +46,18 @@ export function getAudioAlertsEnabled(): boolean {
 export function getBiometricEnabled(): boolean {
   try {
     const saved = localStorage.getItem(BIOMETRIC_ENABLED_KEY);
-    return saved === null ? true : saved === 'true'; // Default to enabled
+    return saved === null ? true : saved === 'true';
   } catch {
     return true;
+  }
+}
+
+export function getLockOnTabSwitch(): boolean {
+  try {
+    const saved = localStorage.getItem(LOCK_ON_TAB_SWITCH_KEY);
+    return saved === 'true'; // Default to disabled
+  } catch {
+    return false;
   }
 }
 
@@ -66,6 +76,7 @@ export function TherapistSettingsDialog({
   const [displayName, setDisplayName] = useState('');
   const [audioAlertsEnabled, setAudioAlertsEnabled] = useState(true);
   const [biometricEnabled, setBiometricEnabled] = useState(true);
+  const [lockOnTabSwitch, setLockOnTabSwitch] = useState(false);
   const [selectedTimeout, setSelectedTimeout] = useState('15');
   
   const { timeoutMinutes, setTimeoutMinutes } = useSessionLock();
@@ -78,10 +89,12 @@ export function TherapistSettingsDialog({
       const savedName = localStorage.getItem(THERAPIST_NAME_KEY) || '';
       const savedAudioAlerts = getAudioAlertsEnabled();
       const savedBiometric = getBiometricEnabled();
+      const savedLockOnTabSwitch = getLockOnTabSwitch();
       setZoomLink(savedLink);
       setDisplayName(savedName);
       setAudioAlertsEnabled(savedAudioAlerts);
       setBiometricEnabled(savedBiometric);
+      setLockOnTabSwitch(savedLockOnTabSwitch);
       setSelectedTimeout(timeoutMinutes.toString());
     }
   }, [open, timeoutMinutes]);
@@ -91,6 +104,7 @@ export function TherapistSettingsDialog({
     localStorage.setItem(THERAPIST_NAME_KEY, displayName);
     localStorage.setItem(AUDIO_ALERTS_ENABLED_KEY, audioAlertsEnabled.toString());
     localStorage.setItem(BIOMETRIC_ENABLED_KEY, biometricEnabled.toString());
+    localStorage.setItem(LOCK_ON_TAB_SWITCH_KEY, lockOnTabSwitch.toString());
     setTimeoutMinutes(parseInt(selectedTimeout, 10));
     toast.success('ההגדרות נשמרו בהצלחה');
     onOpenChange(false);
@@ -201,6 +215,23 @@ export function TherapistSettingsDialog({
                 <Switch
                   checked={biometricEnabled}
                   onCheckedChange={setBiometricEnabled}
+                />
+              </div>
+
+              {/* Lock on Tab Switch Toggle */}
+              <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                <div className="flex items-center gap-2">
+                  <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <span className="text-sm">נעילה במעבר לשונית</span>
+                    <p className="text-xs text-muted-foreground">
+                      נעל כשהדפדפן ברקע
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  checked={lockOnTabSwitch}
+                  onCheckedChange={setLockOnTabSwitch}
                 />
               </div>
 
