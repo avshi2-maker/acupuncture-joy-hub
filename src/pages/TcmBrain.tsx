@@ -387,6 +387,21 @@ export default function TcmBrain() {
     auditLogId: null,
     chunksFound: 0,
   });
+
+  // Auto-chain workflow state
+  const [chainedWorkflow, setChainedWorkflow] = useState<{
+    isActive: boolean;
+    currentPhase: 'idle' | 'symptoms' | 'diagnosis' | 'treatment' | 'complete';
+    symptomsData: string;
+    diagnosisData: string;
+    treatmentData: string;
+  }>({
+    isActive: false,
+    currentPhase: 'idle',
+    symptomsData: '',
+    diagnosisData: '',
+    treatmentData: '',
+  });
   
   // Session history hook
   const { sessions, saveSession, exportSessionAsPDF, openGmailWithSession, openWhatsAppWithSession } = useTcmSessionHistory();
@@ -970,6 +985,161 @@ export default function TcmBrain() {
     if (!question || isLoading) return;
     streamChat(question);
     scrollToAiResponse();
+  };
+
+  // =============================================
+  // AUTO-CHAIN WORKFLOW: Symptoms → Diagnosis → Treatment
+  // =============================================
+  const runChainedWorkflow = async (symptomDescription: string) => {
+    if (!session?.access_token || !disclaimerStatus.signed) {
+      toast.error('Please log in and sign disclaimer first');
+      return;
+    }
+
+    setChainedWorkflow({
+      isActive: true,
+      currentPhase: 'symptoms',
+      symptomsData: '',
+      diagnosisData: '',
+      treatmentData: '',
+    });
+
+    setIsLoading(true);
+    setLoadingStartTime(Date.now());
+
+    try {
+      // PHASE 1: Symptom Analysis
+      toast.info('🔍 Phase 1/3: Analyzing symptoms...');
+      setChainedWorkflow(prev => ({ ...prev, currentPhase: 'symptoms' }));
+      
+      const symptomPrompt = `Based on these patient symptoms: "${symptomDescription}"
+      
+Please provide a comprehensive TCM symptom analysis including:
+- Main symptoms identified
+- Associated symptoms
+- Onset, duration, and aggravating/relieving factors
+- Relevant tongue and pulse indicators to check`;
+
+      const symptomResponse = await fetch(RAG_CHAT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ query: symptomPrompt, messages: [], includeChunkDetails: true }),
+      });
+
+      if (!symptomResponse.ok) throw new Error('Symptom analysis failed');
+      const symptomData = await symptomResponse.json();
+      const symptomsResult = symptomData.response || '';
+      
+      setChainedWorkflow(prev => ({ ...prev, symptomsData: symptomsResult }));
+      setMessages(prev => [
+        ...prev,
+        { role: 'user', content: `[AUTO-CHAIN] Symptom Analysis: ${symptomDescription}` },
+        { role: 'assistant', content: `## 📋 Phase 1: Symptom Analysis\n\n${symptomsResult}` }
+      ]);
+
+      // PHASE 2: TCM Diagnosis (based on symptoms)
+      toast.info('🔬 Phase 2/3: Generating TCM diagnosis...');
+      setChainedWorkflow(prev => ({ ...prev, currentPhase: 'diagnosis' }));
+
+      const diagnosisPrompt = `Based on this symptom analysis:
+${symptomsResult}
+
+Please provide a comprehensive TCM diagnosis including:
+- Primary TCM pattern/syndrome identification
+- Affected organs/meridians
+- Qi, Blood, Yin, Yang imbalances
+- Root cause vs manifestation analysis
+- Severity assessment`;
+
+      const diagnosisResponse = await fetch(RAG_CHAT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ query: diagnosisPrompt, messages: [], includeChunkDetails: true }),
+      });
+
+      if (!diagnosisResponse.ok) throw new Error('Diagnosis failed');
+      const diagnosisDataResponse = await diagnosisResponse.json();
+      const diagnosisResult = diagnosisDataResponse.response || '';
+      
+      setChainedWorkflow(prev => ({ ...prev, diagnosisData: diagnosisResult }));
+      setMessages(prev => [
+        ...prev,
+        { role: 'assistant', content: `## 🔬 Phase 2: TCM Diagnosis\n\n${diagnosisResult}` }
+      ]);
+
+      // PHASE 3: Treatment Planning (based on diagnosis)
+      toast.info('💊 Phase 3/3: Creating treatment plan...');
+      setChainedWorkflow(prev => ({ ...prev, currentPhase: 'treatment' }));
+
+      const treatmentPrompt = `Based on this TCM diagnosis:
+${diagnosisResult}
+
+Please provide a comprehensive treatment plan including:
+- Treatment principle (治則)
+- Recommended acupuncture points with rationale
+- Herbal formula recommendations
+- Moxibustion, cupping, or other techniques if applicable
+- Lifestyle and dietary recommendations
+- Treatment frequency and expected duration
+- Safety precautions and contraindications`;
+
+      const treatmentResponse = await fetch(RAG_CHAT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ query: treatmentPrompt, messages: [], includeChunkDetails: true }),
+      });
+
+      if (!treatmentResponse.ok) throw new Error('Treatment planning failed');
+      const treatmentDataResponse = await treatmentResponse.json();
+      const treatmentResult = treatmentDataResponse.response || '';
+      
+      setChainedWorkflow(prev => ({ 
+        ...prev, 
+        treatmentData: treatmentResult,
+        currentPhase: 'complete'
+      }));
+      setMessages(prev => [
+        ...prev,
+        { role: 'assistant', content: `## 💊 Phase 3: Treatment Plan\n\n${treatmentResult}` }
+      ]);
+
+      // Update RAG stats with last query
+      setLastRagStats({
+        chunksFound: treatmentDataResponse.chunksFound || 0,
+        documentsSearched: treatmentDataResponse.documentsSearched || 0,
+        searchTerms: treatmentDataResponse.searchTermsUsed || '',
+        timestamp: new Date(),
+        isExternal: !!treatmentDataResponse.isExternal,
+        auditLogged: !!treatmentDataResponse.auditLogged,
+        auditLogId: treatmentDataResponse.auditLogId ?? null,
+        auditLoggedAt: treatmentDataResponse.auditLoggedAt ?? null,
+      });
+
+      toast.success('✅ Complete workflow finished: Symptoms → Diagnosis → Treatment');
+      
+      // Track all questions
+      setQuestionsAsked(prev => [
+        ...prev,
+        `[AUTO-CHAIN] ${symptomDescription}`
+      ]);
+
+    } catch (error) {
+      console.error('Chained workflow error:', error);
+      toast.error('Workflow failed. Please try individual queries.');
+      setChainedWorkflow(prev => ({ ...prev, isActive: false, currentPhase: 'idle' }));
+    } finally {
+      setIsLoading(false);
+      setLoadingStartTime(null);
+    }
   };
 
   // Voice recording functionality
@@ -1681,6 +1851,96 @@ export default function TcmBrain() {
                     </CardContent>
                   </Card>
                 )}
+
+                {/* AUTO-CHAIN WORKFLOW CARD */}
+                <Card className="bg-gradient-to-r from-jade/20 via-jade/10 to-primary/10 border-2 border-jade/40 shadow-lg">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-full bg-jade/20">
+                          <Sparkles className="h-5 w-5 text-jade" />
+                        </div>
+                        <div>
+                          <span className="text-base font-bold">🔄 Auto-Chain Workflow</span>
+                          <p className="text-xs text-muted-foreground font-normal mt-0.5">
+                            Symptoms → Diagnosis → Treatment (3 AI calls in sequence)
+                          </p>
+                        </div>
+                      </div>
+                      {chainedWorkflow.isActive && (
+                        <Badge className="bg-jade text-white animate-pulse">
+                          {chainedWorkflow.currentPhase === 'symptoms' && '1/3 Symptoms'}
+                          {chainedWorkflow.currentPhase === 'diagnosis' && '2/3 Diagnosis'}
+                          {chainedWorkflow.currentPhase === 'treatment' && '3/3 Treatment'}
+                          {chainedWorkflow.currentPhase === 'complete' && '✓ Complete'}
+                        </Badge>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Describe patient symptoms (e.g., headache, fatigue, poor appetite, cold hands...)"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && input.trim() && !isLoading) {
+                            e.preventDefault();
+                            runChainedWorkflow(input.trim());
+                            setInput('');
+                          }
+                        }}
+                        disabled={isLoading}
+                        className="flex-1"
+                      />
+                      <Button
+                        onClick={() => {
+                          if (input.trim() && !isLoading) {
+                            runChainedWorkflow(input.trim());
+                            setInput('');
+                          }
+                        }}
+                        disabled={!input.trim() || isLoading}
+                        className="bg-jade hover:bg-jade-600 text-white gap-2"
+                      >
+                        {isLoading && chainedWorkflow.isActive ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Running...
+                          </>
+                        ) : (
+                          <>
+                            <ArrowRight className="h-4 w-4" />
+                            Run Full Workflow
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    
+                    {/* Progress indicator */}
+                    {chainedWorkflow.isActive && (
+                      <div className="flex items-center gap-2 p-2 bg-background/80 rounded-lg border">
+                        <div className={`h-3 w-3 rounded-full ${chainedWorkflow.currentPhase === 'symptoms' ? 'bg-jade animate-pulse' : chainedWorkflow.symptomsData ? 'bg-green-500' : 'bg-muted'}`} />
+                        <span className="text-xs">Symptoms</span>
+                        <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                        <div className={`h-3 w-3 rounded-full ${chainedWorkflow.currentPhase === 'diagnosis' ? 'bg-jade animate-pulse' : chainedWorkflow.diagnosisData ? 'bg-green-500' : 'bg-muted'}`} />
+                        <span className="text-xs">Diagnosis</span>
+                        <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                        <div className={`h-3 w-3 rounded-full ${chainedWorkflow.currentPhase === 'treatment' ? 'bg-jade animate-pulse' : chainedWorkflow.treatmentData ? 'bg-green-500' : 'bg-muted'}`} />
+                        <span className="text-xs">Treatment</span>
+                        {chainedWorkflow.currentPhase === 'complete' && (
+                          <Badge variant="outline" className="ml-2 text-green-600 border-green-500">
+                            ✓ Complete
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                    
+                    <p className="text-[10px] text-muted-foreground text-center">
+                      💡 Enter symptoms once → AI automatically generates diagnosis AND treatment plan
+                    </p>
+                  </CardContent>
+                </Card>
 
                 {/* 3 Main Query Categories - Enhanced Design with Search & Filters */}
                 <div className="grid md:grid-cols-3 gap-6">
