@@ -88,6 +88,8 @@ import { RAGVerificationStatus } from '@/components/tcm/RAGSearchAnimation';
 import { RAGVerificationPanel } from '@/components/tcm/RAGVerificationPanel';
 import { AuditEvidencePanel } from '@/components/tcm/AuditEvidencePanel';
 import { KnowledgeCoverageDashboard } from '@/components/tcm/KnowledgeCoverageDashboard';
+import { LegalLiabilityExport } from '@/components/tcm/LegalLiabilityExport';
+import { SourceTypeAlert } from '@/components/tcm/SourceTypeAlert';
 
 import {
   herbsQuestions,
@@ -371,6 +373,19 @@ export default function TcmBrain() {
     auditLogged: false,
     auditLogId: null,
     auditLoggedAt: null,
+  });
+
+  // Source type alert state
+  const [sourceAlert, setSourceAlert] = useState<{
+    visible: boolean;
+    type: 'proprietary' | 'external' | 'no-match' | null;
+    auditLogId: string | null;
+    chunksFound: number;
+  }>({
+    visible: false,
+    type: null,
+    auditLogId: null,
+    chunksFound: 0,
   });
   
   // Session history hook
@@ -883,6 +898,25 @@ export default function TcmBrain() {
         auditLoggedAt: data.auditLoggedAt ?? null,
       });
       
+      // Show source type alert (auto-dismiss after 5 seconds)
+      const alertType = data.isExternal 
+        ? 'external' 
+        : (data.chunksFound || 0) > 0 
+          ? 'proprietary' 
+          : 'no-match';
+      
+      setSourceAlert({
+        visible: true,
+        type: alertType,
+        auditLogId: data.auditLogId ?? null,
+        chunksFound: data.chunksFound || 0,
+      });
+      
+      // Auto-hide alert after 5 seconds
+      setTimeout(() => {
+        setSourceAlert(prev => ({ ...prev, visible: false }));
+      }, 5000);
+      
       // Show accurate backend verification status
       if (data.isExternal) {
         toast.warning('External AI used — not from proprietary materials');
@@ -1097,6 +1131,14 @@ export default function TcmBrain() {
         <title>TCM Brain | TCM Clinic</title>
         <meta name="description" content="Comprehensive TCM knowledge base with AI" />
       </Helmet>
+
+      {/* Source Type Alert - Floating notification */}
+      <SourceTypeAlert 
+        isVisible={sourceAlert.visible}
+        sourceType={sourceAlert.type}
+        chunksFound={sourceAlert.chunksFound}
+        auditLogId={sourceAlert.auditLogId}
+      />
 
       <div className="min-h-screen bg-background flex flex-col relative">
         {/* Background Image with 75% transparency overlay + blur on input focus */}
@@ -1540,6 +1582,7 @@ export default function TcmBrain() {
                 <div className="space-y-4">
                   <RAGVerificationPanel showQueryLogs={true} />
                   <KnowledgeCoverageDashboard />
+                  <LegalLiabilityExport sessionStart={sessionStartTime?.toISOString()} />
                 </div>
               )}
               
