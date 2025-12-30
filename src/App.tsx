@@ -15,6 +15,7 @@ import { FloatingMusicPlayer } from "@/components/ui/FloatingMusicPlayer";
 import { OfflineBanner } from "@/components/ui/OfflineBanner";
 import { AccessibilityPanel } from "@/components/ui/AccessibilityPanel";
 import { FloatingVoiceButton } from "@/components/ui/FloatingVoiceButton";
+import { CRMErrorBoundary } from "@/components/crm/CRMErrorBoundary";
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -90,17 +91,17 @@ const App = () => (
                       <Route path="/video-session" element={<RequireTier><VideoSession /></RequireTier>} />
                       <Route path="/tcm-brain" element={<RequireTier><TcmBrain /></RequireTier>} />
 
-                      <Route path="/crm" element={<RequireTier><CRMDashboard /></RequireTier>} />
-                      <Route path="/crm/dashboard" element={<RequireTier><CRMDashboard /></RequireTier>} />
-                      <Route path="/crm/calendar" element={<RequireTier><CRMCalendar /></RequireTier>} />
-                      <Route path="/crm/patients" element={<RequireTier><CRMPatients /></RequireTier>} />
-                      <Route path="/crm/patients/new" element={<RequireTier><CRMPatientNew /></RequireTier>} />
-                      <Route path="/crm/patients/:id" element={<RequireTier><CRMPatientDetail /></RequireTier>} />
-                      <Route path="/crm/patients/:id/edit" element={<RequireTier><CRMPatientEdit /></RequireTier>} />
-                      <Route path="/crm/rooms" element={<RequireTier><CRMRooms /></RequireTier>} />
-                      <Route path="/crm/staff" element={<RequireTier><CRMStaff /></RequireTier>} />
-                      <Route path="/crm/clinics" element={<RequireTier><CRMClinics /></RequireTier>} />
-                      <Route path="/crm/patients/:patientId/consent" element={<RequireTier><PatientConsentForm /></RequireTier>} />
+                      <Route path="/crm" element={<RequireTier><CRMErrorBoundary><CRMDashboard /></CRMErrorBoundary></RequireTier>} />
+                      <Route path="/crm/dashboard" element={<RequireTier><CRMErrorBoundary><CRMDashboard /></CRMErrorBoundary></RequireTier>} />
+                      <Route path="/crm/calendar" element={<RequireTier><CRMErrorBoundary><CRMCalendar /></CRMErrorBoundary></RequireTier>} />
+                      <Route path="/crm/patients" element={<RequireTier><CRMErrorBoundary><CRMPatients /></CRMErrorBoundary></RequireTier>} />
+                      <Route path="/crm/patients/new" element={<RequireTier><CRMErrorBoundary><CRMPatientNew /></CRMErrorBoundary></RequireTier>} />
+                      <Route path="/crm/patients/:id" element={<RequireTier><CRMErrorBoundary><CRMPatientDetail /></CRMErrorBoundary></RequireTier>} />
+                      <Route path="/crm/patients/:id/edit" element={<RequireTier><CRMErrorBoundary><CRMPatientEdit /></CRMErrorBoundary></RequireTier>} />
+                      <Route path="/crm/rooms" element={<RequireTier><CRMErrorBoundary><CRMRooms /></CRMErrorBoundary></RequireTier>} />
+                      <Route path="/crm/staff" element={<RequireTier><CRMErrorBoundary><CRMStaff /></CRMErrorBoundary></RequireTier>} />
+                      <Route path="/crm/clinics" element={<RequireTier><CRMErrorBoundary><CRMClinics /></CRMErrorBoundary></RequireTier>} />
+                      <Route path="/crm/patients/:patientId/consent" element={<RequireTier><CRMErrorBoundary><PatientConsentForm /></CRMErrorBoundary></RequireTier>} />
 
                       <Route path="/therapist-profile" element={<RequireTier><TherapistProfile /></RequireTier>} />
                       <Route path="/therapist-disclaimer" element={<RequireTier><TherapistDisclaimer /></RequireTier>} />

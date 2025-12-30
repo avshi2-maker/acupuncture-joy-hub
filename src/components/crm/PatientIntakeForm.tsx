@@ -18,8 +18,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { User, Heart, Baby, Activity, Utensils, Moon, Brain, AlertTriangle, FileSignature, PenTool, CheckCircle2, XCircle, Loader2, Calendar, BrainCircuit, Save, ChevronLeft, ChevronRight } from 'lucide-react';
+import { User, Heart, Baby, Activity, Utensils, Moon, Brain, AlertTriangle, FileSignature, PenTool, CheckCircle2, XCircle, Loader2, Calendar, BrainCircuit, Save, ChevronLeft, ChevronRight, CloudOff } from 'lucide-react';
 import { SignaturePad } from './SignaturePad';
 import { MedicalDocumentUpload } from './MedicalDocumentUpload';
 import { DietNutritionSelect } from './DietNutritionSelect';
@@ -30,6 +31,7 @@ import { TongueDiagnosisSelect } from './TongueDiagnosisSelect';
 import { ConstitutionTypeSelect } from './ConstitutionTypeSelect';
 import { ChiefComplaintSelect } from './ChiefComplaintSelect';
 import { validateIsraeliId, looksLikeIsraeliId } from '@/utils/israeliIdValidation';
+import { useIntakeDraftAutosave } from '@/hooks/useIntakeDraftAutosave';
 
 // Base patient schema
 const basePatientSchema = z.object({
@@ -268,6 +270,49 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
   const watchGender = form.watch('gender');
   const watchIsPregnant = form.watch('is_pregnant');
 
+  // Draft autosave hook
+  const {
+    lastSaved,
+    hasDraft,
+    clearDraft,
+    restoreDraft,
+  } = useIntakeDraftAutosave({
+    form,
+    customNotes,
+    selectedAllergies,
+    selectedMedications,
+    dietHabits,
+    pulseFindings,
+    tongueFindings,
+    ageSpecificAnswers,
+    pregnancyAnswers,
+    currentStep,
+    patientId,
+  });
+
+  // Handle draft restore
+  const handleRestoreDraft = () => {
+    const draft = restoreDraft();
+    if (draft && typeof draft === 'object') {
+      // Restore additional state
+      setCustomNotes(draft.customNotes || {});
+      setSelectedAllergies(draft.selectedAllergies || []);
+      setSelectedMedications(draft.selectedMedications || []);
+      setDietHabits(draft.dietHabits || []);
+      setPulseFindings(draft.pulseFindings || []);
+      setTongueFindings(draft.tongueFindings || []);
+      setAgeSpecificAnswers(draft.ageSpecificAnswers || {});
+      setPregnancyAnswers(draft.pregnancyAnswers || {});
+      setCurrentStep(draft.currentStep || 0);
+      toast.success('Draft restored successfully');
+    }
+  };
+
+  const handleDiscardDraft = () => {
+    clearDraft();
+    toast.info('Draft discarded');
+  };
+
   // Update age group when DOB changes
   useEffect(() => {
     if (watchDob) {
@@ -486,6 +531,7 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
         if (error) throw error;
         resultPatientId = insertedPatient?.id;
         toast.success('Patient created successfully');
+        clearDraft(); // Clear the autosaved draft on successful save
       }
 
       onSuccess?.();
@@ -515,6 +561,42 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit, handleFormErrors)} className="space-y-6">
+        {/* Draft Recovery Banner */}
+        {hasDraft && !patientId && (
+          <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-950/20">
+            <CloudOff className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="flex items-center justify-between">
+              <span className="text-sm">
+                You have an unsaved draft from a previous session.
+              </span>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDiscardDraft}
+                >
+                  Discard
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleRestoreDraft}
+                >
+                  Restore Draft
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Autosave indicator */}
+        {lastSaved && !patientId && (
+          <div className="text-xs text-muted-foreground flex items-center gap-1">
+            <Save className="h-3 w-3" />
+            Draft saved {lastSaved.toLocaleTimeString()}
+          </div>
+        )}
         {/* Progress Bar & Step Indicator */}
         <div className="sticky top-0 z-20 -mx-4 px-4 py-4 bg-background/95 backdrop-blur border-b">
           <div className="space-y-3">
