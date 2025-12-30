@@ -337,11 +337,11 @@ export function FloatingHelpGuide() {
 
   return (
     <>
-      {/* Floating Help Button - Animated Yellow - positioned bottom-right above other floating buttons */}
+      {/* Floating Help Button - Animated Yellow - positioned top-right */}
       <Button
         onClick={() => setIsOpen(true)}
         className={cn(
-          'fixed bottom-36 right-4 z-40 h-12 w-12 rounded-full shadow-lg',
+          'fixed top-20 right-4 z-40 h-12 w-12 rounded-full shadow-lg',
           'bg-gradient-to-br from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600',
           'transition-all duration-300 hover:scale-110',
           'animate-pulse hover:animate-none',
@@ -355,7 +355,7 @@ export function FloatingHelpGuide() {
 
       {/* Help Panel */}
       {isOpen && (
-        <div className="fixed inset-4 md:inset-auto md:bottom-20 md:right-4 md:w-[480px] md:max-h-[700px] z-50 animate-fade-in-up">
+        <div className="fixed inset-4 md:inset-auto md:top-24 md:right-4 md:w-[480px] md:max-h-[700px] z-50 animate-fade-in-up">
           <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col h-full md:h-auto">
             {/* Header */}
             <div className="flex items-center justify-between p-4 bg-gradient-to-r from-amber-400/20 to-yellow-400/10 border-b border-border/50">
