@@ -98,7 +98,10 @@ import {
   traumaQuestions,
   pediatricQuestions,
   crisisQuestions,
-  womensHealthQuestions
+  womensHealthQuestions,
+  immuneResilienceQuestions,
+  sportPerformanceQuestions,
+  workStressBurnoutQuestions
 } from '@/data/tcmBrainQuestions';
 
 interface Message {
@@ -118,6 +121,9 @@ const featureTabs = [
   { id: 'pediatric', icon: Heart, label: 'Pediatric' },
   { id: 'crisis', icon: AlertTriangle, label: 'Crisis' },
   { id: 'womens-health', icon: Heart, label: "Women's" },
+  { id: 'immune', icon: Activity, label: 'Immune' },
+  { id: 'sport-recovery', icon: Dumbbell, label: 'Sport' },
+  { id: 'work-stress', icon: Briefcase, label: 'Stress' },
   { id: 'herbs', icon: Leaf, label: 'Herbs' },
   { id: 'points', icon: MapPin, label: 'Points' },
   { id: 'conditions', icon: Stethoscope, label: 'Conditions' },
@@ -577,6 +583,9 @@ export default function TcmBrain() {
   const [selectedPediatricQuestion, setSelectedPediatricQuestion] = useState('');
   const [selectedCrisisQuestion, setSelectedCrisisQuestion] = useState('');
   const [selectedWomensHealthQuestion, setSelectedWomensHealthQuestion] = useState('');
+  const [selectedImmuneQuestion, setSelectedImmuneQuestion] = useState('');
+  const [selectedSportRecoveryQuestion, setSelectedSportRecoveryQuestion] = useState('');
+  const [selectedWorkStressQuestion, setSelectedWorkStressQuestion] = useState('');
   const [showDetailedView, setShowDetailedView] = useState(false);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [showInlineChat, setShowInlineChat] = useState(false);
@@ -2214,6 +2223,36 @@ Include:
                   womensHealthQuestions,
                   selectedWomensHealthQuestion,
                   setSelectedWomensHealthQuestion
+                )}
+              </TabsContent>
+
+              {/* Immune Resilience Tab */}
+              <TabsContent value="immune" className="flex-1 overflow-auto">
+                {renderQASection(
+                  'Immune Resilience & Wei Qi',
+                  immuneResilienceQuestions,
+                  selectedImmuneQuestion,
+                  setSelectedImmuneQuestion
+                )}
+              </TabsContent>
+
+              {/* Sport Performance & Recovery Tab */}
+              <TabsContent value="sport-recovery" className="flex-1 overflow-auto">
+                {renderQASection(
+                  'Sport Performance & Recovery',
+                  sportPerformanceQuestions,
+                  selectedSportRecoveryQuestion,
+                  setSelectedSportRecoveryQuestion
+                )}
+              </TabsContent>
+
+              {/* Work Stress & Burnout Tab */}
+              <TabsContent value="work-stress" className="flex-1 overflow-auto">
+                {renderQASection(
+                  'Work Stress & Burnout',
+                  workStressBurnoutQuestions,
+                  selectedWorkStressQuestion,
+                  setSelectedWorkStressQuestion
                 )}
               </TabsContent>
 

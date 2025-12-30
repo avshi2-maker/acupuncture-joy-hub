@@ -602,3 +602,123 @@ export const womensHealthQuestions = [
   { id: 'wh69', question: 'How to treat postpartum hair loss?', category: 'Postpartum' },
   { id: 'wh70', question: 'What points help with C-section recovery?', category: 'Postpartum' },
 ];
+
+// Immune Resilience questions from immune-resilience.csv
+export const immuneResilienceQuestions = [
+  // Prevention & Protection
+  { id: 'im1', question: 'When I feel like I catch every cold, what can I do in the next 10 minutes?', category: 'Prevention' },
+  { id: 'im2', question: 'When I come home from a crowded place, what can I do in the next 10 minutes?', category: 'Prevention' },
+  { id: 'im3', question: 'When I am a teacher around sick kids all day, what can I do after school?', category: 'Occupational' },
+  { id: 'im4', question: 'When I am a parent caring for a sick child, what can I do for myself?', category: 'Occupational' },
+  { id: 'im5', question: 'When I finish a hospital or clinic shift, what can I do?', category: 'Occupational' },
+  { id: 'im6', question: 'When the weather turns windy and cold, what can I do?', category: 'Seasonal' },
+  { id: 'im7', question: 'When seasons change and everyone is sick, what can I do?', category: 'Seasonal' },
+  // Early Illness
+  { id: 'im8', question: 'When I feel a scratchy throat on day 1, what can I do?', category: 'Early Illness' },
+  { id: 'im9', question: 'When I notice a mild headache and fatigue on day 1 of a bug, what can I do?', category: 'Early Illness' },
+  { id: 'im10', question: 'When I feel like a cold is starting (day 1-3), what can I do?', category: 'Early Illness' },
+  { id: 'im11', question: 'When I am in days 1-3 of a virus with fever and aches, what can I do?', category: 'Early Illness' },
+  { id: 'im12', question: 'When I notice the first sneeze or sniffle, what can I do?', category: 'Early Illness' },
+  // Recovery
+  { id: 'im13', question: 'When I am in days 4-7 of a cold and feel a bit better, what can I do?', category: 'Recovery' },
+  { id: 'im14', question: 'When I feel mostly recovered but still weak, what can I do?', category: 'Recovery' },
+  { id: 'im15', question: 'When I go back to work while still recovering, what can I do?', category: 'Recovery' },
+  { id: 'im16', question: 'When I feel better and want to exercise again after illness, what can I do?', category: 'Recovery' },
+  { id: 'im17', question: 'When I am recovering and tempted to catch up on everything, what can I do?', category: 'Recovery' },
+  // Lifestyle Factors
+  { id: 'im18', question: 'When I often skip sleep to get more done, what can I do?', category: 'Lifestyle' },
+  { id: 'im19', question: 'When I skip meals when busy, what can I do?', category: 'Lifestyle' },
+  { id: 'im20', question: 'When I stay indoors all day in winter, what can I do?', category: 'Lifestyle' },
+  { id: 'im21', question: 'When I always feel cold and tired in winter, what can I do?', category: 'Lifestyle' },
+  { id: 'im22', question: 'When I overwork and sleep less than I need, what can I do?', category: 'Lifestyle' },
+  // Environmental
+  { id: 'im23', question: 'When I sit near an air-conditioner or fan, what can I do?', category: 'Environmental' },
+  { id: 'im24', question: 'When I share a classroom with open windows and drafts, what can I do?', category: 'Environmental' },
+  { id: 'im25', question: 'When I travel on crowded public transport daily, what can I do?', category: 'Environmental' },
+  { id: 'im26', question: 'When I feel a slight chill in my neck and upper back, what can I do?', category: 'Environmental' },
+  // Wei Qi Support
+  { id: 'im27', question: 'When I want to support long-term immune resilience, what can I do?', category: 'Wei Qi' },
+  { id: 'im28', question: 'When I am often exposed to sick people at work, what can I do?', category: 'Wei Qi' },
+  { id: 'im29', question: 'When my child brings home every new virus, what can I do?', category: 'Wei Qi' },
+  { id: 'im30', question: 'When I keep catching colds from my students, what can I do?', category: 'Wei Qi' },
+];
+
+// Sport Performance & Recovery questions from sport-performance-recovery.csv
+export const sportPerformanceQuestions = [
+  // Warm-up Protocols
+  { id: 'sp1', question: 'When I am about to start a run, what can I do to warm up?', category: 'Warm-up' },
+  { id: 'sp2', question: 'When I am preparing for an interval track session, what can I do to warm up?', category: 'Warm-up' },
+  { id: 'sp3', question: 'When I am about to lift weights, what can I do to warm up?', category: 'Warm-up' },
+  { id: 'sp4', question: 'When I am getting ready for a football or soccer match, what can I do to warm up?', category: 'Warm-up' },
+  { id: 'sp5', question: 'When I am about to play basketball, what can I do to warm up?', category: 'Warm-up' },
+  { id: 'sp6', question: 'When I am about to swim laps, what can I do to warm up?', category: 'Warm-up' },
+  { id: 'sp7', question: 'When I am preparing for a cycling session, what can I do to warm up?', category: 'Warm-up' },
+  { id: 'sp8', question: 'When I am getting ready for a tennis session, what can I do to warm up?', category: 'Warm-up' },
+  { id: 'sp9', question: 'When I am about to do a HIIT workout, what can I do to warm up?', category: 'Warm-up' },
+  // Cool-down Protocols
+  { id: 'sp10', question: 'When I finish a run, what can I do to cool down?', category: 'Cool-down' },
+  { id: 'sp11', question: 'When I finish sprint training, what can I do to cool down?', category: 'Cool-down' },
+  { id: 'sp12', question: 'When I finish heavy strength training, what can I do to cool down?', category: 'Cool-down' },
+  { id: 'sp13', question: 'When I finish a football or soccer session, what can I do to cool down?', category: 'Cool-down' },
+  { id: 'sp14', question: 'When I end a basketball practice, what can I do to cool down?', category: 'Cool-down' },
+  { id: 'sp15', question: 'When I finish a swim session, what can I do to cool down?', category: 'Cool-down' },
+  { id: 'sp16', question: 'When I finish a hard cycling workout, what can I do to cool down?', category: 'Cool-down' },
+  { id: 'sp17', question: 'When I finish a HIIT session, what can I do to cool down?', category: 'Cool-down' },
+  // Injury Recovery
+  { id: 'sp18', question: 'When I am returning to running after a muscle strain, what can I do?', category: 'Injury Recovery' },
+  { id: 'sp19', question: 'When I am coming back from a hamstring injury, what can I do?', category: 'Injury Recovery' },
+  { id: 'sp20', question: 'When I am recovering from an ankle sprain, what can I do?', category: 'Injury Recovery' },
+  { id: 'sp21', question: 'When I am returning to sport after a knee injury, what can I do?', category: 'Injury Recovery' },
+  { id: 'sp22', question: 'When I feel pain during a workout post-injury, what can I do?', category: 'Injury Recovery' },
+  { id: 'sp23', question: 'When I have a history of calf strains, what can I do before training?', category: 'Injury Recovery' },
+  { id: 'sp24', question: 'When I am prone to Achilles issues, what can I do post-session?', category: 'Injury Recovery' },
+  { id: 'sp25', question: 'When my lower back has been injured, what can I do before exercise?', category: 'Injury Recovery' },
+  { id: 'sp26', question: 'When I am returning from a shoulder injury, what can I do before sport?', category: 'Injury Recovery' },
+  { id: 'sp27', question: 'When I am back from a stress fracture, what can I do?', category: 'Injury Recovery' },
+  // General Recovery
+  { id: 'sp28', question: 'When I am sore but not injured after training, what can I do?', category: 'General Recovery' },
+  { id: 'sp29', question: 'When I have only one day off between hard sessions, what can I do?', category: 'General Recovery' },
+  { id: 'sp30', question: 'When I feel stiff starting a training day, what can I do?', category: 'General Recovery' },
+  { id: 'sp31', question: 'When I feel my heart rate very high at the end of a session, what can I do?', category: 'General Recovery' },
+  { id: 'sp32', question: 'When I worry about re-injury, what can I do around training?', category: 'General Recovery' },
+];
+
+// Work Stress & Burnout questions from work-stress-burnout.csv
+export const workStressBurnoutQuestions = [
+  // Immediate Stress Relief
+  { id: 'ws1', question: 'When I feel my stress rising at my desk, what can I do in the next 5 minutes?', category: 'Immediate Relief' },
+  { id: 'ws2', question: 'When my shoulders are up by my ears at work, what can I do?', category: 'Immediate Relief' },
+  { id: 'ws3', question: 'When my back feels stiff from sitting, what can I do?', category: 'Immediate Relief' },
+  { id: 'ws4', question: 'When I feel mentally flooded between meetings, what can I do?', category: 'Immediate Relief' },
+  { id: 'ws5', question: 'When I am stuck at my desk for hours, what can I do?', category: 'Immediate Relief' },
+  { id: 'ws6', question: 'When I notice jaw tension while working, what can I do?', category: 'Immediate Relief' },
+  { id: 'ws7', question: 'When I feel myself rushing nonstop, what can I do?', category: 'Immediate Relief' },
+  // Task Management
+  { id: 'ws8', question: 'When my to-do list feels impossible, what can I do?', category: 'Task Management' },
+  { id: 'ws9', question: 'When I start the day already tense, what can I do?', category: 'Task Management' },
+  { id: 'ws10', question: 'When I dread opening my inbox in the morning, what can I do?', category: 'Task Management' },
+  { id: 'ws11', question: 'When my concentration is shattered by notifications, what can I do?', category: 'Task Management' },
+  // Posture & Ergonomics
+  { id: 'ws12', question: 'When my posture collapses over the keyboard, what can I do?', category: 'Posture' },
+  { id: 'ws13', question: 'When I hunch toward my laptop screen, what can I do?', category: 'Posture' },
+  { id: 'ws14', question: 'When my neck hurts from looking down, what can I do?', category: 'Posture' },
+  { id: 'ws15', question: 'When my lower back feels tight at my desk, what can I do?', category: 'Posture' },
+  // Eye Strain
+  { id: 'ws16', question: 'When I strain to see the screen, what can I do?', category: 'Eye Strain' },
+  { id: 'ws17', question: 'When my eyes feel dry and tired, what can I do?', category: 'Eye Strain' },
+  { id: 'ws18', question: 'When I forget to blink while focusing on work, what can I do?', category: 'Eye Strain' },
+  { id: 'ws19', question: 'When the glare on my monitor bothers me, what can I do?', category: 'Eye Strain' },
+  { id: 'ws20', question: 'When my eyes burn by late afternoon, what can I do?', category: 'Eye Strain' },
+  // Work-Life Transition
+  { id: 'ws21', question: 'When I arrive at work already tense from the commute, what can I do?', category: 'Transition' },
+  { id: 'ws22', question: 'When I drive home feeling wired, what can I do?', category: 'Transition' },
+  { id: 'ws23', question: 'When I work from home and have no commute, what can I do?', category: 'Transition' },
+  { id: 'ws24', question: 'When I step through my front door still thinking about work, what can I do?', category: 'Transition' },
+  { id: 'ws25', question: 'When I have trouble switching off work mode in the evening, what can I do?', category: 'Transition' },
+  // Burnout Prevention
+  { id: 'ws26', question: 'When I feel on the verge of burnout at my desk, what can I do?', category: 'Burnout' },
+  { id: 'ws27', question: 'When I feel that my workdays are all blur and no pause, what can I do?', category: 'Burnout' },
+  { id: 'ws28', question: 'When I respond to emails late at night, what can I do?', category: 'Burnout' },
+  { id: 'ws29', question: 'When I feel guilty for resting after work, what can I do?', category: 'Burnout' },
+  { id: 'ws30', question: 'When I suspect I am burning out, what can I do?', category: 'Burnout' },
+];
