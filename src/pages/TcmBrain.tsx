@@ -405,6 +405,10 @@ export default function TcmBrain() {
 
   // Voice input language for auto-chain workflow
   const [voiceLanguage, setVoiceLanguage] = useState<'en-US' | 'he-IL'>('en-US');
+
+  // Track if workflow was saved to patient record
+  const [workflowSavedToPatient, setWorkflowSavedToPatient] = useState(false);
+  const [savingToPatient, setSavingToPatient] = useState(false);
   
   // Session history hook
   const { sessions, saveSession, exportSessionAsPDF, openGmailWithSession, openWhatsAppWithSession } = useTcmSessionHistory();
@@ -1202,6 +1206,9 @@ Based on this framework, provide a complete treatment protocol:
 
       toast.success('✅ Complete workflow finished: Symptoms → Diagnosis → Treatment');
       
+      // Reset saved state when new workflow completes
+      setWorkflowSavedToPatient(false);
+      
       // Track all questions
       setQuestionsAsked(prev => [
         ...prev,
@@ -1215,6 +1222,46 @@ Based on this framework, provide a complete treatment protocol:
     } finally {
       setIsLoading(false);
       setLoadingStartTime(null);
+    }
+  };
+
+  // Save auto-chain workflow to patient's CRM record (visits table)
+  const saveWorkflowToPatient = async () => {
+    if (!session?.user?.id || !selectedPatient?.id) {
+      toast.error('Please select a patient first');
+      return;
+    }
+
+    if (!chainedWorkflow.symptomsData || !chainedWorkflow.diagnosisData || !chainedWorkflow.treatmentData) {
+      toast.error('Complete the workflow before saving');
+      return;
+    }
+
+    setSavingToPatient(true);
+
+    try {
+      // Extract key information from workflow results for structured storage
+      const visitData = {
+        patient_id: selectedPatient.id,
+        therapist_id: session.user.id,
+        visit_date: new Date().toISOString(),
+        chief_complaint: `[Auto-Chain Workflow]\n${chainedWorkflow.symptomsData.slice(0, 500)}`,
+        tcm_pattern: chainedWorkflow.diagnosisData.slice(0, 1000),
+        treatment_principle: chainedWorkflow.treatmentData.slice(0, 500),
+        notes: `## Symptoms Analysis\n${chainedWorkflow.symptomsData}\n\n## TCM Diagnosis\n${chainedWorkflow.diagnosisData}\n\n## Treatment Plan\n${chainedWorkflow.treatmentData}`,
+      };
+
+      const { error } = await supabase.from('visits').insert(visitData);
+
+      if (error) throw error;
+
+      setWorkflowSavedToPatient(true);
+      toast.success(`Saved to ${selectedPatient.name}'s record`);
+    } catch (error) {
+      console.error('Error saving workflow to patient:', error);
+      toast.error('Failed to save to patient record');
+    } finally {
+      setSavingToPatient(false);
     }
   };
 
@@ -2041,6 +2088,46 @@ Based on this framework, provide a complete treatment protocol:
                           </Badge>
                         )}
                       </div>
+                    )}
+
+                    {/* Save to Patient Record button - visible when complete and patient selected */}
+                    {chainedWorkflow.currentPhase === 'complete' && selectedPatient && (
+                      <div className="flex items-center gap-2 p-2 bg-primary/5 rounded-lg border border-primary/20">
+                        <User className="h-4 w-4 text-primary" />
+                        <span className="text-sm flex-1">
+                          Save to <strong>{selectedPatient.name}</strong>'s record
+                        </span>
+                        <Button
+                          onClick={saveWorkflowToPatient}
+                          disabled={savingToPatient || workflowSavedToPatient}
+                          size="sm"
+                          variant={workflowSavedToPatient ? 'outline' : 'default'}
+                          className="gap-1"
+                        >
+                          {savingToPatient ? (
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              Saving...
+                            </>
+                          ) : workflowSavedToPatient ? (
+                            <>
+                              <BookmarkCheck className="h-3 w-3 text-green-600" />
+                              Saved
+                            </>
+                          ) : (
+                            <>
+                              <Save className="h-3 w-3" />
+                              Save to CRM
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
+
+                    {chainedWorkflow.currentPhase === 'complete' && !selectedPatient && (
+                      <p className="text-xs text-amber-600 text-center">
+                        ⚠️ Select a patient to save workflow to their record
+                      </p>
                     )}
                     
                     <p className="text-[10px] text-muted-foreground text-center">
