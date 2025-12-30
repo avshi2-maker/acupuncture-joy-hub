@@ -190,7 +190,7 @@ export function MedicationsSupplementsSelect({
             return (
               <TooltipProvider key={genericName} delayDuration={200}>
                 <Tooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger>
                     <Badge 
                       variant="secondary"
                       className={cn(
@@ -202,21 +202,20 @@ export function MedicationsSupplementsSelect({
                       {med && hasWarning(med) && (
                         <AlertTriangle className="h-3 w-3 text-amber-600" />
                       )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-4 w-4 p-0 hover:bg-transparent"
+                      <button
+                        type="button"
+                        className="ml-1 p-0.5 hover:bg-black/10 rounded-full"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleRemove(genericName);
                         }}
                       >
                         <X className="h-3 w-3" />
-                      </Button>
+                      </button>
                     </Badge>
                   </TooltipTrigger>
                   {med && (
-                    <TooltipContent side="top" className="max-w-sm p-3 space-y-2">
+                    <TooltipContent side="top" className="max-w-sm p-3 space-y-2 z-50">
                       <div>
                         <p className="font-semibold text-sm">{med.genericName}</p>
                         <p className="text-xs text-muted-foreground">{med.purpose}</p>
