@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { usePinAuth } from '@/hooks/usePinAuth';
 import { useInactivityTimeout } from '@/hooks/useInactivityTimeout';
 import { PinUnlockScreen } from '@/components/auth/PinUnlockScreen';
+import { getLockOnTabSwitch } from '@/components/video/TherapistSettingsDialog';
 
 interface SessionLockContextType {
   isLocked: boolean;
@@ -48,6 +49,22 @@ export function SessionLockProvider({ children }: { children: React.ReactNode })
     onTimeout: lock,
     enabled: hasPin && !isLocked
   });
+
+  // Lock on tab visibility change (when tab goes to background)
+  useEffect(() => {
+    if (!hasPin || isLocked) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden' && getLockOnTabSwitch()) {
+        lock();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [hasPin, isLocked, lock]);
 
   // Clear lock state if user removes PIN
   useEffect(() => {
