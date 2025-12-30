@@ -280,60 +280,83 @@ export function RAGSearchAnimation({
 }
 
 // Compact verification status for TCM Brain header
-export function RAGVerificationStatus() {
-  const [status, setStatus] = useState<{
+// Shows REAL-TIME query stats when available, falls back to database count
+export function RAGVerificationStatus({ 
+  liveStats 
+}: { 
+  liveStats?: { 
+    chunksFound: number; 
+    documentsSearched: number; 
+    timestamp: Date | null;
+  } 
+} = {}) {
+  const [dbStatus, setDbStatus] = useState<{
     indexed: number;
-    expected: number;
+    totalChunks: number;
     isLoading: boolean;
-  }>({ indexed: 0, expected: RAG_ASSETS.length, isLoading: true });
+  }>({ indexed: 0, totalChunks: 0, isLoading: true });
 
   useEffect(() => {
     const checkStatus = async () => {
       try {
         const { supabase } = await import('@/integrations/supabase/client');
-        const { count } = await supabase
+        
+        // Get indexed documents count
+        const { count: docCount } = await supabase
           .from('knowledge_documents')
           .select('*', { count: 'exact', head: true })
           .eq('status', 'indexed');
-        setStatus({
-          indexed: count || 0,
-          expected: RAG_ASSETS.length,
+        
+        // Get total chunks count
+        const { count: chunkCount } = await supabase
+          .from('knowledge_chunks')
+          .select('*', { count: 'exact', head: true });
+          
+        setDbStatus({
+          indexed: docCount || 0,
+          totalChunks: chunkCount || 0,
           isLoading: false,
         });
       } catch {
-        setStatus(prev => ({ ...prev, isLoading: false }));
+        setDbStatus(prev => ({ ...prev, isLoading: false }));
       }
     };
     checkStatus();
   }, []);
 
-  if (status.isLoading) {
+  if (dbStatus.isLoading) {
     return (
       <Badge variant="outline" className="text-xs">
         <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-        Checking...
+        Loading...
       </Badge>
     );
   }
 
-  const allIndexed = status.indexed >= status.expected;
+  // If we have live stats from a recent query, show them
+  const hasLiveStats = liveStats?.timestamp && 
+    (new Date().getTime() - liveStats.timestamp.getTime()) < 60000; // Within last minute
 
+  if (hasLiveStats && liveStats) {
+    return (
+      <Badge 
+        variant="outline" 
+        className="text-xs bg-blue-500/10 text-blue-600 border-blue-500/30 animate-pulse"
+      >
+        <Search className="w-3 h-3 mr-1" />
+        Last Query: {liveStats.chunksFound} chunks / {liveStats.documentsSearched} docs
+      </Badge>
+    );
+  }
+
+  // Default: show database totals
   return (
     <Badge 
       variant="outline" 
-      className={`text-xs ${allIndexed ? 'bg-green-500/10 text-green-600 border-green-500/30' : 'bg-amber-500/10 text-amber-600 border-amber-500/30'}`}
+      className="text-xs bg-green-500/10 text-green-600 border-green-500/30"
     >
-      {allIndexed ? (
-        <>
-          <CheckCircle2 className="w-3 h-3 mr-1" />
-          RAG: {status.indexed}/{status.expected}
-        </>
-      ) : (
-        <>
-          <AlertTriangle className="w-3 h-3 mr-1" />
-          RAG: {status.indexed}/{status.expected}
-        </>
-      )}
+      <Database className="w-3 h-3 mr-1" />
+      KB: {dbStatus.indexed} docs / {dbStatus.totalChunks} chunks
     </Badge>
   );
 }

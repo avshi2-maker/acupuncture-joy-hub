@@ -115,7 +115,8 @@ interface Message {
   content: string;
 }
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tcm-chat`;
+// Use RAG-enabled chat endpoint for real knowledge base search
+const RAG_CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tcm-rag-chat`;
 
 // Feature tabs configuration (excluding symptoms/diagnosis/treatment which are on main page)
 const featureTabs = [
@@ -348,6 +349,14 @@ export default function TcmBrain() {
   const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
   const [lastAutoSave, setLastAutoSave] = useState<Date | null>(null);
   const [voiceLang, setVoiceLang] = useState<string>('he-IL'); // Voice language for browser recognition
+  
+  // Real-time RAG query stats (updated after each query)
+  const [lastRagStats, setLastRagStats] = useState<{
+    chunksFound: number;
+    documentsSearched: number;
+    searchTerms: string;
+    timestamp: Date | null;
+  }>({ chunksFound: 0, documentsSearched: 0, searchTerms: '', timestamp: null });
   
   // Session history hook
   const { sessions, saveSession, exportSessionAsPDF, openGmailWithSession, openWhatsAppWithSession } = useTcmSessionHistory();
@@ -816,13 +825,18 @@ export default function TcmBrain() {
     let assistantContent = '';
 
     try {
-      const response = await fetch(CHAT_URL, {
+      // Use RAG endpoint for real knowledge base search
+      const response = await fetch(RAG_CHAT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ messages: [...messages, userMsg] }),
+        body: JSON.stringify({ 
+          query: userMessage,
+          messages: [...messages, userMsg],
+          includeChunkDetails: true 
+        }),
       });
 
       if (!response.ok) {
@@ -839,49 +853,27 @@ export default function TcmBrain() {
         return;
       }
 
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error('No reader');
-
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-
-        let newlineIndex: number;
-        while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
-          let line = buffer.slice(0, newlineIndex);
-          buffer = buffer.slice(newlineIndex + 1);
-
-          if (line.endsWith('\r')) line = line.slice(0, -1);
-          if (line.startsWith(':') || line.trim() === '') continue;
-          if (!line.startsWith('data: ')) continue;
-
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === '[DONE]') break;
-
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content;
-            if (content) {
-              assistantContent += content;
-              setMessages(prev => {
-                const newMessages = [...prev];
-                newMessages[newMessages.length - 1] = { role: 'assistant', content: assistantContent };
-                return newMessages;
-              });
-            }
-          } catch {
-            buffer = line + '\n' + buffer;
-            break;
-          }
-        }
+      // tcm-rag-chat returns JSON with response and RAG stats
+      const data = await response.json();
+      
+      // Update real-time RAG stats
+      setLastRagStats({
+        chunksFound: data.chunksFound || 0,
+        documentsSearched: data.documentsSearched || 0,
+        searchTerms: data.searchTermsUsed || '',
+        timestamp: new Date(),
+      });
+      
+      // Show RAG search results in toast
+      if (data.chunksFound > 0) {
+        toast.success(`Found ${data.chunksFound} knowledge chunks from ${data.documentsSearched} documents`);
+      } else if (!data.isExternal) {
+        toast.info('No matching knowledge found - using general AI knowledge');
       }
+      
+      // Add the assistant message
+      assistantContent = data.response || 'No response generated';
+      setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
     } catch (error) {
       console.error('Chat error:', error);
       toast.error('Chat error');
@@ -1374,8 +1366,8 @@ export default function TcmBrain() {
                 }
               />
               
-              {/* RAG Verification Status Badge */}
-              <RAGVerificationStatus />
+              {/* RAG Verification Status Badge - shows REAL query stats */}
+              <RAGVerificationStatus liveStats={lastRagStats} />
             </div>
             <div className="flex items-center gap-2">
               {/* Voice Notes - Only show when session is running */}
@@ -1521,7 +1513,7 @@ export default function TcmBrain() {
                   <Shield className="h-3.5 w-3.5" />
                   Knowledge Base Status
                 </span>
-                <RAGVerificationStatus />
+                <RAGVerificationStatus liveStats={lastRagStats} />
               </Button>
               {showRAGPanel && (
                 <RAGVerificationPanel showQueryLogs={true} />
