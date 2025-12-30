@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Download, Smartphone, Apple, Chrome, Share, Plus, MoreVertical, Check } from 'lucide-react';
+import { Download, Smartphone, Apple, Chrome, Share, Plus, MoreVertical, Check, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { Progress } from '@/components/ui/progress';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -14,11 +15,22 @@ interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
 }
 
+const installationSteps = [
+  { label: 'Preparing installation...', duration: 400 },
+  { label: 'Downloading app assets...', duration: 600 },
+  { label: 'Configuring offline support...', duration: 500 },
+  { label: 'Setting up home screen...', duration: 400 },
+  { label: 'Finalizing installation...', duration: 300 },
+];
+
 export default function InstallApp() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
+  const [installProgress, setInstallProgress] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
     // Check if app is already installed
@@ -45,6 +57,7 @@ export default function InstallApp() {
     // Listen for successful install
     window.addEventListener('appinstalled', () => {
       setIsInstalled(true);
+      setIsInstalling(false);
       setDeferredPrompt(null);
     });
 
@@ -53,14 +66,53 @@ export default function InstallApp() {
     };
   }, []);
 
+  const runInstallAnimation = async () => {
+    const totalDuration = installationSteps.reduce((sum, step) => sum + step.duration, 0);
+    let elapsed = 0;
+
+    for (let i = 0; i < installationSteps.length; i++) {
+      setCurrentStep(i);
+      const stepDuration = installationSteps[i].duration;
+      const stepStart = elapsed;
+      const stepEnd = elapsed + stepDuration;
+
+      // Animate progress within this step
+      const frames = 10;
+      const frameTime = stepDuration / frames;
+      
+      for (let f = 0; f < frames; f++) {
+        await new Promise(resolve => setTimeout(resolve, frameTime));
+        const currentElapsed = stepStart + (f + 1) * frameTime;
+        setInstallProgress(Math.round((currentElapsed / totalDuration) * 100));
+      }
+      
+      elapsed = stepEnd;
+    }
+
+    setInstallProgress(100);
+  };
+
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
 
+    setIsInstalling(true);
+    setInstallProgress(0);
+    setCurrentStep(0);
+
+    // Start the visual animation
+    const animationPromise = runInstallAnimation();
+
+    // Trigger the actual install prompt
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     
+    // Wait for animation to complete
+    await animationPromise;
+
     if (outcome === 'accepted') {
       setIsInstalled(true);
+    } else {
+      setIsInstalling(false);
     }
     setDeferredPrompt(null);
   };
@@ -68,8 +120,8 @@ export default function InstallApp() {
   return (
     <>
       <Helmet>
-        <title>Install App | Harmony TCM Clinic</title>
-        <meta name="description" content="Install the Harmony TCM Clinic app on your device for quick access" />
+        <title>Install App | Harmony CM Clinic</title>
+        <meta name="description" content="Install the Harmony CM Clinic app on your device for quick access" />
       </Helmet>
 
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -82,7 +134,7 @@ export default function InstallApp() {
                 className="w-16 h-16 rounded-xl"
               />
             </div>
-            <CardTitle className="font-display text-2xl">Install TCM Clinic</CardTitle>
+            <CardTitle className="font-display text-2xl">Install CM Clinic</CardTitle>
             <CardDescription>
               Get quick access to your clinic management from your home screen
             </CardDescription>
@@ -96,7 +148,7 @@ export default function InstallApp() {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">App Installed!</h3>
                 <p className="text-muted-foreground text-sm mb-4">
-                  You can now access TCM Clinic from your home screen
+                  You can now access CM Clinic from your home screen
                 </p>
                 <Button asChild className="bg-jade hover:bg-jade/90">
                   <Link to="/">Open App</Link>
@@ -104,8 +156,54 @@ export default function InstallApp() {
               </div>
             ) : (
               <>
+                {/* Installation Progress Animation */}
+                {isInstalling && (
+                  <div className="py-6 space-y-4">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      <div className="relative">
+                        <Smartphone className="w-12 h-12 text-jade animate-pulse" />
+                        <div className="absolute -bottom-1 -right-1 bg-jade rounded-full p-1">
+                          <Loader2 className="w-4 h-4 text-white animate-spin" />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Progress value={installProgress} className="h-2" />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span className="animate-pulse">{installationSteps[currentStep]?.label}</span>
+                        <span className="font-mono">{installProgress}%</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-1 pt-2">
+                      {installationSteps.map((step, index) => (
+                        <div 
+                          key={index}
+                          className={`flex items-center gap-2 text-xs transition-all duration-300 ${
+                            index < currentStep 
+                              ? 'text-jade' 
+                              : index === currentStep 
+                                ? 'text-foreground font-medium' 
+                                : 'text-muted-foreground/50'
+                          }`}
+                        >
+                          {index < currentStep ? (
+                            <Check className="w-3 h-3" />
+                          ) : index === currentStep ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <div className="w-3 h-3 rounded-full border border-muted-foreground/30" />
+                          )}
+                          <span>{step.label.replace('...', '')}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Android / Chrome Install Button */}
-                {deferredPrompt && (
+                {deferredPrompt && !isInstalling && (
                   <Button 
                     onClick={handleInstallClick}
                     className="w-full bg-jade hover:bg-jade/90 h-12"
