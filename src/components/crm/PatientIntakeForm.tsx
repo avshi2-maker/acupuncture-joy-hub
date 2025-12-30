@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { VoiceTextarea, VoiceInput } from './VoiceInputFields';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SimpleSelect } from './SimpleSelect';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -670,18 +670,18 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Gender *</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select gender" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="female">Female</SelectItem>
-                          <SelectItem value="male">Male</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <SimpleSelect
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Select gender"
+                          options={[
+                            { value: 'female', label: 'Female' },
+                            { value: 'male', label: 'Male' },
+                            { value: 'other', label: 'Other' },
+                          ]}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -1073,19 +1073,19 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
                             <Moon className="h-4 w-4" />
                             Sleep Quality
                           </FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value || undefined}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="excellent">Excellent</SelectItem>
-                              <SelectItem value="good">Good</SelectItem>
-                              <SelectItem value="fair">Fair</SelectItem>
-                              <SelectItem value="poor">Poor</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <SimpleSelect
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              placeholder="Select..."
+                              options={[
+                                { value: 'excellent', label: 'Excellent' },
+                                { value: 'good', label: 'Good' },
+                                { value: 'fair', label: 'Fair' },
+                                { value: 'poor', label: 'Poor' },
+                              ]}
+                            />
+                          </FormControl>
                           <Input
                             placeholder={hint}
                             className="mt-2"
@@ -1110,19 +1110,19 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
                             <Brain className="h-4 w-4" />
                             Stress Level
                           </FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value || undefined}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="low">Low</SelectItem>
-                              <SelectItem value="moderate">Moderate</SelectItem>
-                              <SelectItem value="high">High</SelectItem>
-                              <SelectItem value="severe">Severe</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <SimpleSelect
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              placeholder="Select..."
+                              options={[
+                                { value: 'low', label: 'Low' },
+                                { value: 'moderate', label: 'Moderate' },
+                                { value: 'high', label: 'High' },
+                                { value: 'severe', label: 'Severe' },
+                              ]}
+                            />
+                          </FormControl>
                           <Input
                             placeholder={hint}
                             className="mt-2"
@@ -1147,20 +1147,20 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
                             <Activity className="h-4 w-4" />
                             Exercise Frequency
                           </FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value || undefined}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="daily">Daily</SelectItem>
-                              <SelectItem value="weekly">Weekly</SelectItem>
-                              <SelectItem value="occasionally">Occasionally</SelectItem>
-                              <SelectItem value="rarely">Rarely</SelectItem>
-                              <SelectItem value="never">Never</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <SimpleSelect
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              placeholder="Select..."
+                              options={[
+                                { value: 'daily', label: 'Daily' },
+                                { value: 'weekly', label: 'Weekly' },
+                                { value: 'occasionally', label: 'Occasionally' },
+                                { value: 'rarely', label: 'Rarely' },
+                                { value: 'never', label: 'Never' },
+                              ]}
+                            />
+                          </FormControl>
                           <Input
                             placeholder={hint}
                             className="mt-2"
