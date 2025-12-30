@@ -31,8 +31,12 @@ import {
   X,
   Phone,
   Sun,
-  Moon
+  Moon,
+  KeyRound
 } from 'lucide-react';
+import { PinSetupDialog } from '@/components/auth/PinSetupDialog';
+import { usePinAuth } from '@/hooks/usePinAuth';
+import { ShareQRButton } from '@/components/ui/ShareQRButton';
 import { Link } from 'react-router-dom';
 import {
   Popover,
@@ -212,7 +216,9 @@ export default function Dashboard() {
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [showPinSetup, setShowPinSetup] = useState(false);
   const { progress, hasProgress, resetProgress } = useWorkflowProgress();
+  const { hasPin } = usePinAuth();
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -493,6 +499,13 @@ export default function Dashboard() {
         <meta name="description" content="מסך ראשי לניהול קליניקה ברפואה סינית משלימה" />
       </Helmet>
 
+      {/* PIN Setup Dialog */}
+      <PinSetupDialog 
+        open={showPinSetup} 
+        onOpenChange={setShowPinSetup}
+        onSuccess={() => toast.success('PIN מוגדר! כעת תוכל להשתמש בו לגישה מהירה')}
+      />
+
       <div className="min-h-screen bg-background" dir="rtl">
       {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-50 opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
@@ -657,6 +670,26 @@ export default function Dashboard() {
                 <Moon className="h-5 w-5" />
               )}
             </Button>
+            
+            {/* PIN Quick Access Setup */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setShowPinSetup(true)}
+              title={hasPin ? 'שנה PIN' : 'הגדר PIN לגישה מהירה'}
+              className={hasPin ? 'text-jade' : ''}
+            >
+              <KeyRound className="h-5 w-5" />
+            </Button>
+            
+            {/* Share App QR Code */}
+            <ShareQRButton 
+              buttonVariant="ghost" 
+              buttonSize="icon" 
+              showLabel={false}
+              title="שתפו את האפליקציה"
+              description="סרקו את הקוד כדי להתקין את CM Clinic"
+            />
             
             <TierBadge />
             <LanguageSwitcher variant="ghost" isScrolled={true} />

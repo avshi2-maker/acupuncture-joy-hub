@@ -1040,6 +1040,36 @@ export type Database = {
         }
         Relationships: []
       }
+      therapist_pins: {
+        Row: {
+          created_at: string
+          failed_attempts: number
+          id: string
+          locked_until: string | null
+          pin_hash: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          failed_attempts?: number
+          id?: string
+          locked_until?: string | null
+          pin_hash: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          failed_attempts?: number
+          id?: string
+          locked_until?: string | null
+          pin_hash?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       therapist_registrations: {
         Row: {
           created_at: string
@@ -1302,6 +1332,10 @@ export type Database = {
         }[]
       }
       validate_israeli_id: { Args: { id_number: string }; Returns: boolean }
+      verify_therapist_pin: {
+        Args: { p_pin_hash: string; p_user_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "therapist" | "patient"
