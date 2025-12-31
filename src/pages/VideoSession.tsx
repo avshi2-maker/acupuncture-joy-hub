@@ -82,6 +82,7 @@ import { VoiceCommandSystem } from '@/components/video/VoiceCommandSystem';
 import { SessionPresets } from '@/components/video/SessionPresets';
 import { useThreeFingerTap } from '@/hooks/useThreeFingerTap';
 import { PatientHistoryPanel } from '@/components/video/PatientHistoryPanel';
+import { SessionRecordingModule } from '@/components/video/SessionRecordingModule';
 import { FloatingQuickActions } from '@/components/video/FloatingQuickActions';
 import { CustomizableToolbar, ToolbarItemId } from '@/components/video/CustomizableToolbar';
 import { useLongPressTimer } from '@/hooks/useLongPressTimer';
@@ -1204,6 +1205,13 @@ export default function VideoSession() {
               <PatientHistoryPanel 
                 patientId={selectedPatientId} 
                 patientName={selectedPatientName}
+              />
+
+              {/* Session Recording Module */}
+              <SessionRecordingModule
+                patientId={selectedPatientId || undefined}
+                patientName={selectedPatientName || undefined}
+                onTranscriptionUpdate={(text) => setNotes(sessionNotes + '\n' + text)}
               />
 
               {/* Session Controls */}
