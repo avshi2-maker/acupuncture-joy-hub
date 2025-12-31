@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -9,7 +10,8 @@ import {
   Stethoscope, Heart, Brain, Pill, Baby, Sparkles, 
   Sun, Dumbbell, Activity, Apple, BookOpen,
   Clipboard, Eye, Hand, Thermometer, Leaf, Users,
-  FileText, Zap, Shield, LayoutGrid, List, ChevronDown
+  FileText, Zap, Shield, LayoutGrid, List, ChevronDown,
+  Search, Star, X
 } from 'lucide-react';
 
 export type AssetCategory = 'diagnostics' | 'treatment' | 'specialties' | 'lifestyle' | 'reference';
@@ -292,7 +294,9 @@ function AssetCard({
   isFlashing, 
   showLabels, 
   onClick,
-  compact = false
+  compact = false,
+  isFavorite = false,
+  onToggleFavorite
 }: { 
   asset: KnowledgeAsset; 
   isActive: boolean; 
@@ -300,68 +304,93 @@ function AssetCard({
   showLabels: boolean;
   onClick?: () => void;
   compact?: boolean;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }) {
   const Icon = asset.icon;
   
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <button
-          onClick={onClick}
-          className={cn(
-            'flex flex-col items-center gap-1.5 rounded-xl border-2 transition-all duration-300',
-            'hover:scale-105 hover:shadow-md active:scale-95',
-            compact ? 'p-2 min-w-[64px]' : 'p-2.5 min-w-[72px]',
-            asset.bgColor,
-            isActive ? asset.borderColor : 'border-transparent',
-            isFlashing && 'animate-pulse ring-2 ring-offset-2 shadow-lg',
-            isFlashing && asset.color.replace('text-', 'ring-')
-          )}
-        >
-          <div className={cn(
-            'rounded-full flex items-center justify-center shadow-sm',
-            compact ? 'w-8 h-8' : 'w-10 h-10',
-            isActive ? asset.bgColor : 'bg-muted/50',
-            isActive && 'ring-2 ring-offset-1',
-            isActive && asset.color.replace('text-', 'ring-'),
-            isFlashing && 'animate-bounce'
-          )}>
-            <Icon className={cn(
-              'transition-all',
-              compact ? 'h-4 w-4' : 'h-5 w-5',
-              isActive ? asset.color : 'text-muted-foreground',
-              isFlashing && 'scale-125'
-            )} />
-          </div>
-          {showLabels && (
-            <div className="flex flex-col items-center gap-0.5">
-              <span className={cn(
-                'font-semibold text-center leading-tight line-clamp-2',
-                compact ? 'text-[9px] max-w-[56px]' : 'text-[10px] max-w-[64px]',
-                isActive ? asset.color : 'text-foreground'
-              )}>
-                {asset.name}
-              </span>
-              <span className={cn(
-                'text-center leading-tight truncate',
-                compact ? 'text-[8px] max-w-[56px]' : 'text-[9px] max-w-[64px]',
-                isActive ? asset.color : 'text-muted-foreground'
-              )} dir="rtl">
-                {asset.nameHe}
-              </span>
+        <div className="relative group">
+          <button
+            onClick={onClick}
+            className={cn(
+              'flex flex-col items-center gap-1.5 rounded-xl border-2 transition-all duration-300',
+              'hover:scale-105 hover:shadow-md active:scale-95',
+              compact ? 'p-2 min-w-[64px]' : 'p-2.5 min-w-[72px]',
+              asset.bgColor,
+              isActive ? asset.borderColor : 'border-transparent',
+              isFlashing && 'animate-pulse ring-2 ring-offset-2 shadow-lg',
+              isFlashing && asset.color.replace('text-', 'ring-')
+            )}
+          >
+            <div className={cn(
+              'rounded-full flex items-center justify-center shadow-sm',
+              compact ? 'w-8 h-8' : 'w-10 h-10',
+              isActive ? asset.bgColor : 'bg-muted/50',
+              isActive && 'ring-2 ring-offset-1',
+              isActive && asset.color.replace('text-', 'ring-'),
+              isFlashing && 'animate-bounce'
+            )}>
+              <Icon className={cn(
+                'transition-all',
+                compact ? 'h-4 w-4' : 'h-5 w-5',
+                isActive ? asset.color : 'text-muted-foreground',
+                isFlashing && 'scale-125'
+              )} />
             </div>
+            {showLabels && (
+              <div className="flex flex-col items-center gap-0.5">
+                <span className={cn(
+                  'font-semibold text-center leading-tight line-clamp-2',
+                  compact ? 'text-[9px] max-w-[56px]' : 'text-[10px] max-w-[64px]',
+                  isActive ? asset.color : 'text-foreground'
+                )}>
+                  {asset.name}
+                </span>
+                <span className={cn(
+                  'text-center leading-tight truncate',
+                  compact ? 'text-[8px] max-w-[56px]' : 'text-[9px] max-w-[64px]',
+                  isActive ? asset.color : 'text-muted-foreground'
+                )} dir="rtl">
+                  {asset.nameHe}
+                </span>
+              </div>
+            )}
+          </button>
+          {/* Favorite star */}
+          {onToggleFavorite && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite();
+              }}
+              className={cn(
+                'absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center transition-all',
+                'opacity-0 group-hover:opacity-100',
+                isFavorite ? 'opacity-100 bg-amber-400 text-white' : 'bg-muted text-muted-foreground hover:bg-amber-100'
+              )}
+            >
+              <Star className={cn('h-3 w-3', isFavorite && 'fill-current')} />
+            </button>
           )}
-        </button>
+        </div>
       </TooltipTrigger>
       <TooltipContent side="bottom" className="text-xs">
         <div className="text-center">
           <p className="font-semibold">{asset.name}</p>
           <p className="text-muted-foreground" dir="rtl">{asset.nameHe}</p>
+          <p className="text-[10px] text-muted-foreground mt-1">
+            {isFavorite ? '⭐ Favorited' : 'Click ⭐ to favorite'}
+          </p>
         </div>
       </TooltipContent>
     </Tooltip>
   );
 }
+
+const FAVORITES_STORAGE_KEY = 'tcm-brain-favorite-assets';
 
 export function KnowledgeAssetTabs({ 
   activeAssets = [], 
@@ -373,6 +402,20 @@ export function KnowledgeAssetTabs({
   const [flashingAssets, setFlashingAssets] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'scroll' | 'grid'>(defaultView);
   const [openCategories, setOpenCategories] = useState<AssetCategory[]>(['diagnostics', 'treatment', 'specialties', 'lifestyle', 'reference']);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem(FAVORITES_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Persist favorites to localStorage
+  useEffect(() => {
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+  }, [favorites]);
 
   // Flash active assets when they change
   useEffect(() => {
@@ -383,13 +426,36 @@ export function KnowledgeAssetTabs({
     }
   }, [activeAssets.join(',')]);
 
+  const toggleFavorite = useCallback((assetId: string) => {
+    setFavorites(prev => 
+      prev.includes(assetId) 
+        ? prev.filter(id => id !== assetId) 
+        : [...prev, assetId]
+    );
+  }, []);
+
   const toggleCategory = (cat: AssetCategory) => {
     setOpenCategories(prev => 
       prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
     );
   };
 
-  const assetsByCategory = KNOWLEDGE_ASSETS.reduce((acc, asset) => {
+  // Filter assets by search query
+  const filteredAssets = KNOWLEDGE_ASSETS.filter(asset => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      asset.name.toLowerCase().includes(query) ||
+      asset.nameHe.includes(searchQuery) ||
+      asset.id.toLowerCase().includes(query)
+    );
+  });
+
+  // Get favorite assets
+  const favoriteAssets = filteredAssets.filter(a => favorites.includes(a.id));
+  const nonFavoriteAssets = filteredAssets.filter(a => !favorites.includes(a.id));
+
+  const assetsByCategory = nonFavoriteAssets.reduce((acc, asset) => {
     if (!acc[asset.category]) acc[asset.category] = [];
     acc[asset.category].push(asset);
     return acc;
@@ -398,31 +464,79 @@ export function KnowledgeAssetTabs({
   return (
     <TooltipProvider delayDuration={200}>
       <div className={cn("w-full", className)}>
-        {/* View Toggle */}
-        <div className="flex items-center justify-end gap-1 px-3 py-1 border-b">
-          <Button
-            variant={viewMode === 'scroll' ? 'secondary' : 'ghost'}
-            size="sm"
-            className="h-7 px-2"
-            onClick={() => setViewMode('scroll')}
-          >
-            <List className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-            size="sm"
-            className="h-7 px-2"
-            onClick={() => setViewMode('grid')}
-          >
-            <LayoutGrid className="h-3.5 w-3.5" />
-          </Button>
+        {/* Search and View Toggle */}
+        <div className="flex items-center gap-2 px-3 py-2 border-b">
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+              placeholder="Search assets..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-8 pl-8 pr-8 text-xs"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+          {favorites.length > 0 && (
+            <Badge variant="secondary" className="text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
+              <Star className="h-3 w-3 mr-1 fill-current" />
+              {favorites.length}
+            </Badge>
+          )}
+          <div className="flex gap-1 ml-auto">
+            <Button
+              variant={viewMode === 'scroll' ? 'secondary' : 'ghost'}
+              size="sm"
+              className="h-7 px-2"
+              onClick={() => setViewMode('scroll')}
+            >
+              <List className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+              size="sm"
+              className="h-7 px-2"
+              onClick={() => setViewMode('grid')}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </div>
 
         {viewMode === 'scroll' ? (
           // Horizontal Scroll View
           <ScrollArea className="w-full">
+            {/* Favorites row */}
+            {favoriteAssets.length > 0 && (
+              <div className="px-3 pt-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+                  <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">Favorites</span>
+                </div>
+                <div className="flex gap-2 pb-2 border-b border-dashed">
+                  {favoriteAssets.map((asset) => (
+                    <AssetCard
+                      key={asset.id}
+                      asset={asset}
+                      isActive={activeAssets.includes(asset.id)}
+                      isFlashing={flashingAssets.includes(asset.id)}
+                      showLabels={showLabels}
+                      onClick={() => onAssetClick?.(asset.id)}
+                      isFavorite={true}
+                      onToggleFavorite={() => toggleFavorite(asset.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="flex gap-2 p-3">
-              {KNOWLEDGE_ASSETS.map((asset) => (
+              {(favoriteAssets.length > 0 ? nonFavoriteAssets : filteredAssets).map((asset) => (
                 <AssetCard
                   key={asset.id}
                   asset={asset}
@@ -430,6 +544,8 @@ export function KnowledgeAssetTabs({
                   isFlashing={flashingAssets.includes(asset.id)}
                   showLabels={showLabels}
                   onClick={() => onAssetClick?.(asset.id)}
+                  isFavorite={favorites.includes(asset.id)}
+                  onToggleFavorite={() => toggleFavorite(asset.id)}
                 />
               ))}
             </div>
@@ -438,9 +554,49 @@ export function KnowledgeAssetTabs({
         ) : (
           // Grid View with Categories
           <div className="p-3 space-y-3 max-h-[400px] overflow-y-auto">
+            {/* Favorites Section */}
+            {favoriteAssets.length > 0 && (
+              <Collapsible defaultOpen>
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                    <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+                      Favorites
+                    </span>
+                    <span className="text-xs text-muted-foreground" dir="rtl">
+                      מועדפים
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{favoriteAssets.length}</span>
+                    <ChevronDown className="h-4 w-4 transition-transform text-muted-foreground" />
+                  </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-2 pt-2">
+                    {favoriteAssets.map((asset) => (
+                      <AssetCard
+                        key={asset.id}
+                        asset={asset}
+                        isActive={activeAssets.includes(asset.id)}
+                        isFlashing={flashingAssets.includes(asset.id)}
+                        showLabels={showLabels}
+                        onClick={() => onAssetClick?.(asset.id)}
+                        compact
+                        isFavorite={true}
+                        onToggleFavorite={() => toggleFavorite(asset.id)}
+                      />
+                    ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+
+            {/* Category Sections */}
             {(Object.keys(ASSET_CATEGORIES) as AssetCategory[]).map((category) => {
               const catInfo = ASSET_CATEGORIES[category];
               const assets = assetsByCategory[category] || [];
+              if (assets.length === 0) return null;
               const activeInCategory = assets.filter(a => activeAssets.includes(a.id)).length;
               
               return (
@@ -482,6 +638,8 @@ export function KnowledgeAssetTabs({
                           showLabels={showLabels}
                           onClick={() => onAssetClick?.(asset.id)}
                           compact
+                          isFavorite={favorites.includes(asset.id)}
+                          onToggleFavorite={() => toggleFavorite(asset.id)}
                         />
                       ))}
                     </div>
@@ -489,6 +647,14 @@ export function KnowledgeAssetTabs({
                 </Collapsible>
               );
             })}
+
+            {/* No results */}
+            {filteredAssets.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No assets found for "{searchQuery}"</p>
+              </div>
+            )}
           </div>
         )}
       </div>
