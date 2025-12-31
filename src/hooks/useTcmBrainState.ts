@@ -89,6 +89,9 @@ export function useTcmBrainState() {
     auditLogId: null,
     auditLoggedAt: null,
   });
+
+  // External AI fallback (only offered when proprietary KB has 0 matches)
+  const [externalFallbackQuery, setExternalFallbackQuery] = useState<string | null>(null);
   
   const [sourceAlert, setSourceAlert] = useState<SourceAlert>({
     visible: false,
@@ -327,6 +330,13 @@ export function useTcmBrainState() {
         : (data.chunksFound || 0) > 0 
           ? 'proprietary' 
           : 'no-match';
+
+      // Offer external AI option only when there is no KB match
+      if (alertType === 'no-match' && !data.isExternal) {
+        setExternalFallbackQuery(userMessage);
+      } else {
+        setExternalFallbackQuery(null);
+      }
       
       setSourceAlert({
         visible: true,
@@ -344,7 +354,7 @@ export function useTcmBrainState() {
       } else if ((data.chunksFound || 0) > 0) {
         toast.success(`Verified KB: ${data.chunksFound} chunks / ${data.documentsSearched} docs matched`);
       } else {
-        toast.info('0 matches in proprietary knowledge base.');
+        toast.info('0 matches in proprietary knowledge base. External AI option available.');
       }
       
       const assistantContent = data.response || 'No response generated';
@@ -357,6 +367,89 @@ export function useTcmBrainState() {
       setLoadingStartTime(null);
     }
   }, [disclaimerStatus, session, messages]);
+
+  const dismissExternalFallback = useCallback(() => {
+    setExternalFallbackQuery(null);
+  }, []);
+
+  const runExternalAIFallback = useCallback(async () => {
+    if (!externalFallbackQuery || isLoading) return;
+
+    if (!disclaimerStatus.signed) {
+      toast.error(disclaimerStatus.expired ? 'Disclaimer expired — please sign again' : 'Please sign disclaimer before using AI');
+      return;
+    }
+
+    if (!session?.access_token) {
+      toast.error('Please log in to use TCM Brain');
+      return;
+    }
+
+    setIsLoading(true);
+    setLoadingStartTime(Date.now());
+
+    try {
+      const response = await fetch(RAG_CHAT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          query: externalFallbackQuery,
+          messages,
+          useExternalAI: true,
+          includeChunkDetails: true,
+        }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) toast.error('Session expired. Please log in again.');
+        else if (response.status === 429) toast.error('Too many requests. Try again in a minute.');
+        else if (response.status === 402) toast.error('Credits exhausted. Please add credits.');
+        else toast.error('AI service error');
+        return;
+      }
+
+      const data = await response.json();
+
+      setLastRagStats({
+        chunksFound: data.chunksFound || 0,
+        documentsSearched: data.documentsSearched || 0,
+        searchTerms: data.searchTermsUsed || '',
+        timestamp: new Date(),
+        isExternal: true,
+        auditLogged: !!data.auditLogged,
+        auditLogId: data.auditLogId ?? null,
+        auditLoggedAt: data.auditLoggedAt ?? null,
+      });
+
+      setSourceAlert({
+        visible: true,
+        type: 'external',
+        auditLogId: data.auditLogId ?? null,
+        chunksFound: 0,
+      });
+
+      setTimeout(() => {
+        setSourceAlert(prev => ({ ...prev, visible: false }));
+      }, 5000);
+
+      toast.warning('External AI used — not from proprietary materials');
+
+      const assistantContent = data.response || 'No response generated';
+      setMessages(prev => [...prev, { role: 'assistant', content: assistantContent }]);
+
+      // Once used, hide the fallback offer
+      setExternalFallbackQuery(null);
+    } catch (error) {
+      console.error('External AI fallback error:', error);
+      toast.error('Chat error');
+    } finally {
+      setIsLoading(false);
+      setLoadingStartTime(null);
+    }
+  }, [disclaimerStatus, externalFallbackQuery, isLoading, messages, session]);
   
   // Build question context for auto-chain
   const buildQuestionContext = useCallback(() => {
@@ -646,6 +739,9 @@ Provide a complete treatment protocol:
     // RAG state
     lastRagStats,
     sourceAlert,
+    externalFallbackQuery,
+    dismissExternalFallback,
+    runExternalAIFallback,
     
     // Workflow state
     chainedWorkflow,
