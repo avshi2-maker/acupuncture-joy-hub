@@ -943,7 +943,7 @@ export default function VideoSession() {
           patientName={selectedPatientName}
         />
         
-        {/* Header - Optimized for mobile */}
+        {/* Header - Optimized for mobile - ALWAYS sticky */}
         <header className="bg-card border-b border-border sticky top-0 z-50">
           <div className="max-w-full mx-auto px-3 md:px-4 py-2 md:py-4 relative flex items-center justify-between">
             {/* Mobile: Back button + Logo */}
@@ -1042,6 +1042,15 @@ export default function VideoSession() {
                 onClick={() => setShowSettings(true)}
               >
                 <Settings className="h-3.5 w-3.5" />
+              </Button>
+              
+              {/* 6. Help - Mobile */}
+              <Button 
+                size="icon" 
+                className="h-8 w-8 shrink-0 touch-manipulation bg-gradient-to-br from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600" 
+                onClick={() => setShowHelpGuide(true)}
+              >
+                <HelpCircle className="h-3.5 w-3.5 text-amber-900" />
               </Button>
             </div>
 
@@ -1607,7 +1616,12 @@ export default function VideoSession() {
                       <Settings className="h-3 w-3" />
                     </Button>
                   </div>
-                  <Button variant="outline" size="sm" className="w-full gap-1 h-8 text-xs" onClick={() => setShowQuickPatient(true)}>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full gap-1 h-8 text-xs" 
+                    onClick={() => navigate('/crm/patients/new')}
+                  >
                     <UserPlus className="h-3 w-3" />
                     הוסף מטופל חדש
                   </Button>
