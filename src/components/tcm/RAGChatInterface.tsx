@@ -6,13 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { Send, Loader2, BookOpen, FileText, AlertCircle, Printer, Shield, CheckCircle2, Database, ExternalLink, Activity, Eye, EyeOff } from 'lucide-react';
+import { Send, Loader2, BookOpen, FileText, AlertCircle, Printer, Shield, CheckCircle2, Database, ExternalLink, Activity, Eye, EyeOff, AlertTriangle, Bot, Lightbulb } from 'lucide-react';
 import { VoiceInputButton } from '@/components/ui/VoiceInputButton';
 import { usePrintContent } from '@/hooks/usePrintContent';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RAGSearchAnimation, RAGVerificationStatus } from './RAGSearchAnimation';
 import { AITracePanel, TraceStep, ChunkMatch, HallucinationCheck, analyzeHallucination } from './AITracePanel';
 import { ConfidenceMeter } from './ConfidenceMeter';
+import { QASuggestionsPanel } from './QASuggestionsPanel';
 
 interface Source {
   fileName: string;
@@ -64,9 +65,17 @@ export function RAGChatInterface({ className }: RAGChatInterfaceProps) {
     documentsSearched: number;
     sources: string[];
   } | undefined>();
+  const [showExternalDisclaimer, setShowExternalDisclaimer] = useState(false);
+  const [externalConsent, setExternalConsent] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const { printContent } = usePrintContent();
+
+  const handleSuggestionSelect = (question: string) => {
+    setInput(question);
+    // Optionally auto-send
+    // sendMessage();
+  };
 
   const handleVoiceTranscription = (text: string) => {
     setInput(prev => prev ? `${prev} ${text}` : text);
@@ -414,7 +423,15 @@ export function RAGChatInterface({ className }: RAGChatInterfaceProps) {
         </p>
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea ref={scrollRef} className="h-[400px] px-4">
+        {/* Q&A Suggestions Panel - Ready-made questions with distinct styling */}
+        <div className="px-4 pt-2">
+          <QASuggestionsPanel 
+            onSelectQuestion={handleSuggestionSelect}
+            currentStage="Before"
+          />
+        </div>
+
+        <ScrollArea ref={scrollRef} className="h-[350px] px-4">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
               <BookOpen className="w-12 h-12 mb-4 opacity-50" />
@@ -511,7 +528,7 @@ export function RAGChatInterface({ className }: RAGChatInterfaceProps) {
           )}
         </ScrollArea>
 
-        {/* RAG Search Animation */}
+        {/* RAG Search Animation & Inline External AI Consent */}
         <div className="px-4">
           <RAGSearchAnimation
             isSearching={isLoading}
@@ -520,6 +537,51 @@ export function RAGChatInterface({ className }: RAGChatInterfaceProps) {
             onUseExternalAI={handleUseExternalAI}
             onCancelExternalAI={handleCancelExternalAI}
           />
+          
+          {/* Enhanced Inline External AI Disclosure - Stays in Module */}
+          {searchPhase === 'external-consent' && (
+            <div className="mt-3 p-4 rounded-lg border-2 border-amber-500/50 bg-gradient-to-br from-amber-500/10 to-orange-500/10 animate-in slide-in-from-bottom-2 duration-300">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-full bg-amber-500/20">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-amber-700 flex items-center gap-2">
+                    <Bot className="w-4 h-4" />
+                    External AI Available
+                  </h4>
+                  <p className="text-xs text-amber-600/80 mt-1">
+                    No matches found in Dr. Sapir's verified knowledge base. You may consult external AI (Gemini), but:
+                  </p>
+                  <ul className="text-[10px] text-amber-600/70 mt-2 space-y-1 list-disc list-inside">
+                    <li>External AI responses are <strong>NOT verified</strong> by Dr. Sapir</li>
+                    <li>You accept full clinical responsibility for using this information</li>
+                    <li>All queries remain logged for audit trail</li>
+                    <li>You stay within this module - no external redirects</li>
+                  </ul>
+                  
+                  <div className="flex items-center gap-2 mt-3">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={handleCancelExternalAI}
+                      className="text-xs h-8"
+                    >
+                      Stay in Knowledge Base
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      onClick={handleUseExternalAI}
+                      className="text-xs h-8 bg-amber-500 hover:bg-amber-600 text-white gap-1"
+                    >
+                      <Bot className="w-3 h-3" />
+                      Accept & Use External AI
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* AI Trace Panel - Advanced mode for detailed monitoring */}
