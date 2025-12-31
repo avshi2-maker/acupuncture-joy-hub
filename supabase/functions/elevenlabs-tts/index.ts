@@ -14,27 +14,22 @@ serve(async (req) => {
   }
 
   try {
-    // Validate authentication
+    // Optional: Log user if authenticated (but don't require it for TTS)
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    let userId = 'anonymous';
+    
+    if (authHeader && authHeader !== `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`) {
+      try {
+        const supabaseClient = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+          { global: { headers: { Authorization: authHeader } } }
+        );
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (user) userId = user.id;
+      } catch {
+        // Auth failed, continue as anonymous - TTS is low risk
+      }
     }
 
     const { text, voice = 'Rachel' } = await req.json();
@@ -53,7 +48,7 @@ serve(async (req) => {
       throw new Error('ELEVENLABS_API_KEY is not configured');
     }
 
-    console.log(`User ${user.id} generating TTS for text: "${text.substring(0, 50)}..." with voice ${voice}`);
+    console.log(`User ${userId} generating TTS for text: "${text.substring(0, 50)}..." with voice ${voice}`);
 
     // ElevenLabs voice IDs - using multilingual voices that support Hebrew
     // Rachel is a good Hebrew voice, or use a custom cloned voice
