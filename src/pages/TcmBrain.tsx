@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -11,10 +11,12 @@ import {
   FileText, 
   Clock,
   ArrowLeft,
-  Settings
+  Settings,
+  Save
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTcmBrainState } from '@/hooks/useTcmBrainState';
+import { useAutoSave } from '@/hooks/useAutoSave';
 import { DiagnosticsTab } from '@/components/tcm-brain/DiagnosticsTab';
 import { SymptomsTab } from '@/components/tcm-brain/SymptomsTab';
 import { TreatmentTab } from '@/components/tcm-brain/TreatmentTab';
@@ -22,9 +24,14 @@ import { BodyMapTab } from '@/components/tcm-brain/BodyMapTab';
 import { SessionNotesTab } from '@/components/tcm-brain/SessionNotesTab';
 import { PatientHistoryTab } from '@/components/tcm-brain/PatientHistoryTab';
 import { PatientSelectorDropdown } from '@/components/crm/PatientSelectorDropdown';
+import { TcmBrainVoiceCommands, TcmVoiceCommand } from '@/components/tcm-brain/TcmBrainVoiceCommands';
+import { QuickActionsRef } from '@/components/tcm-brain/QuickActionsBar';
+import { toast } from 'sonner';
 
 export default function TcmBrain() {
   const [activeTab, setActiveTab] = useState('diagnostics');
+  const quickActionsRef = useRef<QuickActionsRef>(null);
+  
   const {
     messages,
     isLoading,
@@ -54,6 +61,40 @@ export default function TcmBrain() {
     openWhatsAppWithSession,
   } = useTcmBrainState();
 
+  // Auto-save functionality
+  const { lastSaveTime, isSaving, saveNow, loadSavedSession, clearSavedSession } = useAutoSave(
+    {
+      messages,
+      questionsAsked,
+      sessionSeconds,
+      patientId: selectedPatient?.id,
+      patientName: selectedPatient?.name,
+      activeTemplate,
+    },
+    sessionStatus === 'running'
+  );
+
+  // Check for saved session on mount
+  useEffect(() => {
+    const saved = loadSavedSession();
+    if (saved && saved.messages.length > 0) {
+      toast.info(
+        `Found auto-saved session from ${saved.patientName || 'Unknown'}. Continue?`,
+        {
+          duration: 10000,
+          action: {
+            label: 'Restore',
+            onClick: () => {
+              toast.success('Session restored');
+              clearSavedSession();
+            },
+          },
+        }
+      );
+    }
+  }, []);
+
+  // Tab navigation
   const tabItems = [
     { id: 'diagnostics', label: 'Diagnostics', icon: Stethoscope, description: 'P1-P2' },
     { id: 'symptoms', label: 'Symptoms', icon: Brain, description: 'P3' },
@@ -62,6 +103,57 @@ export default function TcmBrain() {
     { id: 'session', label: 'Session', icon: FileText, description: 'Notes' },
     { id: 'history', label: 'History', icon: Clock, description: 'Patient' },
   ];
+
+  // Voice command handler
+  const handleVoiceCommand = useCallback((command: TcmVoiceCommand) => {
+    console.log('[TcmBrain] Voice command:', command);
+    
+    switch (command) {
+      case 'generate-summary':
+        quickActionsRef.current?.generateSummary();
+        break;
+      case 'save-to-patient':
+        quickActionsRef.current?.saveToPatient();
+        break;
+      case 'export-session':
+        quickActionsRef.current?.exportSession();
+        break;
+      case 'print-report':
+        quickActionsRef.current?.printReport();
+        break;
+      case 'share-whatsapp':
+        quickActionsRef.current?.shareWhatsApp();
+        break;
+      case 'generate-audio':
+        quickActionsRef.current?.transcriptToMP3();
+        break;
+      case 'start-session':
+        if (sessionStatus === 'idle') startSession();
+        else if (sessionStatus === 'paused') continueSession();
+        break;
+      case 'pause-session':
+        if (sessionStatus === 'running') pauseSession();
+        break;
+      case 'end-session':
+        if (sessionStatus !== 'idle') endSession();
+        break;
+      case 'clear-chat':
+        clearChat();
+        break;
+      case 'next-tab':
+        setActiveTab(prev => {
+          const idx = tabItems.findIndex(t => t.id === prev);
+          return tabItems[(idx + 1) % tabItems.length].id;
+        });
+        break;
+      case 'previous-tab':
+        setActiveTab(prev => {
+          const idx = tabItems.findIndex(t => t.id === prev);
+          return tabItems[(idx - 1 + tabItems.length) % tabItems.length].id;
+        });
+        break;
+    }
+  }, [sessionStatus, startSession, pauseSession, continueSession, endSession, clearChat, tabItems]);
 
   return (
     <>
@@ -85,6 +177,18 @@ export default function TcmBrain() {
               </div>
 
               <div className="flex items-center gap-2">
+                {/* Auto-save indicator */}
+                {sessionStatus === 'running' && (
+                  <Badge 
+                    variant="outline" 
+                    className={`text-xs cursor-pointer ${isSaving ? 'animate-pulse' : ''}`}
+                    onClick={saveNow}
+                    title={lastSaveTime ? `Last saved: ${lastSaveTime.toLocaleTimeString()}` : 'Click to save now'}
+                  >
+                    <Save className={`h-3 w-3 mr-1 ${isSaving ? 'text-jade' : ''}`} />
+                    {isSaving ? 'Saving...' : 'Auto-save'}
+                  </Badge>
+                )}
                 {sessionStatus !== 'idle' && (
                   <Badge variant={sessionStatus === 'running' ? 'default' : 'secondary'}
                     className={sessionStatus === 'running' ? 'bg-jade animate-pulse' : ''}>
@@ -125,18 +229,45 @@ export default function TcmBrain() {
 
             <div className="bg-card rounded-lg border min-h-[calc(100vh-200px)]">
               <TabsContent value="diagnostics" className="m-0">
-                <DiagnosticsTab messages={messages} isLoading={isLoading} onSendMessage={streamChat} onClear={clearChat}
-                  selectedPatient={selectedPatient} sessionSeconds={sessionSeconds} questionsAsked={questionsAsked} formatSessionTime={formatSessionTime} />
+                <DiagnosticsTab 
+                  messages={messages} 
+                  isLoading={isLoading} 
+                  onSendMessage={streamChat} 
+                  onClear={clearChat}
+                  selectedPatient={selectedPatient} 
+                  sessionSeconds={sessionSeconds} 
+                  questionsAsked={questionsAsked} 
+                  formatSessionTime={formatSessionTime}
+                  quickActionsRef={quickActionsRef}
+                />
               </TabsContent>
 
               <TabsContent value="symptoms" className="m-0">
-                <SymptomsTab messages={messages} isLoading={isLoading} onSendMessage={streamChat} onClear={clearChat}
-                  selectedPatient={selectedPatient} sessionSeconds={sessionSeconds} questionsAsked={questionsAsked} formatSessionTime={formatSessionTime} />
+                <SymptomsTab 
+                  messages={messages} 
+                  isLoading={isLoading} 
+                  onSendMessage={streamChat} 
+                  onClear={clearChat}
+                  selectedPatient={selectedPatient} 
+                  sessionSeconds={sessionSeconds} 
+                  questionsAsked={questionsAsked} 
+                  formatSessionTime={formatSessionTime}
+                  quickActionsRef={quickActionsRef}
+                />
               </TabsContent>
 
               <TabsContent value="treatment" className="m-0">
-                <TreatmentTab messages={messages} isLoading={isLoading} onSendMessage={streamChat} onClear={clearChat}
-                  selectedPatient={selectedPatient} sessionSeconds={sessionSeconds} questionsAsked={questionsAsked} formatSessionTime={formatSessionTime} />
+                <TreatmentTab 
+                  messages={messages} 
+                  isLoading={isLoading} 
+                  onSendMessage={streamChat} 
+                  onClear={clearChat}
+                  selectedPatient={selectedPatient} 
+                  sessionSeconds={sessionSeconds} 
+                  questionsAsked={questionsAsked} 
+                  formatSessionTime={formatSessionTime}
+                  quickActionsRef={quickActionsRef}
+                />
               </TabsContent>
 
               <TabsContent value="bodymap" className="m-0">
@@ -158,6 +289,12 @@ export default function TcmBrain() {
             </div>
           </Tabs>
         </main>
+
+        {/* Voice Commands */}
+        <TcmBrainVoiceCommands 
+          onCommand={handleVoiceCommand}
+          isSessionActive={sessionStatus === 'running'}
+        />
       </div>
     </>
   );

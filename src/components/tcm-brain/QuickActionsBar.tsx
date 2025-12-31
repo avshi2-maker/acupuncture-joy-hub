@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useImperativeHandle, forwardRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { 
@@ -18,6 +18,15 @@ import { SelectedPatient } from '@/components/crm/PatientSelectorDropdown';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
+export interface QuickActionsRef {
+  generateSummary: () => Promise<void>;
+  saveToPatient: () => Promise<void>;
+  exportSession: () => void;
+  printReport: () => void;
+  shareWhatsApp: () => void;
+  transcriptToMP3: () => Promise<void>;
+}
+
 interface QuickActionsBarProps {
   messages: Message[];
   sessionSeconds: number;
@@ -29,19 +38,29 @@ interface QuickActionsBarProps {
   onPrintReport?: () => void;
 }
 
-export function QuickActionsBar({
+export const QuickActionsBar = forwardRef<QuickActionsRef, QuickActionsBarProps>(({
   messages,
   sessionSeconds,
   selectedPatient,
   questionsAsked,
   voiceNotesTranscripts = [],
   formatSessionTime,
-}: QuickActionsBarProps) {
+}, ref) => {
   const { session } = useAuth();
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [isSavingToPatient, setIsSavingToPatient] = useState(false);
   const [topicSummary, setTopicSummary] = useState<string | null>(null);
+
+  // Expose methods via ref for voice commands
+  useImperativeHandle(ref, () => ({
+    generateSummary: handleGenerateSummary,
+    saveToPatient: handleSaveToPatient,
+    exportSession: handleExportSession,
+    printReport: handlePrintReport,
+    shareWhatsApp: handleShareWhatsApp,
+    transcriptToMP3: handleTranscriptToMP3,
+  }));
 
   // Get all transcript content
   const getFullTranscript = () => {
@@ -368,4 +387,4 @@ ${transcript}
       )}
     </div>
   );
-}
+});
