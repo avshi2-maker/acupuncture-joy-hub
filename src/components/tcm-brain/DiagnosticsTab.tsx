@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, RefObject } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, ArrowRight, Sparkles, ChevronRight, Stethoscope, Eye, Activity, Trash2 } from 'lucide-react';
 import { BrowserVoiceInput } from '@/components/ui/BrowserVoiceInput';
 import { AIResponseDisplay } from '@/components/tcm/AIResponseDisplay';
-import { QuickActionsBar } from './QuickActionsBar';
+import { QuickActionsBar, QuickActionsRef } from './QuickActionsBar';
 import { Message } from '@/hooks/useTcmBrainState';
 import { SelectedPatient } from '@/components/crm/PatientSelectorDropdown';
 
@@ -19,6 +19,7 @@ interface DiagnosticsTabProps {
   sessionSeconds?: number;
   questionsAsked?: string[];
   formatSessionTime?: (seconds: number) => string;
+  quickActionsRef?: RefObject<QuickActionsRef>;
 }
 
 export function DiagnosticsTab({
@@ -30,6 +31,7 @@ export function DiagnosticsTab({
   sessionSeconds = 0,
   questionsAsked = [],
   formatSessionTime = (s) => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`,
+  quickActionsRef,
 }: DiagnosticsTabProps) {
   const [input, setInput] = useState('');
   const [voiceLanguage, setVoiceLanguage] = useState<'en-US' | 'he-IL'>('en-US');
@@ -48,6 +50,7 @@ export function DiagnosticsTab({
     <div className="flex-1 p-4 space-y-4 overflow-y-auto">
       {/* Quick Actions Bar */}
       <QuickActionsBar
+        ref={quickActionsRef}
         messages={messages}
         sessionSeconds={sessionSeconds}
         selectedPatient={selectedPatient || null}

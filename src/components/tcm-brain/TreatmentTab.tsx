@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, RefObject } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Search, Filter, Send, Bookmark, BookmarkCheck, Pill, Leaf, MapPin, Flame } from 'lucide-react';
-import { QuickActionsBar } from './QuickActionsBar';
+import { QuickActionsBar, QuickActionsRef } from './QuickActionsBar';
 import { Message } from '@/hooks/useTcmBrainState';
 import { SelectedPatient } from '@/components/crm/PatientSelectorDropdown';
 
@@ -48,6 +48,7 @@ interface TreatmentTabProps {
   sessionSeconds?: number;
   questionsAsked?: string[];
   formatSessionTime?: (seconds: number) => string;
+  quickActionsRef?: RefObject<QuickActionsRef>;
 }
 
 export function TreatmentTab({ 
@@ -59,6 +60,7 @@ export function TreatmentTab({
   sessionSeconds = 0,
   questionsAsked = [],
   formatSessionTime = (s) => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`,
+  quickActionsRef,
 }: TreatmentTabProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -107,6 +109,7 @@ export function TreatmentTab({
     <div className="flex-1 p-4 space-y-4 overflow-y-auto">
       {/* Quick Actions Bar */}
       <QuickActionsBar
+        ref={quickActionsRef}
         messages={messages}
         sessionSeconds={sessionSeconds}
         selectedPatient={selectedPatient || null}
