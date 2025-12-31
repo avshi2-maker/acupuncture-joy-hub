@@ -850,6 +850,17 @@ export default function VideoSession() {
     }
   };
 
+  // Reset QA type selection
+  const handleQATypeReset = () => {
+    setSelectedQAType(null);
+    setShowAnxietyQA(false);
+    setShowTcmBrainPanel(false);
+    if (activeAiQuery === 'diagnosis') {
+      setActiveAiQuery(null);
+    }
+    toast.info('Q&A selection reset', { description: 'איפוס בחירת שאלון' });
+  };
+
   // AI Query handler - sends to tcm-rag-chat function
   const handleAiQuery = async (type: 'nutrition' | 'herbs' | 'diagnosis' | 'mental' | 'sleep' | 'worklife' | 'wellness' | 'sports' | 'bazi' | 'astro' | 'points') => {
     if (!aiQueryInput.trim()) {
@@ -1291,14 +1302,13 @@ export default function VideoSession() {
               ]}
             />
             
-            {/* Q&A Type Dropdown - replaces anxiety box */}
-            <div className="shrink-0">
-              <QATypeDropdown 
-                onSelect={handleQATypeSelect}
-                isActive={showAnxietyQA || showTcmBrainPanel}
-                selectedType={selectedQAType}
-              />
-            </div>
+            {/* Q&A Type Dropdown - in main header row */}
+            <QATypeDropdown 
+              onSelect={handleQATypeSelect}
+              onReset={handleQATypeReset}
+              isActive={showAnxietyQA || showTcmBrainPanel}
+              selectedType={selectedQAType}
+            />
           </div>
           
           {/* CAF Asset Boxes - Customizable Toolbar */}
