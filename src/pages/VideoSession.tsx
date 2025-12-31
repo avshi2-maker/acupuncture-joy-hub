@@ -963,15 +963,16 @@ export default function VideoSession() {
               </Link>
             </div>
 
-            {/* Mobile Patient Selector + New Session - Quick access */}
-            <div className="flex md:hidden items-center gap-1.5 flex-1 mx-2">
+            {/* Mobile Quick Access Bar: Patient → History → Start → Record → Settings */}
+            <div className="flex md:hidden items-center gap-1 flex-1 mx-1 overflow-x-auto scrollbar-hide">
+              {/* 1. Patient Selector */}
               <Select
                 value={selectedPatientId || 'none'}
                 onValueChange={handlePatientSelect}
                 disabled={loadingPatients}
               >
-                <SelectTrigger className="flex-1 bg-background h-9 text-sm">
-                  <SelectValue placeholder={loadingPatients ? "טוען..." : "בחר מטופל"} />
+                <SelectTrigger className="w-[110px] bg-background h-8 text-xs shrink-0">
+                  <SelectValue placeholder={loadingPatients ? "טוען..." : "מטופל"} />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border shadow-lg z-50">
                   <SelectItem value="none">ללא מטופל</SelectItem>
@@ -983,34 +984,62 @@ export default function VideoSession() {
                 </SelectContent>
               </Select>
               
-              {/* New Meeting Button - Right after patient for logical flow */}
+              {/* 2. Patient History */}
+              {selectedPatientId && (
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  className="h-8 w-8 shrink-0 touch-manipulation border-blue-300 text-blue-600"
+                  onClick={() => navigate(`/crm/patients/${selectedPatientId}`)}
+                  title="היסטוריית מטופל"
+                >
+                  <Users className="h-4 w-4" />
+                </Button>
+              )}
+              
+              {/* 3. Start/Reset Meeting */}
               {(sessionStatus === 'idle' || sessionStatus === 'ended') ? (
                 <Button 
                   onClick={handleStart}
                   size="sm"
-                  className="h-9 px-3 bg-jade hover:bg-jade/90 gap-1 shrink-0 touch-manipulation"
+                  className="h-8 px-2 bg-jade hover:bg-jade/90 gap-1 shrink-0 touch-manipulation"
                 >
-                  <Play className="h-4 w-4" />
-                  <span className="text-xs">התחל</span>
+                  <Play className="h-3.5 w-3.5" />
+                  <span className="text-[10px]">התחל</span>
                 </Button>
               ) : (
                 <Button 
                   onClick={handleRepeat}
-                  size="sm"
+                  size="icon"
                   variant="outline"
-                  className="h-9 px-2 gap-1 shrink-0 touch-manipulation border-jade text-jade"
+                  className="h-8 w-8 shrink-0 touch-manipulation border-jade text-jade"
+                  title="אפס"
                 >
-                  <RotateCcw className="h-4 w-4" />
+                  <RotateCcw className="h-3.5 w-3.5" />
                 </Button>
               )}
               
+              {/* 4. Record */}
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="h-9 w-9 shrink-0 touch-manipulation" 
+                className="h-8 w-8 shrink-0 touch-manipulation border-rose-300 text-rose-600" 
+                onClick={() => recordingModuleRef.current?.isRecording() 
+                  ? recordingModuleRef.current?.stopRecording() 
+                  : recordingModuleRef.current?.startRecording()}
+                title="הקלטה"
+              >
+                <Video className="h-3.5 w-3.5" />
+              </Button>
+              
+              {/* 5. Settings */}
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-8 w-8 shrink-0 touch-manipulation" 
                 onClick={() => setShowSettings(true)}
               >
-                <Settings className="h-4 w-4" />
+                <Settings className="h-3.5 w-3.5" />
               </Button>
             </div>
 
@@ -1064,10 +1093,31 @@ export default function VideoSession() {
           />
         </div>
 
-        {/* Header Boxes with Circular Icons */}
+        {/* Header Boxes with Circular Icons - Reorganized */}
         <div className="px-3 md:px-4 pt-2 md:pt-4 pb-2 border-b bg-gradient-to-b from-jade/5 to-transparent">
           <VideoSessionHeaderBoxes
             boxes={[
+              // CRM: Calendar
+              {
+                id: 'calendar',
+                name: 'Calendar',
+                nameHe: 'יומן',
+                icon: Calendar,
+                color: 'text-blue-600',
+                borderColor: 'border-blue-300',
+                onClick: () => navigate('/crm/calendar'),
+              },
+              // CRM: New Appointment
+              {
+                id: 'appointment',
+                name: 'Appoint',
+                nameHe: 'תור חדש',
+                icon: CalendarPlus,
+                color: 'text-emerald-600',
+                borderColor: 'border-emerald-300',
+                onClick: () => setShowQuickAppointment(true),
+              },
+              // Session Guide
               {
                 id: 'guide',
                 name: 'Guide',
@@ -1078,6 +1128,7 @@ export default function VideoSession() {
                 isActive: showSessionGuide,
                 onClick: () => setShowSessionGuide(!showSessionGuide),
               },
+              // AI Tips
               {
                 id: 'ai-tips',
                 name: 'AI Tips',
@@ -1088,6 +1139,7 @@ export default function VideoSession() {
                 isActive: showAISuggestions,
                 onClick: () => setShowAISuggestions(!showAISuggestions),
               },
+              // Anxiety Q&A
               {
                 id: 'qa',
                 name: 'Q&A',
@@ -1098,6 +1150,7 @@ export default function VideoSession() {
                 isActive: showAnxietyQA,
                 onClick: () => setShowAnxietyQA(true),
               },
+              // CM Brain
               {
                 id: 'cm-brain',
                 name: 'CM Brain',
@@ -1107,6 +1160,7 @@ export default function VideoSession() {
                 borderColor: 'border-blue-300',
                 onClick: () => navigate('/cm-brain-questions'),
               },
+              // Report
               {
                 id: 'report',
                 name: 'Report',
@@ -1116,6 +1170,7 @@ export default function VideoSession() {
                 borderColor: 'border-indigo-300',
                 onClick: () => setShowSessionReport(true),
               },
+              // Accessibility
               {
                 id: 'accessibility',
                 name: 'Access',
@@ -1132,6 +1187,7 @@ export default function VideoSession() {
                   });
                 },
               },
+              // Music
               {
                 id: 'music',
                 name: 'Music',

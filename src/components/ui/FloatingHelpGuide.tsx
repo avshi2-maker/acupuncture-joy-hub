@@ -377,21 +377,23 @@ export function FloatingHelpGuide({ isOpen: controlledIsOpen, onOpenChange }: Fl
 
   return (
     <>
-      {/* Floating Help Button - only show when not controlled from header */}
+      {/* Floating Help Button - positioned near clock on desktop, top-right on mobile */}
       {showFloatingButton && (
         <Button
           onClick={() => setIsOpen(true)}
           className={cn(
-            'fixed top-20 right-4 z-40 h-12 w-12 rounded-full shadow-lg',
+            'fixed z-40 h-10 w-10 md:h-12 md:w-12 rounded-full shadow-lg',
             'bg-gradient-to-br from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600',
             'transition-all duration-300 hover:scale-110',
             'animate-pulse hover:animate-none',
+            // Mobile: top right corner, Desktop: near clock (center-ish, offset left)
+            'top-16 right-2 md:top-3 md:right-auto md:left-[calc(50%-80px)]',
             isOpen && 'hidden'
           )}
           size="icon"
           title="עזרה / Help (Alt+?)"
         >
-          <HelpCircle className="h-6 w-6 text-amber-900" />
+          <HelpCircle className="h-5 w-5 md:h-6 md:w-6 text-amber-900" />
         </Button>
       )}
 
