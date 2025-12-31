@@ -25,9 +25,8 @@ import { BodyMapTab } from '@/components/tcm-brain/BodyMapTab';
 import { SessionNotesTab } from '@/components/tcm-brain/SessionNotesTab';
 import { PatientHistoryTab } from '@/components/tcm-brain/PatientHistoryTab';
 import { PatientSelectorDropdown } from '@/components/crm/PatientSelectorDropdown';
-import { TcmBrainVoiceCommands, TcmVoiceCommand } from '@/components/tcm-brain/TcmBrainVoiceCommands';
+import { TcmBrainToolbar, TcmVoiceCommand } from '@/components/tcm-brain/TcmBrainToolbar';
 import { KnowledgeAssetTabs, detectActiveAssets } from '@/components/tcm-brain/KnowledgeAssetTabs';
-import { TcmBrainToolbar } from '@/components/tcm-brain/TcmBrainToolbar';
 import { QuickActionBoxes } from '@/components/tcm-brain/QuickActionBoxes';
 import { IntakeReviewDialog } from '@/components/tcm-brain/IntakeReviewDialog';
 import { QuickActionsRef } from '@/components/tcm-brain/QuickActionsBar';
@@ -269,6 +268,8 @@ export default function TcmBrain() {
           onExport={() => quickActionsRef.current?.exportSession()}
           onPrint={() => quickActionsRef.current?.printReport()}
           onShare={() => quickActionsRef.current?.shareWhatsApp()}
+          onVoiceCommand={handleVoiceCommand}
+          isSessionActive={sessionStatus === 'running'}
         />
 
         <main className="flex-1 container mx-auto px-4 py-4">
@@ -414,12 +415,6 @@ export default function TcmBrain() {
             </div>
           </Tabs>
         </main>
-
-        {/* Voice Commands */}
-        <TcmBrainVoiceCommands 
-          onCommand={handleVoiceCommand}
-          isSessionActive={sessionStatus === 'running'}
-        />
       </div>
     </>
   );
