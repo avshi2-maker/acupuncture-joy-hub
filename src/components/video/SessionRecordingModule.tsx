@@ -1,0 +1,839 @@
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { 
+  Mic, 
+  MicOff, 
+  Circle, 
+  Square, 
+  Play, 
+  Pause, 
+  Save, 
+  Download,
+  Trash2,
+  Loader2,
+  Radio,
+  FileText,
+  Clock,
+  Sparkles,
+  ExternalLink,
+  Settings2
+} from 'lucide-react';
+import { AnimatedMic } from '@/components/ui/AnimatedMic';
+import { AudioLevelMeter } from '@/components/ui/AudioLevelMeter';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { TimelessIntegration } from './TimelessIntegration';
+
+interface SessionRecordingModuleProps {
+  patientId?: string;
+  patientName?: string;
+  videoSessionId?: string;
+  onTranscriptionUpdate?: (transcription: string) => void;
+  onRecordingSaved?: (audioUrl: string, transcription: string) => void;
+}
+
+type RecordingMode = 'full-session' | 'voice-notes' | 'live-transcription';
+
+interface VoiceNote {
+  id: string;
+  blob: Blob;
+  url: string;
+  duration: number;
+  transcription?: string;
+  timestamp: Date;
+}
+
+export function SessionRecordingModule({
+  patientId,
+  patientName,
+  videoSessionId,
+  onTranscriptionUpdate,
+  onRecordingSaved,
+}: SessionRecordingModuleProps) {
+  const { user } = useAuth();
+  const [activeMode, setActiveMode] = useState<RecordingMode>('voice-notes');
+  const [showTimelessSettings, setShowTimelessSettings] = useState(false);
+  
+  // Full session recording state
+  const [isRecordingSession, setIsRecordingSession] = useState(false);
+  const [sessionBlob, setSessionBlob] = useState<Blob | null>(null);
+  const [sessionUrl, setSessionUrl] = useState<string | null>(null);
+  const [sessionDuration, setSessionDuration] = useState(0);
+  const [sessionTranscription, setSessionTranscription] = useState('');
+  const [isTranscribingSession, setIsTranscribingSession] = useState(false);
+  
+  // Voice notes state
+  const [voiceNotes, setVoiceNotes] = useState<VoiceNote[]>([]);
+  const [isRecordingNote, setIsRecordingNote] = useState(false);
+  const [noteDuration, setNoteDuration] = useState(0);
+  
+  // Live transcription state
+  const [isLiveTranscribing, setIsLiveTranscribing] = useState(false);
+  const [liveTranscript, setLiveTranscript] = useState('');
+  const [partialTranscript, setPartialTranscript] = useState('');
+  const [committedTranscripts, setCommittedTranscripts] = useState<string[]>([]);
+  
+  // Playback state
+  const [playingNoteId, setPlayingNoteId] = useState<string | null>(null);
+  const [isPlayingSession, setIsPlayingSession] = useState(false);
+  
+  // Media refs
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const webSocketRef = useRef<WebSocket | null>(null);
+  
+  // Saving state
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
+      if (webSocketRef.current) webSocketRef.current.close();
+      voiceNotes.forEach(note => URL.revokeObjectURL(note.url));
+      if (sessionUrl) URL.revokeObjectURL(sessionUrl);
+    };
+  }, []);
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // ============================================
+  // FULL SESSION RECORDING
+  // ============================================
+  const startSessionRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        } 
+      });
+      setMediaStream(stream);
+      
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        setSessionBlob(blob);
+        setSessionUrl(URL.createObjectURL(blob));
+        stream.getTracks().forEach(track => track.stop());
+        setMediaStream(null);
+      };
+
+      // Record in chunks for long sessions
+      mediaRecorder.start(10000); // 10 second chunks
+      setIsRecordingSession(true);
+      setSessionDuration(0);
+
+      timerRef.current = setInterval(() => {
+        setSessionDuration(prev => prev + 1);
+      }, 1000);
+
+      toast.success('הקלטת פגישה מלאה התחילה');
+    } catch (error) {
+      console.error('Error starting session recording:', error);
+      toast.error('לא ניתן להתחיל הקלטה. בדוק הרשאות מיקרופון.');
+    }
+  }, []);
+
+  const stopSessionRecording = useCallback(() => {
+    if (mediaRecorderRef.current && isRecordingSession) {
+      mediaRecorderRef.current.stop();
+      setIsRecordingSession(false);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      toast.success('הקלטת הפגישה הסתיימה');
+    }
+  }, [isRecordingSession]);
+
+  const transcribeSession = async () => {
+    if (!sessionBlob) return;
+
+    setIsTranscribingSession(true);
+    try {
+      const reader = new FileReader();
+      const base64Audio = await new Promise<string>((resolve, reject) => {
+        reader.onloadend = () => {
+          const base64 = (reader.result as string).split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(sessionBlob);
+      });
+
+      const { data, error } = await supabase.functions.invoke('voice-to-text', {
+        body: { audio: base64Audio },
+      });
+
+      if (error) throw error;
+
+      if (data?.text) {
+        setSessionTranscription(data.text);
+        onTranscriptionUpdate?.(data.text);
+        toast.success('תמלול הפגישה הושלם');
+      }
+    } catch (error) {
+      console.error('Transcription error:', error);
+      toast.error('שגיאה בתמלול. נסה שוב.');
+    } finally {
+      setIsTranscribingSession(false);
+    }
+  };
+
+  // ============================================
+  // VOICE NOTES
+  // ============================================
+  const startVoiceNote = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setMediaStream(stream);
+      
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const newNote: VoiceNote = {
+          id: `note_${Date.now()}`,
+          blob,
+          url: URL.createObjectURL(blob),
+          duration: noteDuration,
+          timestamp: new Date(),
+        };
+        setVoiceNotes(prev => [...prev, newNote]);
+        stream.getTracks().forEach(track => track.stop());
+        setMediaStream(null);
+        setNoteDuration(0);
+      };
+
+      mediaRecorder.start();
+      setIsRecordingNote(true);
+      setNoteDuration(0);
+
+      timerRef.current = setInterval(() => {
+        setNoteDuration(prev => prev + 1);
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error starting voice note:', error);
+      toast.error('לא ניתן להתחיל הקלטה');
+    }
+  }, [noteDuration]);
+
+  const stopVoiceNote = useCallback(() => {
+    if (mediaRecorderRef.current && isRecordingNote) {
+      mediaRecorderRef.current.stop();
+      setIsRecordingNote(false);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+  }, [isRecordingNote]);
+
+  const transcribeVoiceNote = async (noteId: string) => {
+    const note = voiceNotes.find(n => n.id === noteId);
+    if (!note) return;
+
+    try {
+      const reader = new FileReader();
+      const base64Audio = await new Promise<string>((resolve, reject) => {
+        reader.onloadend = () => {
+          const base64 = (reader.result as string).split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(note.blob);
+      });
+
+      const { data, error } = await supabase.functions.invoke('voice-to-text', {
+        body: { audio: base64Audio },
+      });
+
+      if (error) throw error;
+
+      if (data?.text) {
+        setVoiceNotes(prev => prev.map(n => 
+          n.id === noteId ? { ...n, transcription: data.text } : n
+        ));
+        toast.success('תמלול הושלם');
+      }
+    } catch (error) {
+      console.error('Transcription error:', error);
+      toast.error('שגיאה בתמלול');
+    }
+  };
+
+  const deleteVoiceNote = (noteId: string) => {
+    setVoiceNotes(prev => {
+      const note = prev.find(n => n.id === noteId);
+      if (note) URL.revokeObjectURL(note.url);
+      return prev.filter(n => n.id !== noteId);
+    });
+    if (playingNoteId === noteId) {
+      audioElementRef.current?.pause();
+      setPlayingNoteId(null);
+    }
+  };
+
+  const playVoiceNote = (noteId: string) => {
+    const note = voiceNotes.find(n => n.id === noteId);
+    if (!note) return;
+
+    if (playingNoteId === noteId) {
+      audioElementRef.current?.pause();
+      setPlayingNoteId(null);
+      return;
+    }
+
+    if (audioElementRef.current) {
+      audioElementRef.current.pause();
+    }
+
+    audioElementRef.current = new Audio(note.url);
+    audioElementRef.current.onended = () => setPlayingNoteId(null);
+    audioElementRef.current.play();
+    setPlayingNoteId(noteId);
+  };
+
+  // ============================================
+  // LIVE TRANSCRIPTION (ElevenLabs Scribe)
+  // ============================================
+  const startLiveTranscription = useCallback(async () => {
+    try {
+      // Get token from edge function
+      const { data, error } = await supabase.functions.invoke('elevenlabs-scribe-token');
+      
+      if (error || !data?.token) {
+        throw new Error('Failed to get transcription token');
+      }
+
+      // Get microphone access
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          sampleRate: 16000,
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+        } 
+      });
+      setMediaStream(stream);
+
+      // Create WebSocket connection to ElevenLabs
+      const ws = new WebSocket(`wss://api.elevenlabs.io/v1/scribe/realtime?token=${data.token}`);
+      webSocketRef.current = ws;
+
+      ws.onopen = () => {
+        console.log('ElevenLabs Scribe connected');
+        setIsLiveTranscribing(true);
+        toast.success('תמלול חי התחיל');
+
+        // Send initial configuration
+        ws.send(JSON.stringify({
+          type: 'config',
+          model_id: 'scribe_v2_realtime',
+          language: 'he', // Hebrew
+          commit_strategy: 'vad', // Voice Activity Detection
+        }));
+
+        // Start sending audio data
+        const audioContext = new AudioContext({ sampleRate: 16000 });
+        const source = audioContext.createMediaStreamSource(stream);
+        const processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+        processor.onaudioprocess = (e) => {
+          if (ws.readyState === WebSocket.OPEN) {
+            const inputData = e.inputBuffer.getChannelData(0);
+            // Convert to 16-bit PCM
+            const int16Array = new Int16Array(inputData.length);
+            for (let i = 0; i < inputData.length; i++) {
+              const s = Math.max(-1, Math.min(1, inputData[i]));
+              int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+            }
+            
+            // Convert to base64
+            const uint8Array = new Uint8Array(int16Array.buffer);
+            let binary = '';
+            const chunkSize = 0x8000;
+            for (let i = 0; i < uint8Array.length; i += chunkSize) {
+              const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
+              binary += String.fromCharCode.apply(null, Array.from(chunk));
+            }
+            const base64Audio = btoa(binary);
+            
+            ws.send(JSON.stringify({
+              type: 'audio',
+              audio: base64Audio,
+            }));
+          }
+        };
+
+        source.connect(processor);
+        processor.connect(audioContext.destination);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          
+          if (data.type === 'partial_transcript') {
+            setPartialTranscript(data.text || '');
+          } else if (data.type === 'committed_transcript') {
+            const text = data.text || '';
+            if (text.trim()) {
+              setCommittedTranscripts(prev => [...prev, text]);
+              setLiveTranscript(prev => prev + ' ' + text);
+              onTranscriptionUpdate?.(liveTranscript + ' ' + text);
+            }
+            setPartialTranscript('');
+          }
+        } catch (err) {
+          console.error('Error parsing WebSocket message:', err);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        toast.error('שגיאה בחיבור לשירות תמלול');
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket closed');
+        setIsLiveTranscribing(false);
+        stream.getTracks().forEach(track => track.stop());
+        setMediaStream(null);
+      };
+
+    } catch (error) {
+      console.error('Error starting live transcription:', error);
+      toast.error('לא ניתן להתחיל תמלול חי');
+    }
+  }, [liveTranscript, onTranscriptionUpdate]);
+
+  const stopLiveTranscription = useCallback(() => {
+    if (webSocketRef.current) {
+      webSocketRef.current.close();
+      webSocketRef.current = null;
+    }
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop());
+      setMediaStream(null);
+    }
+    setIsLiveTranscribing(false);
+  }, [mediaStream]);
+
+  // ============================================
+  // SAVE ALL
+  // ============================================
+  const saveAllRecordings = async () => {
+    if (!user) {
+      toast.error('יש להתחבר כדי לשמור');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      // Save session recording if exists
+      if (sessionBlob) {
+        const fileName = `${user.id}/${Date.now()}_full_session.webm`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('voice-recordings')
+          .upload(fileName, sessionBlob, { contentType: 'audio/webm' });
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('voice-recordings')
+          .getPublicUrl(fileName);
+
+        await supabase.from('voice_recordings').insert({
+          therapist_id: user.id,
+          patient_id: patientId || null,
+          video_session_id: videoSessionId || null,
+          audio_url: urlData.publicUrl,
+          transcription: sessionTranscription || null,
+          recording_type: 'full_session',
+          duration_seconds: sessionDuration,
+        });
+
+        onRecordingSaved?.(urlData.publicUrl, sessionTranscription);
+      }
+
+      // Save voice notes
+      for (const note of voiceNotes) {
+        const fileName = `${user.id}/${Date.now()}_voice_note_${note.id}.webm`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('voice-recordings')
+          .upload(fileName, note.blob, { contentType: 'audio/webm' });
+
+        if (uploadError) continue;
+
+        const { data: urlData } = supabase.storage
+          .from('voice-recordings')
+          .getPublicUrl(fileName);
+
+        await supabase.from('voice_recordings').insert({
+          therapist_id: user.id,
+          patient_id: patientId || null,
+          video_session_id: videoSessionId || null,
+          audio_url: urlData.publicUrl,
+          transcription: note.transcription || null,
+          recording_type: 'voice_note',
+          duration_seconds: note.duration,
+        });
+      }
+
+      // Save live transcription as text
+      if (liveTranscript.trim()) {
+        await supabase.from('voice_recordings').insert({
+          therapist_id: user.id,
+          patient_id: patientId || null,
+          video_session_id: videoSessionId || null,
+          audio_url: '', // No audio for live transcription
+          transcription: liveTranscript,
+          recording_type: 'live_transcription',
+          duration_seconds: 0,
+        });
+      }
+
+      toast.success('כל ההקלטות נשמרו בהצלחה');
+    } catch (error) {
+      console.error('Error saving recordings:', error);
+      toast.error('שגיאה בשמירת ההקלטות');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <Card className="w-full">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Mic className="h-5 w-5 text-jade" />
+            הקלטת פגישה
+            {patientName && (
+              <Badge variant="secondary" className="mr-2">
+                {patientName}
+              </Badge>
+            )}
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowTimelessSettings(true)}
+            className="gap-1 text-muted-foreground"
+          >
+            <Settings2 className="h-4 w-4" />
+            Timeless.day
+          </Button>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        <Tabs value={activeMode} onValueChange={(v) => setActiveMode(v as RecordingMode)}>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="voice-notes" className="gap-1 text-xs">
+              <Mic className="h-3 w-3" />
+              הערות קוליות
+            </TabsTrigger>
+            <TabsTrigger value="full-session" className="gap-1 text-xs">
+              <Circle className="h-3 w-3" />
+              הקלטה מלאה
+            </TabsTrigger>
+            <TabsTrigger value="live-transcription" className="gap-1 text-xs">
+              <Radio className="h-3 w-3" />
+              תמלול חי
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Voice Notes Tab */}
+          <TabsContent value="voice-notes" className="space-y-4 mt-4">
+            <div className="flex flex-col items-center gap-4 p-4 bg-muted/50 rounded-lg">
+              {isRecordingNote ? (
+                <>
+                  <AnimatedMic size="xl" isRecording={true} />
+                  <div className="text-2xl font-mono text-jade">
+                    {formatDuration(noteDuration)}
+                  </div>
+                  {mediaStream && (
+                    <AudioLevelMeter stream={mediaStream} isRecording={true} variant="bars" />
+                  )}
+                  <Button onClick={stopVoiceNote} variant="destructive" className="gap-2">
+                    <Square className="h-4 w-4" />
+                    סיים הקלטה
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={startVoiceNote} className="gap-2 bg-jade hover:bg-jade/90">
+                  <Mic className="h-4 w-4" />
+                  הקלט הערה קולית
+                </Button>
+              )}
+            </div>
+
+            {voiceNotes.length > 0 && (
+              <ScrollArea className="h-48">
+                <div className="space-y-2">
+                  {voiceNotes.map((note, index) => (
+                    <div 
+                      key={note.id} 
+                      className="flex items-center gap-2 p-2 bg-background border rounded-lg"
+                    >
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => playVoiceNote(note.id)}
+                      >
+                        {playingNoteId === note.id ? (
+                          <Pause className="h-4 w-4" />
+                        ) : (
+                          <Play className="h-4 w-4" />
+                        )}
+                      </Button>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">הערה #{index + 1}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {formatDuration(note.duration)}
+                          </Badge>
+                        </div>
+                        {note.transcription && (
+                          <p className="text-xs text-muted-foreground truncate">
+                            {note.transcription}
+                          </p>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => transcribeVoiceNote(note.id)}
+                        disabled={!!note.transcription}
+                      >
+                        <FileText className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteVoiceNote(note.id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
+          </TabsContent>
+
+          {/* Full Session Tab */}
+          <TabsContent value="full-session" className="space-y-4 mt-4">
+            <div className="flex flex-col items-center gap-4 p-4 bg-muted/50 rounded-lg">
+              <div className="text-3xl font-mono text-jade">
+                {formatDuration(sessionDuration)}
+              </div>
+              
+              {isRecordingSession ? (
+                <>
+                  <AnimatedMic size="xl" isRecording={true} />
+                  {mediaStream && (
+                    <AudioLevelMeter stream={mediaStream} isRecording={true} variant="wave" />
+                  )}
+                  <Badge variant="destructive" className="animate-pulse">
+                    <Circle className="h-2 w-2 mr-1 fill-current" />
+                    מקליט פגישה מלאה
+                  </Badge>
+                  <Button onClick={stopSessionRecording} variant="destructive" className="gap-2">
+                    <Square className="h-4 w-4" />
+                    סיים הקלטה
+                  </Button>
+                </>
+              ) : sessionBlob ? (
+                <div className="flex flex-col items-center gap-3 w-full">
+                  <Badge variant="secondary">
+                    <Clock className="h-3 w-3 mr-1" />
+                    הקלטה של {formatDuration(sessionDuration)}
+                  </Badge>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        if (audioElementRef.current) {
+                          audioElementRef.current.pause();
+                        }
+                        audioElementRef.current = new Audio(sessionUrl!);
+                        audioElementRef.current.onended = () => setIsPlayingSession(false);
+                        if (isPlayingSession) {
+                          audioElementRef.current.pause();
+                          setIsPlayingSession(false);
+                        } else {
+                          audioElementRef.current.play();
+                          setIsPlayingSession(true);
+                        }
+                      }}
+                    >
+                      {isPlayingSession ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={transcribeSession}
+                      disabled={isTranscribingSession}
+                      className="gap-1"
+                    >
+                      {isTranscribingSession ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-4 w-4" />
+                      )}
+                      תמלל
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        if (sessionUrl) {
+                          const a = document.createElement('a');
+                          a.href = sessionUrl;
+                          a.download = `session_${Date.now()}.webm`;
+                          a.click();
+                        }
+                      }}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {sessionTranscription && (
+                    <Textarea
+                      value={sessionTranscription}
+                      onChange={(e) => setSessionTranscription(e.target.value)}
+                      placeholder="תמלול הפגישה..."
+                      rows={4}
+                      className="w-full"
+                    />
+                  )}
+                </div>
+              ) : (
+                <Button onClick={startSessionRecording} className="gap-2 bg-jade hover:bg-jade/90">
+                  <Circle className="h-4 w-4" />
+                  התחל הקלטת פגישה מלאה
+                </Button>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Live Transcription Tab */}
+          <TabsContent value="live-transcription" className="space-y-4 mt-4">
+            <div className="flex flex-col items-center gap-4 p-4 bg-muted/50 rounded-lg">
+              {isLiveTranscribing ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <Radio className="h-5 w-5 text-red-500 animate-pulse" />
+                    <span className="text-sm font-medium">תמלול חי פעיל</span>
+                  </div>
+                  {mediaStream && (
+                    <AudioLevelMeter stream={mediaStream} isRecording={true} variant="circle" />
+                  )}
+                  <Button onClick={stopLiveTranscription} variant="destructive" className="gap-2">
+                    <MicOff className="h-4 w-4" />
+                    עצור תמלול
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={startLiveTranscription} className="gap-2 bg-jade hover:bg-jade/90">
+                  <Radio className="h-4 w-4" />
+                  התחל תמלול חי
+                </Button>
+              )}
+            </div>
+
+            {(liveTranscript || partialTranscript) && (
+              <div className="space-y-2">
+                <ScrollArea className="h-40 border rounded-lg p-3 bg-background">
+                  <p className="text-sm whitespace-pre-wrap" dir="rtl">
+                    {liveTranscript}
+                    {partialTranscript && (
+                      <span className="text-muted-foreground italic"> {partialTranscript}</span>
+                    )}
+                  </p>
+                </ScrollArea>
+                <div className="flex justify-end">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setLiveTranscript('');
+                      setCommittedTranscripts([]);
+                      setPartialTranscript('');
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    נקה
+                  </Button>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {/* Save Button */}
+        {(sessionBlob || voiceNotes.length > 0 || liveTranscript) && (
+          <Button 
+            onClick={saveAllRecordings} 
+            disabled={isSaving}
+            className="w-full gap-2 bg-jade hover:bg-jade/90"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                שומר...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                שמור את כל ההקלטות
+              </>
+            )}
+          </Button>
+        )}
+      </CardContent>
+
+      {/* Timeless.day Integration Dialog */}
+      <TimelessIntegration
+        open={showTimelessSettings}
+        onOpenChange={setShowTimelessSettings}
+      />
+    </Card>
+  );
+}
