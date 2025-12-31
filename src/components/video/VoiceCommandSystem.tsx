@@ -18,7 +18,10 @@ type VoiceCommand =
   | 'reset' 
   | 'timestamp' 
   | 'feeling-better' 
-  | 'needs-followup';
+  | 'needs-followup'
+  | 'start-recording'
+  | 'stop-recording'
+  | 'generate-summary';
 
 const VOICE_COMMANDS: Record<string, VoiceCommand> = {
   'start': 'start',
@@ -43,6 +46,19 @@ const VOICE_COMMANDS: Record<string, VoiceCommand> = {
   'needs follow up': 'needs-followup',
   'follow up': 'needs-followup',
   'followup': 'needs-followup',
+  // Recording commands
+  'start recording': 'start-recording',
+  'begin recording': 'start-recording',
+  'record': 'start-recording',
+  'stop recording': 'stop-recording',
+  'end recording': 'stop-recording',
+  'finish recording': 'stop-recording',
+  // Summary commands
+  'generate summary': 'generate-summary',
+  'create summary': 'generate-summary',
+  'summary': 'generate-summary',
+  'summarize': 'generate-summary',
+  'ai summary': 'generate-summary',
 };
 
 export function VoiceCommandSystem({ 

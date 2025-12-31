@@ -82,7 +82,7 @@ import { VoiceCommandSystem } from '@/components/video/VoiceCommandSystem';
 import { SessionPresets } from '@/components/video/SessionPresets';
 import { useThreeFingerTap } from '@/hooks/useThreeFingerTap';
 import { PatientHistoryPanel } from '@/components/video/PatientHistoryPanel';
-import { SessionRecordingModule } from '@/components/video/SessionRecordingModule';
+import { SessionRecordingModule, SessionRecordingModuleRef } from '@/components/video/SessionRecordingModule';
 import { FloatingQuickActions } from '@/components/video/FloatingQuickActions';
 import { CustomizableToolbar, ToolbarItemId } from '@/components/video/CustomizableToolbar';
 import { useLongPressTimer } from '@/hooks/useLongPressTimer';
@@ -129,6 +129,9 @@ export default function VideoSession() {
   const warningShownRef = useRef(false);
   const alert30ShownRef = useRef(false);
   const alert35ShownRef = useRef(false);
+  
+  // Recording module ref for voice commands
+  const recordingModuleRef = useRef<SessionRecordingModuleRef>(null);
   
   // Haptic feedback hook
   const haptic = useHapticFeedback();
@@ -354,8 +357,31 @@ export default function VideoSession() {
         setNotes(sessionNotes + `\n⚠️ Patient needs follow-up`);
         toast.success('Status tag added');
         break;
+      // Recording voice commands
+      case 'start-recording':
+        if (recordingModuleRef.current && !recordingModuleRef.current.isRecording()) {
+          recordingModuleRef.current.startRecording();
+          toast.success('🎙️ Recording started via voice command');
+        } else if (recordingModuleRef.current?.isRecording()) {
+          toast.info('Recording already in progress');
+        }
+        break;
+      case 'stop-recording':
+        if (recordingModuleRef.current?.isRecording()) {
+          recordingModuleRef.current.stopRecording();
+          toast.success('⏹️ Recording stopped via voice command');
+        } else {
+          toast.info('No recording in progress');
+        }
+        break;
+      case 'generate-summary':
+        if (recordingModuleRef.current) {
+          recordingModuleRef.current.generateSummary();
+          toast.success('🧠 Generating AI summary via voice command');
+        }
+        break;
     }
-  }, [sessionStatus, sessionDuration, sessionNotes, startSession, endSession, pauseSession, resumeSession, resetSession, setNotes]);
+  }, [sessionStatus, sessionDuration, sessionNotes, startSession, endSession, pauseSession, resumeSession, resetSession, setNotes, pauseLock, resumeLock]);
 
   // Check access
   // Clock update effect
@@ -1209,6 +1235,7 @@ export default function VideoSession() {
 
               {/* Session Recording Module */}
               <SessionRecordingModule
+                ref={recordingModuleRef}
                 patientId={selectedPatientId || undefined}
                 patientName={selectedPatientName || undefined}
                 onTranscriptionUpdate={(text) => setNotes(sessionNotes + '\n' + text)}

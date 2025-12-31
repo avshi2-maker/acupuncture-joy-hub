@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -57,6 +57,14 @@ interface SessionRecordingModuleProps {
   onRecordingSaved?: (audioUrl: string, transcription: string) => void;
 }
 
+// Exposed methods for voice command control
+export interface SessionRecordingModuleRef {
+  startRecording: () => void;
+  stopRecording: () => void;
+  generateSummary: () => void;
+  isRecording: () => boolean;
+}
+
 type RecordingMode = 'full-session' | 'voice-notes' | 'live-transcription';
 
 interface VoiceNote {
@@ -68,13 +76,13 @@ interface VoiceNote {
   timestamp: Date;
 }
 
-export function SessionRecordingModule({
+export const SessionRecordingModule = forwardRef<SessionRecordingModuleRef, SessionRecordingModuleProps>(({
   patientId,
   patientName,
   videoSessionId,
   onTranscriptionUpdate,
   onRecordingSaved,
-}: SessionRecordingModuleProps) {
+}, ref) => {
   const { user } = useAuth();
   const [activeMode, setActiveMode] = useState<RecordingMode>('voice-notes');
   
@@ -138,6 +146,39 @@ export function SessionRecordingModule({
   const [sessionSummary, setSessionSummary] = useState('');
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [showSummaryDialog, setShowSummaryDialog] = useState(false);
+
+  // Expose methods for voice command control
+  useImperativeHandle(ref, () => ({
+    startRecording: () => {
+      if (!isLiveTranscribing && !isRecordingSession) {
+        // Default to live transcription for voice commands
+        setActiveMode('live-transcription');
+        // Will be called after mode change
+        setTimeout(() => {
+          if (!isLiveTranscribing) {
+            startLiveTranscriptionRef.current?.();
+          }
+        }, 100);
+      }
+    },
+    stopRecording: () => {
+      if (isLiveTranscribing) {
+        stopLiveTranscriptionRef.current?.();
+      } else if (isRecordingSession) {
+        stopSessionRecordingRef.current?.();
+      }
+    },
+    generateSummary: () => {
+      generateSummaryRef.current?.();
+    },
+    isRecording: () => isLiveTranscribing || isRecordingSession,
+  }), [isLiveTranscribing, isRecordingSession]);
+
+  // Refs to hold latest function references for useImperativeHandle
+  const startLiveTranscriptionRef = useRef<(() => void) | null>(null);
+  const stopLiveTranscriptionRef = useRef<(() => void) | null>(null);
+  const stopSessionRecordingRef = useRef<(() => void) | null>(null);
+  const generateSummaryRef = useRef<(() => void) | null>(null);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -681,6 +722,12 @@ export function SessionRecordingModule({
     liveSessionStartRef.current = null;
   }, [mediaStream]);
 
+  // Keep refs in sync with latest functions for voice command control
+  useEffect(() => {
+    startLiveTranscriptionRef.current = startLiveTranscription;
+    stopLiveTranscriptionRef.current = stopLiveTranscription;
+  }, [startLiveTranscription, stopLiveTranscription]);
+
   // ============================================
   // SPEAKER CORRECTION & EXPORT
   // ============================================
@@ -819,8 +866,17 @@ export function SessionRecordingModule({
     }
   };
 
+  // Keep generateSummary ref in sync
+  useEffect(() => {
+    generateSummaryRef.current = generateSessionSummary;
+  }, [committedTranscripts, sessionTranscription, liveTranscript, patientName, sessionDuration]);
+
+  // Keep stopSessionRecording ref in sync
+  useEffect(() => {
+    stopSessionRecordingRef.current = stopSessionRecording;
+  }, [stopSessionRecording]);
+
   // ============================================
-  // SAVE ALL
   // ============================================
   const saveAllRecordings = async () => {
     if (!user) {
@@ -1568,4 +1624,6 @@ export function SessionRecordingModule({
       </Dialog>
     </Card>
   );
-}
+});
+
+SessionRecordingModule.displayName = 'SessionRecordingModule';
