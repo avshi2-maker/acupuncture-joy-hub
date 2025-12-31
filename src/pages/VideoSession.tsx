@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -127,6 +127,7 @@ const ZOOM_WARNING_SECONDS = 35 * 60;
 
 export default function VideoSession() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { tier, hasFeature } = useTier();
   const { user } = useAuth();
   const { pauseLock, resumeLock, isPaused: isLockPaused } = useSessionLock();
@@ -577,6 +578,20 @@ export default function VideoSession() {
   useEffect(() => {
     fetchPatients();
   }, [fetchPatients]);
+
+  // Handle newPatientId from URL param (after creating new patient from intake form)
+  useEffect(() => {
+    const newPatientId = searchParams.get('newPatientId');
+    if (newPatientId && patients.length > 0) {
+      const patient = patients.find(p => p.id === newPatientId);
+      if (patient) {
+        setPatient({ id: patient.id, name: patient.full_name, phone: patient.phone || undefined });
+        toast.success(`${patient.full_name} נבחר אוטומטית`);
+        // Clear the param from URL
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [patients, searchParams, setPatient, setSearchParams]);
 
   // Zoom warning
   useEffect(() => {
@@ -1620,7 +1635,7 @@ export default function VideoSession() {
                     variant="outline" 
                     size="sm" 
                     className="w-full gap-1 h-8 text-xs" 
-                    onClick={() => navigate('/crm/patients/new')}
+                    onClick={() => navigate('/crm/patients/new?returnTo=/video-session')}
                   >
                     <UserPlus className="h-3 w-3" />
                     הוסף מטופל חדש

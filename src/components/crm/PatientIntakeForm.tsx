@@ -147,9 +147,10 @@ function getAgeGroup(dob: string): 'child' | 'teen' | 'adult' | 'senior' {
 interface PatientIntakeFormProps {
   patientId?: string;
   onSuccess?: () => void;
+  returnTo?: string; // e.g. '/video-session' to show back button
 }
 
-export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormProps) {
+export function PatientIntakeForm({ patientId, onSuccess, returnTo }: PatientIntakeFormProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -1529,32 +1530,51 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
               Where would you like to go next?
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-4 pt-4">
-            <Button
-              variant="outline"
-              className="h-24 flex-col gap-2"
-              onClick={() => {
-                setShowNavigationDialog(false);
-                navigate('/crm/calendar');
-              }}
-            >
-              <Calendar className="h-8 w-8 text-gold" />
-              <span>Calendar</span>
-            </Button>
-            <Button
-              className="h-24 flex-col gap-2 bg-jade hover:bg-jade/90"
-              onClick={() => {
-                setShowNavigationDialog(false);
-                if (savedPatientId) {
-                  navigate(`/tcm-brain?patientId=${savedPatientId}`);
-                } else {
-                  navigate('/tcm-brain');
-                }
-              }}
-            >
-              <BrainCircuit className="h-8 w-8" />
-              <span>TCM Brain Session</span>
-            </Button>
+          <div className={`grid gap-4 pt-4 ${returnTo ? 'grid-cols-1' : 'grid-cols-2'}`}>
+            {/* If came from video-session, show prominent return button */}
+            {returnTo === '/video-session' && (
+              <Button
+                className="h-24 flex-col gap-2 bg-jade hover:bg-jade/90"
+                onClick={() => {
+                  setShowNavigationDialog(false);
+                  // Navigate back to video-session with the new patient selected
+                  navigate(`/video-session${savedPatientId ? `?newPatientId=${savedPatientId}` : ''}`);
+                }}
+              >
+                <ChevronLeft className="h-8 w-8" />
+                <span>חזרה לפגישה / Back to Session</span>
+              </Button>
+            )}
+            
+            {!returnTo && (
+              <>
+                <Button
+                  variant="outline"
+                  className="h-24 flex-col gap-2"
+                  onClick={() => {
+                    setShowNavigationDialog(false);
+                    navigate('/crm/calendar');
+                  }}
+                >
+                  <Calendar className="h-8 w-8 text-gold" />
+                  <span>Calendar</span>
+                </Button>
+                <Button
+                  className="h-24 flex-col gap-2 bg-jade hover:bg-jade/90"
+                  onClick={() => {
+                    setShowNavigationDialog(false);
+                    if (savedPatientId) {
+                      navigate(`/tcm-brain?patientId=${savedPatientId}`);
+                    } else {
+                      navigate('/tcm-brain');
+                    }
+                  }}
+                >
+                  <BrainCircuit className="h-8 w-8" />
+                  <span>TCM Brain Session</span>
+                </Button>
+              </>
+            )}
           </div>
           <div className="pt-2">
             <Button
@@ -1562,10 +1582,14 @@ export function PatientIntakeForm({ patientId, onSuccess }: PatientIntakeFormPro
               className="w-full text-muted-foreground"
               onClick={() => {
                 setShowNavigationDialog(false);
-                navigate('/crm/patients');
+                if (returnTo) {
+                  navigate(returnTo);
+                } else {
+                  navigate('/crm/patients');
+                }
               }}
             >
-              Go to Patient List
+              {returnTo ? 'Cancel / ביטול' : 'Go to Patient List'}
             </Button>
           </div>
         </DialogContent>
