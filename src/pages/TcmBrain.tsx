@@ -32,6 +32,7 @@ import { QuickActionBoxes } from '@/components/tcm-brain/QuickActionBoxes';
 import { IntakeReviewDialog } from '@/components/tcm-brain/IntakeReviewDialog';
 import { QuickActionsRef } from '@/components/tcm-brain/QuickActionsBar';
 import { QASuggestionsPanel } from '@/components/tcm/QASuggestionsPanel';
+import { ExternalAIFallbackCard } from '@/components/tcm/ExternalAIFallbackCard';
 import { toast } from 'sonner';
 
 export default function TcmBrain() {
@@ -70,6 +71,9 @@ export default function TcmBrain() {
     setChainedWorkflow,
     openGmailWithSession,
     openWhatsAppWithSession,
+    externalFallbackQuery,
+    dismissExternalFallback,
+    runExternalAIFallback,
   } = useTcmBrainState();
 
   // Auto-save functionality
@@ -485,6 +489,15 @@ export default function TcmBrain() {
             </div>
           </Tabs>
         </main>
+
+        {externalFallbackQuery && (
+          <ExternalAIFallbackCard
+            query={externalFallbackQuery}
+            isLoading={isLoading}
+            onDismiss={dismissExternalFallback}
+            onUseExternalAI={runExternalAIFallback}
+          />
+        )}
 
         {/* Floating Q&A Access Button with Favorites Badge */}
         {!showQASuggestions && (
