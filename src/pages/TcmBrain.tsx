@@ -28,6 +28,7 @@ import { PatientSelectorDropdown } from '@/components/crm/PatientSelectorDropdow
 import { TcmBrainVoiceCommands, TcmVoiceCommand } from '@/components/tcm-brain/TcmBrainVoiceCommands';
 import { KnowledgeAssetTabs, detectActiveAssets } from '@/components/tcm-brain/KnowledgeAssetTabs';
 import { TcmBrainToolbar } from '@/components/tcm-brain/TcmBrainToolbar';
+import { QuickActionBoxes } from '@/components/tcm-brain/QuickActionBoxes';
 import { QuickActionsRef } from '@/components/tcm-brain/QuickActionsBar';
 import { toast } from 'sonner';
 
@@ -304,6 +305,17 @@ export default function TcmBrain() {
                 />
               </div>
             )}
+          </div>
+
+          {/* Quick Action Boxes - 6 Configurable */}
+          <div className="mb-4 p-3 bg-card/50 rounded-lg border">
+            <QuickActionBoxes 
+              onActionClick={(prompt, actionName) => {
+                streamChat(prompt);
+                setActiveTab('diagnostics');
+              }}
+              isLoading={isLoading}
+            />
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
