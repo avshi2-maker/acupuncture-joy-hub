@@ -28,7 +28,9 @@ import {
   Volume2,
   RefreshCw,
   Copy,
-  Check
+  Check,
+  Brain,
+  ClipboardList
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -42,6 +44,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { AnimatedMic } from '@/components/ui/AnimatedMic';
 import { AudioLevelMeter } from '@/components/ui/AudioLevelMeter';
+import { AudioWaveform } from '@/components/ui/AudioWaveform';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -130,6 +133,11 @@ export function SessionRecordingModule({
   
   // Saving state
   const [isSaving, setIsSaving] = useState(false);
+  
+  // AI Summary state
+  const [sessionSummary, setSessionSummary] = useState('');
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [showSummaryDialog, setShowSummaryDialog] = useState(false);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -758,6 +766,60 @@ export function SessionRecordingModule({
   };
 
   // ============================================
+  // AI SESSION SUMMARY
+  // ============================================
+  const generateSessionSummary = async () => {
+    // Get transcription content from either live transcripts or session transcription
+    let transcriptionText = '';
+    
+    if (committedTranscripts.length > 0) {
+      transcriptionText = committedTranscripts.map(t => {
+        const displayName = speakerNames[t.speaker] || (t.speaker === 'speaker_0' ? 'מטפל' : 'מטופל');
+        return `${displayName}: ${t.text}`;
+      }).join('\n');
+    } else if (sessionTranscription) {
+      transcriptionText = sessionTranscription;
+    } else if (liveTranscript) {
+      transcriptionText = liveTranscript;
+    }
+
+    if (!transcriptionText || transcriptionText.trim().length < 50) {
+      toast.error('אין מספיק טקסט לסיכום. יש לתמלל את הפגישה תחילה.');
+      return;
+    }
+
+    setIsGeneratingSummary(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-session-summary', {
+        body: {
+          transcription: transcriptionText,
+          patientName: patientName || undefined,
+          sessionDuration: sessionDuration || undefined,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.summary) {
+        setSessionSummary(data.summary);
+        setShowSummaryDialog(true);
+        toast.success('סיכום הפגישה נוצר בהצלחה');
+      }
+    } catch (error) {
+      console.error('Summary generation error:', error);
+      if ((error as any)?.status === 429) {
+        toast.error('חרגת מהמכסה. נסה שוב מאוחר יותר.');
+      } else if ((error as any)?.status === 402) {
+        toast.error('נגמרו הקרדיטים. יש להוסיף קרדיטים.');
+      } else {
+        toast.error('שגיאה ביצירת הסיכום');
+      }
+    } finally {
+      setIsGeneratingSummary(false);
+    }
+  };
+
+  // ============================================
   // SAVE ALL
   // ============================================
   const saveAllRecordings = async () => {
@@ -1233,7 +1295,21 @@ export function SessionRecordingModule({
                     </div>
                   )}
                   
+                  {/* Audio Waveform Visualization */}
                   {mediaStream && (
+                    <div className="w-full px-4">
+                      <AudioWaveform
+                        stream={mediaStream}
+                        isActive={isLiveTranscribing}
+                        currentSpeaker={liveSpeaker}
+                        height={56}
+                        barCount={40}
+                        className="rounded-lg bg-muted/30 p-2"
+                      />
+                    </div>
+                  )}
+                  
+                  {mediaStream && !enableLiveDiarization && (
                     <AudioLevelMeter stream={mediaStream} isRecording={true} variant="circle" />
                   )}
                   <Button onClick={stopLiveTranscription} variant="destructive" className="gap-2">
@@ -1353,7 +1429,7 @@ export function SessionRecordingModule({
                     )}
                   </div>
                 </ScrollArea>
-                <div className="flex justify-end">
+                <div className="flex items-center justify-between">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -1365,6 +1441,25 @@ export function SessionRecordingModule({
                   >
                     <Trash2 className="h-4 w-4 mr-1" />
                     נקה
+                  </Button>
+                  
+                  {/* AI Summary Button */}
+                  <Button
+                    onClick={generateSessionSummary}
+                    disabled={isGeneratingSummary || committedTranscripts.length === 0}
+                    className="gap-2 bg-gradient-to-r from-jade to-emerald-500 hover:from-jade/90 hover:to-emerald-500/90"
+                  >
+                    {isGeneratingSummary ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        מייצר סיכום...
+                      </>
+                    ) : (
+                      <>
+                        <Brain className="h-4 w-4" />
+                        סיכום AI
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
@@ -1393,6 +1488,84 @@ export function SessionRecordingModule({
           </Button>
         )}
       </CardContent>
+
+      {/* AI Summary Dialog */}
+      <Dialog open={showSummaryDialog} onOpenChange={setShowSummaryDialog}>
+        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-hidden flex flex-col" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-jade" />
+              סיכום פגישה AI
+              {patientName && (
+                <Badge variant="secondary" className="mr-2">
+                  {patientName}
+                </Badge>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="flex-1 max-h-[60vh]">
+            <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+              <div className="prose prose-sm max-w-none dark:prose-invert" dir="rtl">
+                {sessionSummary.split('\n').map((line, idx) => {
+                  // Format headers
+                  if (line.startsWith('**') && line.endsWith('**')) {
+                    return (
+                      <h3 key={idx} className="text-base font-bold text-jade mt-4 mb-2 flex items-center gap-2">
+                        <ClipboardList className="h-4 w-4" />
+                        {line.replace(/\*\*/g, '')}
+                      </h3>
+                    );
+                  }
+                  if (line.startsWith('**')) {
+                    const parts = line.split('**');
+                    return (
+                      <p key={idx} className="text-sm">
+                        <strong className="text-jade">{parts[1]}</strong>
+                        {parts[2]}
+                      </p>
+                    );
+                  }
+                  if (line.trim() === '') return <br key={idx} />;
+                  return <p key={idx} className="text-sm leading-relaxed">{line}</p>;
+                })}
+              </div>
+            </div>
+          </ScrollArea>
+          <div className="flex items-center gap-2 pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={() => {
+                navigator.clipboard.writeText(sessionSummary);
+                toast.success('הסיכום הועתק ללוח');
+              }}
+              className="gap-2"
+            >
+              <Copy className="h-4 w-4" />
+              העתק סיכום
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                const blob = new Blob([sessionSummary], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `session_summary_${new Date().toISOString().split('T')[0]}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+                toast.success('הסיכום הורד');
+              }}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              הורד
+            </Button>
+            <Button onClick={() => setShowSummaryDialog(false)} className="mr-auto bg-jade hover:bg-jade/90">
+              סגור
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
