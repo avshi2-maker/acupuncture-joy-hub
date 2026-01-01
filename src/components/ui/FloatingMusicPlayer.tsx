@@ -249,7 +249,7 @@ export function FloatingMusicPlayer() {
       <PopoverTrigger asChild>
         <Button
           size="icon"
-          className={`fixed top-20 left-4 z-50 h-12 w-12 rounded-full shadow-lg transition-all duration-300 hover:scale-110 ${
+          className={`fixed top-56 left-4 z-50 h-12 w-12 rounded-full shadow-lg transition-all duration-300 hover:scale-110 ${
             isPlaying 
               ? 'bg-amber-500 hover:bg-amber-600 animate-pulse' 
               : 'bg-jade hover:bg-jade/90'
