@@ -12,12 +12,60 @@ import { supabase } from '@/integrations/supabase/client';
 import { useTier } from '@/hooks/useTier';
 import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 import { toast } from 'sonner';
-import { Lock, ArrowLeft, Leaf, CreditCard, Upload, CheckCircle, ArrowRight, MessageCircle, Mail, Loader2, Play, Fingerprint } from 'lucide-react';
+import { Lock, ArrowLeft, Leaf, CreditCard, Upload, CheckCircle, ArrowRight, MessageCircle, Mail, Loader2, Play, Fingerprint, Eye, EyeOff, Clock, Baby, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TierCard } from '@/components/pricing/TierCard';
 import { Confetti } from '@/components/ui/Confetti';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Checkbox } from '@/components/ui/checkbox';
+import gateBg from '@/assets/gate-bamboo-bg.jpg';
+
+// Session expiry timer component
+function SessionExpiryTimer() {
+  const { expiresAt } = useTier();
+  const [timeLeft, setTimeLeft] = useState<string>('');
+  
+  useEffect(() => {
+    if (!expiresAt) return;
+    
+    const updateTimer = () => {
+      const now = new Date();
+      const expiry = new Date(expiresAt);
+      const diff = expiry.getTime() - now.getTime();
+      
+      if (diff <= 0) {
+        setTimeLeft('Session expired');
+        return;
+      }
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      
+      if (days > 0) {
+        setTimeLeft(`${days}d ${hours}h`);
+      } else if (hours > 0) {
+        setTimeLeft(`${hours}h ${minutes}m`);
+      } else {
+        setTimeLeft(`${minutes}m`);
+      }
+    };
+    
+    updateTimer();
+    const interval = setInterval(updateTimer, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, [expiresAt]);
+  
+  if (!expiresAt || !timeLeft) return null;
+  
+  return (
+    <div className="fixed top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-full bg-background/80 backdrop-blur-sm border shadow-lg text-sm">
+      <Clock className="h-4 w-4 text-jade" />
+      <span className="text-muted-foreground">Session:</span>
+      <span className="font-medium text-jade">{timeLeft}</span>
+    </div>
+  );
+}
 
 const gateSchema = z.object({
   password: z
@@ -93,6 +141,7 @@ export default function Gate() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
   
   // Biometric authentication
   const { isAvailable: isBiometricAvailable, isEnabled: isBiometricEnabled, authenticate, enableBiometric, isAuthenticating } = useBiometricAuth();
@@ -319,49 +368,77 @@ export default function Gate() {
         <title>כניסה למטפלים | TCM Clinic</title>
         <meta name="description" content="בחרו תוכנית והזינו סיסמת גישה" />
       </Helmet>
+      
+      {/* Session expiry timer */}
+      <SessionExpiryTimer />
 
-      <div className="min-h-screen bg-background py-8 px-4" dir="rtl">
-        <div className="max-w-6xl mx-auto">
-          <Link 
-            to="/" 
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            חזרה לדף הבית
-          </Link>
+      <div className="min-h-screen relative overflow-hidden" dir="rtl">
+        {/* Beautiful bamboo background */}
+        <div 
+          className="fixed inset-0 -z-20"
+          style={{
+            backgroundImage: `url(${gateBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+          }}
+        />
+        
+        {/* Dark overlay for text readability */}
+        <div className="fixed inset-0 -z-10 bg-black/20" />
+        
+        {/* Vignette effect */}
+        <div 
+          className="fixed inset-0 -z-10 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.3) 100%)',
+          }}
+        />
 
-          {/* Step Indicator */}
-          <div className="flex justify-center mb-8">
-            <div className="flex items-center gap-2">
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${currentStep === 'tiers' ? 'bg-jade text-white' : 'bg-muted text-muted-foreground'}`}>
-                <span className="w-6 h-6 rounded-full bg-background/20 flex items-center justify-center text-sm">1</span>
-                <span className="text-sm font-medium">בחירת תוכנית</span>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${currentStep === 'payment' ? 'bg-jade text-white' : 'bg-muted text-muted-foreground'}`}>
-                <span className="w-6 h-6 rounded-full bg-background/20 flex items-center justify-center text-sm">2</span>
-                <span className="text-sm font-medium">תשלום</span>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${currentStep === 'password' ? 'bg-jade text-white' : 'bg-muted text-muted-foreground'}`}>
-                <span className="w-6 h-6 rounded-full bg-background/20 flex items-center justify-center text-sm">3</span>
-                <span className="text-sm font-medium">כניסה</span>
+        <div className="relative z-10 py-8 px-4">
+          <div className="max-w-6xl mx-auto">
+            <Link 
+              to="/" 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 backdrop-blur-sm text-slate-700 hover:bg-white transition-colors shadow-lg mb-6"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              חזרה לדף הבית
+            </Link>
+
+            {/* Step Indicator - Glassmorphism style */}
+            <div className="flex justify-center mb-8">
+              <div className="flex items-center gap-2 p-2 rounded-full bg-white/80 backdrop-blur-md shadow-lg">
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${currentStep === 'tiers' ? 'bg-jade text-white shadow-md' : 'text-slate-600'}`}>
+                  <span className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center text-sm font-medium">1</span>
+                  <span className="text-sm font-medium hidden sm:inline">בחירת תוכנית</span>
+                </div>
+                <ArrowRight className="h-4 w-4 text-slate-400" />
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${currentStep === 'payment' ? 'bg-jade text-white shadow-md' : 'text-slate-600'}`}>
+                  <span className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center text-sm font-medium">2</span>
+                  <span className="text-sm font-medium hidden sm:inline">תשלום</span>
+                </div>
+                <ArrowRight className="h-4 w-4 text-slate-400" />
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${currentStep === 'password' ? 'bg-jade text-white shadow-md' : 'text-slate-600'}`}>
+                  <span className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center text-sm font-medium">3</span>
+                  <span className="text-sm font-medium hidden sm:inline">כניסה</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Step 1: Tier Selection */}
-          {currentStep === 'tiers' && (
-            <>
-              <div className="text-center mb-10">
-                <div className="mx-auto w-16 h-16 bg-jade-light rounded-full flex items-center justify-center mb-6">
-                  <Leaf className="h-8 w-8 text-jade" />
+            {/* Step 1: Tier Selection - New Welcome Header */}
+            {currentStep === 'tiers' && (
+              <>
+                {/* Glassmorphism header */}
+                <div className="text-center mb-10 mx-auto max-w-3xl">
+                  <div className="bg-white/95 backdrop-blur-md rounded-3xl p-8 md:p-12 shadow-2xl border border-white/60">
+                    <h1 className="font-display text-3xl md:text-4xl text-jade-dark mb-4">
+                      ברוכים הבאים לקליניקה
+                    </h1>
+                    <p className="text-slate-600 text-lg">
+                      בחרו את הנתיב המתאים ביותר לביקור שלכם היום
+                    </p>
+                  </div>
                 </div>
-                <h1 className="font-display text-3xl md:text-4xl mb-4">בחרו את התוכנית שלכם</h1>
-                <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                  התחילו עם 7 ימי ניסיון חינם או בחרו תוכנית מתקדמת יותר
-                </p>
-              </div>
 
               <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-8">
                 {isPageLoading ? (
@@ -630,11 +707,19 @@ export default function Gate() {
                               <div className="relative group">
                                 <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-jade transition-colors" />
                                 <Input 
-                                  type="password" 
+                                  type={showPassword ? "text" : "password"} 
                                   placeholder="הזינו את הסיסמה" 
-                                  className="pr-11 h-12 text-lg border-2 focus:border-jade transition-all"
+                                  className="pr-11 pl-11 h-12 text-lg border-2 focus:border-jade transition-all"
                                   {...field} 
                                 />
+                                <button
+                                  type="button"
+                                  onClick={() => setShowPassword(!showPassword)}
+                                  className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground hover:text-jade transition-colors"
+                                  tabIndex={-1}
+                                >
+                                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                </button>
                               </div>
                             </FormControl>
                             <FormMessage />
@@ -753,6 +838,7 @@ export default function Gate() {
               050-5231042
             </a>
           </p>
+          </div>
         </div>
       </div>
     </>
