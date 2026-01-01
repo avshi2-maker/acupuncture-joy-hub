@@ -405,6 +405,27 @@ const BUILTIN_ASSETS = [
     defaultCategory: 'clinical_protocols',
     defaultLanguage: 'en',
   },
+  {
+    id: 'ibs-sibo-protocols',
+    label: '🦠 IBS/SIBO Protocols (25 Gut-Brain Q&A - Deep Thinking)',
+    path: '/knowledge-assets/ibs-sibo-protocols.csv',
+    defaultCategory: 'digestive',
+    defaultLanguage: 'en',
+  },
+  {
+    id: 'liver-gallbladder-tcm',
+    label: '🟢 Liver/Gallbladder TCM (25 Hepatobiliary Q&A - Deep Thinking)',
+    path: '/knowledge-assets/liver-gallbladder-tcm.csv',
+    defaultCategory: 'hepatology',
+    defaultLanguage: 'en',
+  },
+  {
+    id: 'gastric-conditions',
+    label: '🍽️ Gastric Conditions (30 Stomach/Esophagus Q&A - Deep Thinking)',
+    path: '/knowledge-assets/gastric-conditions.csv',
+    defaultCategory: 'digestive',
+    defaultLanguage: 'en',
+  },
 ] as const;
 
 type QueueItemStatus = 'pending' | 'importing' | 'done' | 'error';
