@@ -882,6 +882,10 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
                 const hasRequiredFields = (stepFields[index] || []).length > 0;
                 const isPreviewStep = index === 3;
                 
+                // Check if this step has validation errors
+                const stepFieldList = stepFields[index] || [];
+                const hasErrors = stepFieldList.some(field => !!form.formState.errors[field]);
+                
                 return (
                   <button
                     key={index}
@@ -891,15 +895,20 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     className={`flex flex-col items-center gap-0.5 text-xs px-1.5 sm:px-2 py-1 rounded-lg transition-colors cursor-pointer min-w-0 flex-1 ${
-                      isCurrent 
-                        ? 'bg-jade/20 text-jade font-medium' 
-                        : isCompleted 
-                          ? 'text-jade hover:bg-jade/10' 
-                          : 'text-muted-foreground hover:bg-muted/50'
+                      hasErrors
+                        ? 'bg-destructive/20 text-destructive font-medium ring-2 ring-destructive/50'
+                        : isCurrent 
+                          ? 'bg-jade/20 text-jade font-medium' 
+                          : isCompleted 
+                            ? 'text-jade hover:bg-jade/10' 
+                            : 'text-muted-foreground hover:bg-muted/50'
                     }`}
+                    title={hasErrors ? 'This step has validation errors' : step.title}
                   >
                     <div className="flex items-center gap-1">
-                      {isCompleted ? (
+                      {hasErrors ? (
+                        <AlertTriangle className="h-3 w-3 text-destructive" />
+                      ) : isCompleted ? (
                         <CheckCircle2 className="h-3 w-3" />
                       ) : (
                         <StepIcon className="h-3 w-3" />
@@ -912,11 +921,13 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
                         <div className="w-8 h-1 bg-muted rounded-full overflow-hidden">
                           <div 
                             className={`h-full transition-all ${
-                              completion.percentage === 100 
-                                ? 'bg-jade' 
-                                : hasRequiredFields && completion.percentage < 50 
-                                  ? 'bg-amber-500' 
-                                  : 'bg-jade/60'
+                              hasErrors
+                                ? 'bg-destructive'
+                                : completion.percentage === 100 
+                                  ? 'bg-jade' 
+                                  : hasRequiredFields && completion.percentage < 50 
+                                    ? 'bg-amber-500' 
+                                    : 'bg-jade/60'
                             }`}
                             style={{ width: `${completion.percentage}%` }}
                           />
