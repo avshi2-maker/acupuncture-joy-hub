@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Leaf, RefreshCw, CheckCircle, XCircle, MapPin, Pill, Video, Brain, Home, Share2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Leaf, RefreshCw, CheckCircle, XCircle, MapPin, Pill, Video, Brain, Home, Share2, Users, Save, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import retreatQuizBg from '@/assets/retreat-quiz-bg.png';
 
 interface QuestionData {
@@ -22,6 +24,12 @@ interface CollectedTCM {
   q: string;
   pts: string;
   herb: string;
+}
+
+interface Patient {
+  id: string;
+  full_name: string;
+  phone: string | null;
 }
 
 const questionsDB: QuestionData[] = [
@@ -81,12 +89,42 @@ export default function RetreatQuiz() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [collectedTCM, setCollectedTCM] = useState<CollectedTCM[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [selectedPatient, setSelectedPatient] = useState<string>('');
+  const [loadingPatients, setLoadingPatients] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Fetch patients on mount
+  useEffect(() => {
+    const fetchPatients = async () => {
+      setLoadingPatients(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setUserId(user.id);
+          const { data } = await supabase
+            .from('patients')
+            .select('id, full_name, phone')
+            .order('full_name');
+          setPatients(data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching patients:', error);
+      } finally {
+        setLoadingPatients(false);
+      }
+    };
+    fetchPatients();
+  }, []);
 
   const startQuiz = () => {
     setScreen('question');
     setCurrentIdx(0);
     setScore(0);
     setCollectedTCM([]);
+    setSaved(false);
   };
 
   const answer = (isYes: boolean) => {
@@ -111,6 +149,8 @@ export default function RetreatQuiz() {
     setCurrentIdx(0);
     setScore(0);
     setCollectedTCM([]);
+    setSelectedPatient('');
+    setSaved(false);
   };
 
   const getResultStatus = () => {
@@ -135,6 +175,38 @@ export default function RetreatQuiz() {
     }
   };
 
+  const saveResults = async () => {
+    if (!userId) {
+      toast.error('Please log in to save results');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const insertData = {
+        therapist_id: userId,
+        score,
+        status: getResultStatus().badge,
+        collected_tcm: JSON.parse(JSON.stringify(collectedTCM)),
+        total_questions: questionsDB.length,
+        answered_yes: collectedTCM.length,
+        ...(selectedPatient && selectedPatient !== 'none' ? { patient_id: selectedPatient } : {}),
+      };
+
+      const { error } = await supabase.from('retreat_quiz_results').insert([insertData]);
+
+      if (error) throw error;
+      
+      setSaved(true);
+      toast.success('Quiz results saved to patient record');
+    } catch (error) {
+      console.error('Error saving results:', error);
+      toast.error('Failed to save results');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const shareViaWhatsApp = () => {
     const status = getResultStatus();
     const tcmSummary = collectedTCM.length > 0 
@@ -152,12 +224,22 @@ ${tcmSummary}
 ${collectedTCM.length > 5 ? `...and ${collectedTCM.length - 5} more patterns\n` : ''}
 ✨ Take your assessment: ${window.location.origin}/retreat-quiz`;
 
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-    toast.success('Opening WhatsApp to share results');
+    // If patient selected with phone, send directly
+    const patient = patients.find(p => p.id === selectedPatient);
+    if (patient?.phone) {
+      const cleanPhone = patient.phone.replace(/\D/g, '');
+      const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      toast.success(`Opening WhatsApp for ${patient.full_name}`);
+    } else {
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      toast.success('Opening WhatsApp to share results');
+    }
   };
 
   const progress = (currentIdx / questionsDB.length) * 100;
+  const selectedPatientData = patients.find(p => p.id === selectedPatient);
 
   return (
     <div
@@ -191,7 +273,34 @@ ${collectedTCM.length > 5 ? `...and ${collectedTCM.length - 5} more patterns\n` 
                 <p className="text-muted-foreground mb-6">
                   Discover if your body is signaling a need for deep restoration.
                 </p>
-                <div className="text-6xl mb-8">🌿</div>
+                <div className="text-6xl mb-6">🌿</div>
+                
+                {/* Patient Selector */}
+                {patients.length > 0 && (
+                  <div className="w-full mb-6">
+                    <label className="text-sm text-muted-foreground mb-2 block">
+                      Select a patient (optional)
+                    </label>
+                    <Select value={selectedPatient} onValueChange={setSelectedPatient}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={loadingPatients ? "Loading..." : "Choose patient..."} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No patient (general assessment)</SelectItem>
+                        {patients.map(patient => (
+                          <SelectItem key={patient.id} value={patient.id}>
+                            <div className="flex items-center gap-2">
+                              <Users className="h-4 w-4 text-jade" />
+                              {patient.full_name}
+                              {patient.phone && <span className="text-xs text-muted-foreground">📱</span>}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                
                 <Button
                   onClick={startQuiz}
                   className="w-full bg-gold hover:bg-gold/90 text-white font-bold py-6 text-lg rounded-full"
@@ -212,6 +321,12 @@ ${collectedTCM.length > 5 ? `...and ${collectedTCM.length - 5} more patterns\n` 
               >
                 {/* Header */}
                 <div className="mb-6">
+                  {selectedPatientData && (
+                    <p className="text-xs text-jade text-center mb-1 flex items-center justify-center gap-1">
+                      <Users className="h-3 w-3" />
+                      {selectedPatientData.full_name}
+                    </p>
+                  )}
                   <p className="text-sm text-muted-foreground text-center mb-2">
                     Question {currentIdx + 1} / {questionsDB.length}
                   </p>
@@ -256,6 +371,13 @@ ${collectedTCM.length > 5 ? `...and ${collectedTCM.length - 5} more patterns\n` 
                 className="p-6 min-h-[70vh] overflow-y-auto"
               >
                 <div className="text-left">
+                  {selectedPatientData && (
+                    <p className="text-xs text-jade mb-2 flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      Results for: {selectedPatientData.full_name}
+                    </p>
+                  )}
+                  
                   <Badge className={`${getResultStatus().color} text-white font-bold px-4 py-2 text-sm mb-4`}>
                     {getResultStatus().badge}
                   </Badge>
@@ -270,7 +392,7 @@ ${collectedTCM.length > 5 ? `...and ${collectedTCM.length - 5} more patterns\n` 
                     Detected Patterns & Formulae:
                   </h3>
                   
-                  <div className="bg-muted/50 rounded-xl p-4 max-h-52 overflow-y-auto border space-y-3">
+                  <div className="bg-muted/50 rounded-xl p-4 max-h-44 overflow-y-auto border space-y-3">
                     {collectedTCM.length === 0 ? (
                       <p className="text-sm text-muted-foreground">No specific patterns detected.</p>
                     ) : (
@@ -292,13 +414,37 @@ ${collectedTCM.length > 5 ? `...and ${collectedTCM.length - 5} more patterns\n` 
 
                   {/* Action Buttons */}
                   <div className="space-y-3 mt-6">
+                    {/* Save Results Button */}
+                    {userId && (
+                      <Button
+                        onClick={saveResults}
+                        disabled={saving || saved}
+                        className={`w-full font-bold py-4 rounded-xl flex items-center justify-center gap-2 ${
+                          saved 
+                            ? 'bg-emerald-500 hover:bg-emerald-500' 
+                            : 'bg-blue-500 hover:bg-blue-600'
+                        } text-white`}
+                      >
+                        {saving ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : saved ? (
+                          <CheckCircle className="h-4 w-4" />
+                        ) : (
+                          <Save className="h-4 w-4" />
+                        )}
+                        {saved ? 'Saved to Records' : 'Save to Patient Record'}
+                      </Button>
+                    )}
+                    
                     {/* WhatsApp Share Button */}
                     <Button
                       onClick={shareViaWhatsApp}
                       className="w-full bg-[#25D366] hover:bg-[#25D366]/90 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2"
                     >
                       <Share2 className="h-4 w-4" />
-                      Share Results via WhatsApp
+                      {selectedPatientData?.phone 
+                        ? `Send to ${selectedPatientData.full_name}` 
+                        : 'Share Results via WhatsApp'}
                     </Button>
                     
                     <div className="grid grid-cols-2 gap-3">

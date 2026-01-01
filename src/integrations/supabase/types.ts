@@ -972,6 +972,50 @@ export type Database = {
         }
         Relationships: []
       }
+      retreat_quiz_results: {
+        Row: {
+          answered_yes: number
+          collected_tcm: Json
+          created_at: string
+          id: string
+          patient_id: string | null
+          score: number
+          status: string
+          therapist_id: string
+          total_questions: number
+        }
+        Insert: {
+          answered_yes: number
+          collected_tcm?: Json
+          created_at?: string
+          id?: string
+          patient_id?: string | null
+          score: number
+          status: string
+          therapist_id: string
+          total_questions: number
+        }
+        Update: {
+          answered_yes?: number
+          collected_tcm?: Json
+          created_at?: string
+          id?: string
+          patient_id?: string | null
+          score?: number
+          status?: string
+          therapist_id?: string
+          total_questions?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "retreat_quiz_results_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       roi_scenarios: {
         Row: {
           archived: boolean | null
