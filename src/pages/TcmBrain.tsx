@@ -106,7 +106,7 @@ export default function TcmBrain() {
   } = useTcmBrainState();
 
   // Session phase with haptic feedback and persistence
-  const { currentPhase, setPhase, isManualOverride } = useSessionPhase(sessionSeconds);
+  const { currentPhase, setPhase, clearManualPhase, isManualOverride } = useSessionPhase(sessionSeconds);
   const { lastSaveTime, isSaving, saveNow, loadSavedSession, clearSavedSession } = useAutoSave(
     {
       messages,
@@ -364,6 +364,8 @@ export default function TcmBrain() {
           <SessionPhaseIndicator
             currentPhase={currentPhase}
             patientName={selectedPatient?.name}
+            isManualOverride={isManualOverride}
+            onResetToAuto={clearManualPhase}
             onPhaseClick={(phase) => {
               setPhase(phase);
               // Navigate to relevant tab based on phase
@@ -374,11 +376,6 @@ export default function TcmBrain() {
             }}
             className="max-w-2xl mx-auto"
           />
-          {isManualOverride && (
-            <p className="text-[10px] text-center text-muted-foreground mt-1">
-              שלב ידני • לחץ לשינוי
-            </p>
-          )}
         </div>
 
         {/* Header Boxes Row - Matching VideoSession style */}
