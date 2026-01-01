@@ -20,7 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { User, Heart, Baby, Activity, Utensils, Moon, Brain, AlertTriangle, FileSignature, PenTool, CheckCircle2, XCircle, Loader2, Calendar, BrainCircuit, ChevronLeft, ChevronRight, FileText, Eye, Edit2, CircleDot, RotateCcw, Save, Clock } from 'lucide-react';
+import { User, Heart, Baby, Activity, Utensils, Moon, Brain, AlertTriangle, FileSignature, PenTool, CheckCircle2, XCircle, Loader2, Calendar, BrainCircuit, ChevronLeft, ChevronRight, FileText, Eye, Edit2, CircleDot, RotateCcw, Save, Clock, Sun, MoonIcon } from 'lucide-react';
 import { SignaturePad } from './SignaturePad';
 import { MedicalDocumentUpload } from './MedicalDocumentUpload';
 import { DietNutritionSelect } from './DietNutritionSelect';
@@ -821,9 +821,9 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
 
   return (
     <div className="relative min-h-screen overflow-x-hidden">
-      {/* Parallax Background */}
+      {/* Parallax Background with floating animation */}
       <div 
-        className="fixed inset-0 -z-10"
+        className="fixed inset-0 -z-10 animate-float-gentle"
         style={{
           backgroundImage: `url(${intakeBg})`,
           backgroundSize: 'cover',
@@ -832,6 +832,26 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
           willChange: 'transform',
         }}
       />
+      
+      {/* Theme Toggle */}
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-1 bg-background/80 backdrop-blur-sm rounded-full p-1 border shadow-lg">
+        <button
+          type="button"
+          onClick={() => document.documentElement.classList.remove('dark')}
+          className={`p-2 rounded-full transition-all ${!document.documentElement.classList.contains('dark') ? 'bg-amber-100 text-amber-600' : 'text-muted-foreground hover:bg-muted'}`}
+          aria-label="Light mode"
+        >
+          <Sun className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => document.documentElement.classList.add('dark')}
+          className={`p-2 rounded-full transition-all ${document.documentElement.classList.contains('dark') ? 'bg-indigo-900 text-indigo-300' : 'text-muted-foreground hover:bg-muted'}`}
+          aria-label="Dark mode"
+        >
+          <MoonIcon className="h-4 w-4" />
+        </button>
+      </div>
       
       {/* Semi-transparent overlay for text readability */}
       <div className="fixed inset-0 -z-10 bg-background/85 backdrop-blur-[1px]" />
