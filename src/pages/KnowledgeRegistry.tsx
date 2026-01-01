@@ -244,6 +244,13 @@ const BUILTIN_ASSETS = [
     defaultLanguage: 'en',
   },
   {
+    id: 'acupoints-master',
+    label: 'Acupoints Master (361 Standard Points - Complete)',
+    path: '/knowledge-assets/acupoints_master.csv',
+    defaultCategory: 'acupuncture_points',
+    defaultLanguage: 'en',
+  },
+  {
     id: 'acupoint-reference-50',
     label: 'Acupoint Reference (50 Essential Points with Locations & Actions)',
     path: '/knowledge-assets/acupoint-reference-50.csv',
