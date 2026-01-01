@@ -223,6 +223,19 @@ serve(async (req) => {
             answer = `Western Perspective: ${western}\nTCM Perspective: ${tcm}${calories ? `\nEstimated Calories: ${calories}` : ''}`;
             content = `Diet & Nutrition: ${category}\nHabit: ${habit}\nWestern View: ${western}\nTCM View: ${tcm}${calories ? `\nCalories: ${calories}` : ''}`;
             contentType = 'qa';
+          } else if (row.code && row.name_english && row.name_pinyin) {
+            // Acupoints Master format (code, name_english, name_pinyin, category, location_note, function_note)
+            const code = row.code || '';
+            const nameEn = row.name_english || '';
+            const pinyin = row.name_pinyin || '';
+            const pointCategory = row.category || '';
+            const location = row.location_note || '';
+            const functions = row.function_note || '';
+            
+            question = `What is ${code} ${pinyin} (${nameEn}) acupuncture point?`;
+            answer = `${code} - ${nameEn} (${pinyin})\nCategory: ${pointCategory}\nLocation: ${location}\nFunctions: ${functions}`;
+            content = `Acupoint: ${code} ${nameEn} (${pinyin})\nCategory: ${pointCategory}\nLocation: ${location}\nFunctions/Indications: ${functions}`;
+            contentType = 'acupoint';
           } else {
             // Generic: join all values
             content = Object.values(row).filter(Boolean).join(' | ');
