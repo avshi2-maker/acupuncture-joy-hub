@@ -195,6 +195,31 @@ export default function CAFBrowser() {
             </CardContent>
           </Card>
 
+          {/* Category Chips */}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={systemFilter === 'All Systems' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSystemFilter('All Systems')}
+              className="h-8"
+            >
+              All ({studies?.length || 0})
+            </Button>
+            {Object.entries(systemCounts)
+              .sort(([, a], [, b]) => b - a)
+              .map(([system, count]) => (
+                <Button
+                  key={system}
+                  variant={systemFilter === system ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSystemFilter(system)}
+                  className="h-8"
+                >
+                  {system} ({count})
+                </Button>
+              ))}
+          </div>
+
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
