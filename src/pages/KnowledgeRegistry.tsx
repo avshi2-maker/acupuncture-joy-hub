@@ -230,6 +230,20 @@ const BUILTIN_ASSETS = [
     defaultLanguage: 'en',
   },
   {
+    id: 'msk-protocols',
+    label: 'MSK Protocols (Frozen Shoulder, Sciatica, Low Back Pain, etc.)',
+    path: '/knowledge-assets/msk-protocols.csv',
+    defaultCategory: 'clinical_protocols',
+    defaultLanguage: 'en',
+  },
+  {
+    id: 'acupoint-reference-50',
+    label: 'Acupoint Reference (50 Essential Points with Locations & Actions)',
+    path: '/knowledge-assets/acupoint-reference-50.csv',
+    defaultCategory: 'acupuncture_points',
+    defaultLanguage: 'en',
+  },
+  {
     id: 'work-stress-burnout',
     label: 'work-stress-burnout.csv',
     path: '/knowledge-assets/work-stress-burnout.csv',
