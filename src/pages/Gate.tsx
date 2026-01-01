@@ -210,7 +210,12 @@ export default function Gate() {
         details: { tier: result.tier },
       });
 
-      toast.success('ברוכים הבאים!');
+      // Show beautiful welcome toast with celebration
+      toast.success('ברוכים הבאים! 🌿', {
+        description: 'נכנסתם בהצלחה למערכת',
+        duration: 4000,
+        className: 'bg-gradient-to-r from-jade/10 to-gold/10 border-jade',
+      });
       navigate(buildPostLoginRedirect(), { replace: true });
     } catch (error) {
       toast.error('שגיאה בכניסה. נסו שוב.');
@@ -484,34 +489,42 @@ export default function Gate() {
 
           {/* Step 3: Password Entry */}
           {currentStep === 'password' && (
-            <div className="max-w-md mx-auto">
-              <Card className="shadow-elevated">
-                <CardHeader className="text-center space-y-4">
-                  <div className="mx-auto w-16 h-16 bg-jade-light rounded-full flex items-center justify-center">
-                    <Lock className="h-8 w-8 text-jade" />
+            <div className="max-w-md mx-auto animate-fade-in">
+              <Card className="shadow-elevated overflow-hidden relative">
+                {/* Decorative background gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-jade/5 via-transparent to-gold/5 pointer-events-none" />
+                
+                <CardHeader className="text-center space-y-4 relative z-10">
+                  {/* Animated lock icon with glow */}
+                  <div className="mx-auto w-20 h-20 bg-gradient-to-br from-jade-light to-jade/20 rounded-full flex items-center justify-center shadow-lg animate-scale-in">
+                    <div className="w-16 h-16 bg-background rounded-full flex items-center justify-center shadow-inner">
+                      <Lock className="h-8 w-8 text-jade animate-pulse" />
+                    </div>
                   </div>
-                  <CardTitle className="font-display text-3xl">כניסה למערכת</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="font-display text-3xl bg-gradient-to-r from-jade to-jade-dark bg-clip-text text-transparent">
+                    כניסה למערכת
+                  </CardTitle>
+                  <CardDescription className="text-base">
                     הזינו את סיסמת הגישה שקיבלתם מד״ר רוני ספיר
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent>
+                <CardContent className="relative z-10">
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                       <FormField
                         control={form.control}
                         name="password"
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>סיסמת גישה</FormLabel>
+                          <FormItem className="space-y-3">
+                            <FormLabel className="text-base font-medium">סיסמת גישה</FormLabel>
                             <FormControl>
-                              <div className="relative">
-                                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <div className="relative group">
+                                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-jade transition-colors" />
                                 <Input 
                                   type="password" 
                                   placeholder="הזינו את הסיסמה" 
-                                  className="pr-10"
+                                  className="pr-11 h-12 text-lg border-2 focus:border-jade transition-all"
                                   {...field} 
                                 />
                               </div>
@@ -521,16 +534,30 @@ export default function Gate() {
                         )}
                       />
 
-                      <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading ? 'בודק...' : 'כניסה'}
+                      <Button 
+                        type="submit" 
+                        className="w-full h-12 text-lg font-medium bg-gradient-to-r from-jade to-jade-dark hover:from-jade-dark hover:to-jade shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]" 
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="h-5 w-5 ml-2 animate-spin" />
+                            בודק...
+                          </>
+                        ) : (
+                          <>
+                            <Leaf className="h-5 w-5 ml-2" />
+                            כניסה
+                          </>
+                        )}
                       </Button>
                     </form>
                   </Form>
 
-                  <div className="mt-6 pt-6 border-t border-border space-y-3">
+                  <div className="mt-8 pt-6 border-t border-border/50 space-y-4">
                     <Button 
                       variant="ghost" 
-                      className="w-full text-muted-foreground"
+                      className="w-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
                       onClick={() => setCurrentStep('tiers')}
                     >
                       <ArrowRight className="h-4 w-4 ml-2" />
@@ -543,7 +570,7 @@ export default function Gate() {
                         href="https://wa.me/972505231042?text=שלום ד״ר רוני, שכחתי את הסיסמה שלי למערכת TCM Clinic"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-jade hover:underline"
+                        className="text-jade hover:text-jade-dark hover:underline font-medium transition-colors"
                       >
                         צרו קשר עם ד״ר רוני
                       </a>
