@@ -243,7 +243,7 @@ export default function VideoSession() {
   } = useSessionPersistence();
 
   // Session phase with haptic feedback and persistence
-  const { currentPhase, setPhase, isManualOverride } = useSessionPhase(sessionDuration, sessionStartTime);
+  const { currentPhase, setPhase, clearManualPhase, isManualOverride } = useSessionPhase(sessionDuration, sessionStartTime);
   useBackgroundDetection({
     onBackground: () => {
       if (sessionStatus === 'running') {
@@ -1199,6 +1199,8 @@ export default function VideoSession() {
           <SessionPhaseIndicator
             currentPhase={currentPhase}
             patientName={selectedPatientName}
+            isManualOverride={isManualOverride}
+            onResetToAuto={clearManualPhase}
             onPhaseClick={(phase) => {
               setPhase(phase);
               // Navigate to relevant action based on phase
@@ -1214,11 +1216,6 @@ export default function VideoSession() {
             }}
             className="max-w-2xl mx-auto"
           />
-          {isManualOverride && (
-            <p className="text-[10px] text-center text-muted-foreground mt-1">
-              שלב ידני • לחץ לשינוי
-            </p>
-          )}
         </div>
 
         {/* Workflow Progress Indicator (legacy - task steps) */}
