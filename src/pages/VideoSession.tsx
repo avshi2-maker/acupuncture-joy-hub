@@ -1463,7 +1463,7 @@ export default function VideoSession() {
               </Button>
             </div>
 
-            {/* Help + Voice + Clock - Desktop only */}
+            {/* Center: Voice + Help - Desktop only */}
             <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-2">
               {/* Always-On Voice Toggle - Desktop */}
               <Button
@@ -1500,8 +1500,11 @@ export default function VideoSession() {
               >
                 <HelpCircle className="h-6 w-6 text-amber-900" />
               </Button>
+            </div>
 
-              <div className="relative h-20 w-20 rounded-full shadow-lg overflow-hidden">
+            {/* Right: Clock + Dashboard + Tier - Desktop only */}
+            <div className="hidden md:flex items-center gap-3">
+              <div className="relative h-16 w-16 rounded-full shadow-lg overflow-hidden">
                 <img
                   src={clockImg}
                   alt="Session clock"
@@ -1509,15 +1512,11 @@ export default function VideoSession() {
                   loading="lazy"
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                  <span className="text-lg font-bold text-white font-mono drop-shadow-lg">
+                  <span className="text-sm font-bold text-white font-mono drop-shadow-lg">
                     {currentTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
               </div>
-            </div>
-
-            <div className="hidden md:flex items-center gap-3">
-              <LanguageSwitcher variant="outline" isScrolled={true} />
               <Button asChild variant="outline" size="sm">
                 <Link to="/dashboard" className="gap-2">
                   <ArrowRight className="h-4 w-4" />

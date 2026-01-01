@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { PregnancyTreatmentLog } from './PregnancyTreatmentLog';
 
 interface CalculationResult {
   lmpDate: Date;
@@ -716,6 +717,16 @@ export function PregnancySafetyCalculator({
                 </>
               )}
             </Button>
+          )}
+
+          {/* Pregnancy Treatment Log - Show visits during pregnancy */}
+          {patientId && result && (
+            <PregnancyTreatmentLog
+              patientId={patientId}
+              patientName={patientName}
+              lmpDate={result.lmpDate}
+              dueDate={result.dueDate}
+            />
           )}
         </div>
       )}
