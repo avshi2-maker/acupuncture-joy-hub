@@ -244,6 +244,13 @@ const BUILTIN_ASSETS = [
     defaultLanguage: 'en',
   },
   {
+    id: 'clinical-scenarios-100',
+    label: 'Clinical Scenarios (100 Patient Concerns + Treatment Strategies)',
+    path: '/knowledge-assets/clinical-scenarios-100.csv',
+    defaultCategory: 'clinical_protocols',
+    defaultLanguage: 'en',
+  },
+  {
     id: 'work-stress-burnout',
     label: 'work-stress-burnout.csv',
     path: '/knowledge-assets/work-stress-burnout.csv',
