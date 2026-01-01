@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Leaf, RefreshCw, CheckCircle, XCircle, MapPin, Pill } from 'lucide-react';
+import { Leaf, RefreshCw, CheckCircle, XCircle, MapPin, Pill, Video, Brain, Home } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import retreatQuizBg from '@/assets/retreat-quiz-bg.png';
 
@@ -13,6 +14,7 @@ interface QuestionData {
   pts: string;
   herb: string;
   weight: number;
+  category?: string;
 }
 
 interface CollectedTCM {
@@ -22,21 +24,58 @@ interface CollectedTCM {
 }
 
 const questionsDB: QuestionData[] = [
-  { q: "Do you wake up feeling exhausted even after a full night's sleep?", pts: "UB23, KI3", herb: "Bu Zhong Yi Qi Tang", weight: 10 },
-  { q: "On a scale of 1-10, is it hard to disconnect from your phone?", pts: "Yintang, HT7", herb: "Tian Wang Bu Xin Dan", weight: 10 },
-  { q: "Do you experience chronic neck or shoulder tension?", pts: "GB20, LI4", herb: "Xiao Yao San", weight: 5 },
-  { q: "Are you going through a major life transition?", pts: "PC6, HT7", herb: "Gan Mai Da Zao Tang", weight: 15 },
-  { q: "Do you have irregular eating habits due to stress?", pts: "ST36, SP6", herb: "Xiang Sha Liu Jun Zi", weight: 5 },
-  { q: "Do you feel a sense of 'stuckness' in life?", pts: "LV3, GB34", herb: "Chai Hu Shu Gan San", weight: 8 },
-  { q: "Is your libido significantly lower than usual?", pts: "CV4, UB23", herb: "Zuo Gui Wan", weight: 10 },
-  { q: "Do you feel emotionally numb?", pts: "HT5, PC6", herb: "Ban Xia Hou Po Tang", weight: 12 },
-  { q: "Do you rely on coffee to get through the day?", pts: "KI3, SP6", herb: "Liu Wei Di Huang Wan", weight: 5 },
-  { q: "Do you have trouble falling asleep (racing mind)?", pts: "HT7, Anmian", herb: "Gui Pi Tang", weight: 8 },
+  // Energy & Fatigue
+  { q: "Do you wake up feeling exhausted even after a full night's sleep?", pts: "UB23, KI3", herb: "Bu Zhong Yi Qi Tang", weight: 10, category: "Energy" },
+  { q: "Do you rely on coffee to get through the day?", pts: "KI3, SP6", herb: "Liu Wei Di Huang Wan", weight: 5, category: "Energy" },
+  { q: "Do you experience afternoon energy crashes?", pts: "ST36, SP3", herb: "Si Jun Zi Tang", weight: 6, category: "Energy" },
+  { q: "Do you feel drained after social interactions?", pts: "HT7, SP6", herb: "Gui Pi Tang", weight: 7, category: "Energy" },
+  
+  // Sleep & Mind
+  { q: "Do you have trouble falling asleep (racing mind)?", pts: "HT7, Anmian", herb: "Gui Pi Tang", weight: 8, category: "Sleep" },
+  { q: "Do you wake up frequently during the night?", pts: "HT7, KI6", herb: "Tian Wang Bu Xin Dan", weight: 8, category: "Sleep" },
+  { q: "Do you have vivid dreams or nightmares?", pts: "HT7, SP6", herb: "An Shen Ding Zhi Wan", weight: 5, category: "Sleep" },
+  { q: "On a scale of 1-10, is it hard to disconnect from your phone?", pts: "Yintang, HT7", herb: "Tian Wang Bu Xin Dan", weight: 10, category: "Mind" },
+  
+  // Physical Tension
+  { q: "Do you experience chronic neck or shoulder tension?", pts: "GB20, LI4", herb: "Xiao Yao San", weight: 5, category: "Physical" },
+  { q: "Do you frequently experience headaches or migraines?", pts: "GB20, LI4, Taiyang", herb: "Chuan Xiong Cha Tiao San", weight: 7, category: "Physical" },
+  { q: "Do you have chronic lower back pain?", pts: "UB23, UB40, GV4", herb: "Du Huo Ji Sheng Tang", weight: 6, category: "Physical" },
+  { q: "Do you grind your teeth or clench your jaw?", pts: "ST6, ST7, LI4", herb: "Tian Ma Gou Teng Yin", weight: 5, category: "Physical" },
+  
+  // Emotional State
+  { q: "Are you going through a major life transition?", pts: "PC6, HT7", herb: "Gan Mai Da Zao Tang", weight: 15, category: "Emotional" },
+  { q: "Do you feel a sense of 'stuckness' in life?", pts: "LV3, GB34", herb: "Chai Hu Shu Gan San", weight: 8, category: "Emotional" },
+  { q: "Do you feel emotionally numb?", pts: "HT5, PC6", herb: "Ban Xia Hou Po Tang", weight: 12, category: "Emotional" },
+  { q: "Do you experience frequent irritability or anger?", pts: "LV3, LI4, GB34", herb: "Long Dan Xie Gan Tang", weight: 8, category: "Emotional" },
+  { q: "Do you feel anxious without clear reason?", pts: "PC6, HT7, Yintang", herb: "Chai Hu Jia Long Gu Mu Li Tang", weight: 10, category: "Emotional" },
+  { q: "Do you cry easily or feel overwhelmed?", pts: "LV3, SP6, CV17", herb: "Xiao Yao San", weight: 7, category: "Emotional" },
+  
+  // Digestion & Appetite
+  { q: "Do you have irregular eating habits due to stress?", pts: "ST36, SP6", herb: "Xiang Sha Liu Jun Zi", weight: 5, category: "Digestion" },
+  { q: "Do you experience bloating or digestive discomfort?", pts: "CV12, ST36, SP6", herb: "Bao He Wan", weight: 5, category: "Digestion" },
+  { q: "Do you have food cravings (especially sweets)?", pts: "SP6, ST36", herb: "Liu Jun Zi Tang", weight: 4, category: "Digestion" },
+  { q: "Do you experience nausea or loss of appetite?", pts: "PC6, ST36, CV12", herb: "Xiang Sha Liu Jun Zi Tang", weight: 6, category: "Digestion" },
+  
+  // Vitality & Constitution
+  { q: "Is your libido significantly lower than usual?", pts: "CV4, UB23", herb: "Zuo Gui Wan", weight: 10, category: "Vitality" },
+  { q: "Do you feel cold easily, especially hands and feet?", pts: "CV4, ST36, KI7", herb: "Jin Gui Shen Qi Wan", weight: 6, category: "Vitality" },
+  { q: "Do you experience frequent colds or infections?", pts: "LI4, LU7, ST36", herb: "Yu Ping Feng San", weight: 7, category: "Vitality" },
+  { q: "Do you bruise easily or have slow wound healing?", pts: "SP10, UB17, ST36", herb: "Gui Pi Tang", weight: 5, category: "Vitality" },
+  
+  // Women's Health
+  { q: "Do you experience menstrual irregularities or PMS?", pts: "SP6, LV3, CV6", herb: "Xiao Yao San", weight: 7, category: "Hormonal" },
+  { q: "Do you have hot flashes or night sweats?", pts: "KI6, HT6, SP6", herb: "Zhi Bai Di Huang Wan", weight: 8, category: "Hormonal" },
+  
+  // Lifestyle Indicators
+  { q: "Do you work more than 50 hours per week?", pts: "UB23, KI3, ST36", herb: "Bu Zhong Yi Qi Tang", weight: 8, category: "Lifestyle" },
+  { q: "Have you taken a real vacation in the past year?", pts: "HT7, PC6", herb: "Gan Mai Da Zao Tang", weight: 6, category: "Lifestyle" },
+  { q: "Do you feel disconnected from nature?", pts: "LV3, GB34, KI1", herb: "Xiao Yao San", weight: 5, category: "Lifestyle" },
 ];
 
 type Screen = 'welcome' | 'question' | 'result';
 
 export default function RetreatQuiz() {
+  const navigate = useNavigate();
   const [screen, setScreen] = useState<Screen>('welcome');
   const [currentIdx, setCurrentIdx] = useState(0);
   const [score, setScore] = useState(0);
@@ -228,13 +267,44 @@ export default function RetreatQuiz() {
                     )}
                   </div>
 
-                  <Button
-                    onClick={restart}
-                    className="w-full mt-6 bg-gold hover:bg-gold/90 text-white font-bold py-5 rounded-full flex items-center justify-center gap-2"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                    Restart Assessment
-                  </Button>
+                  {/* Action Buttons */}
+                  <div className="space-y-3 mt-6">
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button
+                        onClick={() => navigate('/video-session')}
+                        className="bg-jade hover:bg-jade/90 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2"
+                      >
+                        <Video className="h-4 w-4" />
+                        Video Session
+                      </Button>
+                      <Button
+                        onClick={() => navigate('/tcm-brain')}
+                        variant="outline"
+                        className="border-jade text-jade hover:bg-jade/10 font-bold py-4 rounded-xl flex items-center justify-center gap-2"
+                      >
+                        <Brain className="h-4 w-4" />
+                        TCM Brain
+                      </Button>
+                    </div>
+                    
+                    <Button
+                      onClick={() => navigate('/dashboard')}
+                      variant="secondary"
+                      className="w-full py-4 rounded-xl flex items-center justify-center gap-2"
+                    >
+                      <Home className="h-4 w-4" />
+                      Dashboard
+                    </Button>
+                    
+                    <Button
+                      onClick={restart}
+                      variant="ghost"
+                      className="w-full text-muted-foreground py-4 rounded-xl flex items-center justify-center gap-2"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      Restart Assessment
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             )}
