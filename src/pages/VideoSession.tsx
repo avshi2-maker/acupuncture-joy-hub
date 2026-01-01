@@ -1228,7 +1228,17 @@ export default function VideoSession() {
                     ? recordingModuleRef.current?.stopRecording() 
                     : recordingModuleRef.current?.startRecording(),
                 },
-                // 3. CRM: Calendar
+                // 3. Zoom
+                {
+                  id: 'zoom',
+                  name: 'Zoom',
+                  nameHe: 'זום',
+                  icon: VideoIcon,
+                  color: 'text-blue-500',
+                  borderColor: 'border-blue-300',
+                  onClick: () => setShowZoomInvite(true),
+                },
+                // 4. CRM: Calendar
                 {
                   id: 'calendar',
                   name: 'Calendar',
@@ -1238,15 +1248,35 @@ export default function VideoSession() {
                   borderColor: 'border-blue-300',
                   onClick: () => navigate('/crm/calendar'),
                 },
-                // 4. CRM: New Appointment
+                // 5. Calendar Invite
+                {
+                  id: 'calendar-invite',
+                  name: 'Invite',
+                  nameHe: 'הזמנה',
+                  icon: CalendarPlus,
+                  color: 'text-emerald-600',
+                  borderColor: 'border-emerald-300',
+                  onClick: () => setShowCalendarInvite(true),
+                },
+                // 6. CRM: New Appointment
                 {
                   id: 'appointment',
                   name: 'Appoint',
                   nameHe: 'תור חדש',
-                  icon: CalendarPlus,
-                  color: 'text-emerald-600',
-                  borderColor: 'border-emerald-300',
+                  icon: ClipboardList,
+                  color: 'text-teal-600',
+                  borderColor: 'border-teal-300',
                   onClick: () => setShowQuickAppointment(true),
+                },
+                // 7. Follow-up Plan
+                {
+                  id: 'followup',
+                  name: 'Follow-up',
+                  nameHe: 'המשך',
+                  icon: ArrowRight,
+                  color: 'text-jade',
+                  borderColor: 'border-jade/50',
+                  onClick: () => setShowFollowUpPlan(true),
                 },
                 // 5. Session Guide
                 {
