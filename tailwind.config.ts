@@ -142,6 +142,14 @@ export default {
           "50%": { transform: "scale(1.2) translateX(-50%) translateY(-50%)", opacity: "1" },
           "100%": { transform: "scale(1) translateX(-50%) translateY(-50%)", opacity: "1" },
         },
+        "shimmer": {
+          "0%": { backgroundPosition: "200% 0" },
+          "100%": { backgroundPosition: "-200% 0" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { boxShadow: "0 0 5px 2px rgba(239, 68, 68, 0.4)" },
+          "50%": { boxShadow: "0 0 20px 6px rgba(239, 68, 68, 0.8)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -159,6 +167,8 @@ export default {
         "waveform": "waveform 0.5s ease-in-out infinite",
         "confetti-fall": "confetti-fall 3s ease-out forwards",
         "scale-in": "scale-in 0.4s ease-out forwards",
+        "shimmer": "shimmer 2s linear infinite",
+        "glow-pulse": "glow-pulse 1.5s ease-in-out infinite",
       },
     },
   },
