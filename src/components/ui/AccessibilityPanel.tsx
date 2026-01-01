@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import { Accessibility, Plus, Minus, Eye } from 'lucide-react';
 import { Button } from './button';
 import { Switch } from './switch';
@@ -17,17 +16,14 @@ const FONT_SIZES = [
   { value: 'xlarge', label: 'A', size: 'text-xl' },
 ] as const;
 
-export function AccessibilityPanel() {
-  const location = useLocation();
+interface AccessibilityPanelProps {
+  /** If true, renders inline (for headers). Otherwise hidden (no floating button) */
+  inline?: boolean;
+}
+
+export function AccessibilityPanel({ inline = false }: AccessibilityPanelProps) {
   const { fontSize, setFontSize, highContrast, setHighContrast } = useAccessibility();
   const [open, setOpen] = useState(false);
-
-  // Hide on TCM Brain page and Video Session page (has its own accessibility controls in toolbar/header)
-  if (location.pathname === '/tcm-brain' || location.pathname === '/video-session') {
-    return null;
-  }
-
-  console.log('AccessibilityPanel - highContrast:', highContrast);
 
   const currentIndex = FONT_SIZES.findIndex(s => s.value === fontSize);
 
@@ -43,43 +39,49 @@ export function AccessibilityPanel() {
     }
   };
 
+  // If not inline mode, don't render the floating button anymore
+  if (!inline) {
+    return null;
+  }
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
-          className="fixed bottom-20 left-4 z-50 h-12 w-12 rounded-full shadow-elevated bg-card border-primary/30 hover:bg-primary hover:text-primary-foreground"
+          className="h-8 w-8"
           aria-label="Accessibility settings"
+          title="Accessibility"
         >
-          <Accessibility className="h-5 w-5" />
+          <Accessibility className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        side="right" 
+        side="bottom" 
         align="end" 
-        className="w-64 p-4 bg-card border-border shadow-elevated"
+        className="w-64 p-4 bg-popover border-border shadow-elevated z-50"
       >
         <div className="space-y-4">
-          <h3 className="font-display text-lg text-foreground">נגישות / Accessibility</h3>
+          <h3 className="font-display text-sm font-medium">Accessibility</h3>
           
           {/* Font Size Controls */}
           <div className="space-y-2">
-            <label className="text-sm text-muted-foreground">גודל טקסט / Text Size</label>
+            <label className="text-xs text-muted-foreground">Text Size</label>
             <div className="flex items-center justify-between gap-2">
               <Button
                 variant="outline"
                 size="icon"
                 onClick={decreaseFont}
                 disabled={currentIndex === 0}
-                className="h-9 w-9"
+                className="h-8 w-8"
                 aria-label="Decrease font size"
               >
-                <Minus className="h-4 w-4" />
+                <Minus className="h-3 w-3" />
               </Button>
               
               <div className="flex gap-1 flex-1 justify-center">
-                {FONT_SIZES.map((s, i) => (
+                {FONT_SIZES.map((s) => (
                   <button
                     key={s.value}
                     onClick={() => setFontSize(s.value)}
@@ -100,10 +102,10 @@ export function AccessibilityPanel() {
                 size="icon"
                 onClick={increaseFont}
                 disabled={currentIndex === FONT_SIZES.length - 1}
-                className="h-9 w-9"
+                className="h-8 w-8"
                 aria-label="Increase font size"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-3 w-3" />
               </Button>
             </div>
           </div>
@@ -112,7 +114,7 @@ export function AccessibilityPanel() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Eye className="h-4 w-4 text-muted-foreground" />
-              <label className="text-sm text-foreground">ניגודיות גבוהה / High Contrast</label>
+              <label className="text-sm">High Contrast</label>
             </div>
             <Switch
               checked={highContrast}
