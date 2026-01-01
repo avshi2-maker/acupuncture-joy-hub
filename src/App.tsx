@@ -51,6 +51,7 @@ import EncyclopediaLanding from "./pages/EncyclopediaLanding";
 import Developers from "./pages/Developers";
 import ScenariosDashboard from "./pages/ScenariosDashboard";
 import TherapistDisclaimer from "./pages/TherapistDisclaimer";
+import TherapistIntake from "./pages/TherapistIntake";
 import AdminDisclaimers from "./pages/AdminDisclaimers";
 import CMBrainQuestions from "./pages/CMBrainQuestions";
 import PointCoordinateEditor from "./pages/PointCoordinateEditor";
@@ -86,6 +87,7 @@ const App = () => (
                       <Route path="/install" element={<InstallApp />} />
                       <Route path="/contact" element={<Contact />} />
                       <Route path="/therapist-disclaimer" element={<TherapistDisclaimer />} />
+                      <Route path="/therapist-intake" element={<TherapistIntake />} />
 
                       {/* Protected (requires tier) */}
                       <Route path="/dashboard" element={<RequireTier><Dashboard /></RequireTier>} />

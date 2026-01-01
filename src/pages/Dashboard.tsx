@@ -530,13 +530,13 @@ export default function Dashboard() {
     },
     {
       id: 'therapist_intake',
-      title: 'הצהרת מטפל',
+      title: 'קליטת מטפל',
       description: disclaimerStatus.isSigned 
-        ? 'הצהרה חתומה - תקפה לשנה' 
-        : 'נדרשת חתימה על טופס הצהרה',
+        ? 'טופס קליטה הושלם בהצלחה' 
+        : 'נדרש למלא טופס קליטה והצהרה',
       icon: <ClipboardCheck className="h-6 w-6 text-white" />,
       feature: 'crm' as const,
-      href: '/therapist-disclaimer',
+      href: '/therapist-intake',
       backgroundImage: deskBg,
       statusBadge: getDisclaimerBadge(),
     },
