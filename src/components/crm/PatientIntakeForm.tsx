@@ -34,7 +34,7 @@ import { PregnancyQuestionSelect } from './PregnancyQuestionSelect';
 import { LifestyleQuickSelect } from './LifestyleQuickSelect';
 import { validateIsraeliId, looksLikeIsraeliId } from '@/utils/israeliIdValidation';
 import { useIntakeDraftAutosave } from '@/hooks/useIntakeDraftAutosave';
-import intakeBg from '@/assets/intake-lotus-bg.jpg';
+import therapistIntakeBg from '@/assets/therapist-intake-bg.jpg';
 
 // Base patient schema
 const basePatientSchema = z.object({
@@ -820,21 +820,18 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
   };
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
-      {/* Parallax Background with floating animation */}
-      <div 
-        className="fixed inset-0 -z-10 animate-float-gentle"
-        style={{
-          backgroundImage: `url(${intakeBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'bottom right',
-          transform: 'translateZ(0)',
-          willChange: 'transform',
-        }}
-      />
-      
+    <div 
+      className="min-h-screen py-6 px-4 md:px-6 flex items-start justify-center"
+      style={{
+        backgroundImage: `url(${therapistIntakeBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center center',
+        backgroundAttachment: 'fixed',
+        backgroundColor: '#e0e5df',
+      }}
+    >
       {/* Theme Toggle */}
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-1 bg-background/80 backdrop-blur-sm rounded-full p-1 border shadow-lg">
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-1 bg-white/80 backdrop-blur-sm rounded-full p-1 border shadow-lg">
         <button
           type="button"
           onClick={() => document.documentElement.classList.remove('dark')}
@@ -852,20 +849,11 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
           <MoonIcon className="h-4 w-4" />
         </button>
       </div>
-      
-      {/* Semi-transparent overlay for text readability */}
-      <div className="fixed inset-0 -z-10 bg-background/85 backdrop-blur-[1px]" />
-      
-      {/* Vignette overlay */}
-      <div 
-        className="fixed inset-0 -z-10 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at center, transparent 40%, hsl(var(--background) / 0.6) 100%)',
-        }}
-      />
-      
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit, handleFormErrors)} className="relative z-10 space-y-6 p-4 md:p-6">
+
+      {/* Glassmorphism Form Container */}
+      <div className="w-full max-w-4xl bg-white/92 backdrop-blur-md rounded-xl shadow-2xl p-4 md:p-8 my-4 space-y-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit, handleFormErrors)} className="space-y-6">
         {/* Draft Restore Banner */}
         {hasDraft && !draftDismissed && !patientId && (
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-lg p-4 animate-in slide-in-from-top-2 duration-300">
@@ -958,7 +946,7 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
         )}
 
         {/* Progress Bar & Step Indicator */}
-        <div className="sticky top-0 z-20 -mx-4 px-4 py-4 bg-background/95 backdrop-blur border-b space-y-3">
+        <div className="sticky top-0 z-20 -mx-4 px-4 py-4 bg-white/90 backdrop-blur-md border-b border-jade/20 space-y-3 rounded-t-xl">
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
@@ -1071,7 +1059,7 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
         {/* Step 0: Basic Information */}
         {currentStep === 0 && (
           <>
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-sm border-jade/20 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <User className="h-5 w-5 text-jade" />
@@ -1243,7 +1231,7 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
             </Card>
 
             {/* Emergency Contact */}
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-sm border-jade/20 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5 text-gold" />
@@ -1286,7 +1274,7 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
         {/* Step 1: Medical History */}
         {currentStep === 1 && (
           <>
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-sm border-jade/20 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Heart className="h-5 w-5 text-destructive" />
@@ -1429,7 +1417,7 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
 
             {/* Pregnancy Section (conditional) */}
             {watchGender === 'female' && (
-              <Card className="border-pink-200 bg-pink-50/30 dark:bg-pink-950/10">
+              <Card className="border-pink-200 bg-pink-50/50 backdrop-blur-sm shadow-lg dark:bg-pink-950/20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Baby className="h-5 w-5 text-pink-500" />
@@ -1539,7 +1527,7 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
 
             {/* Age-Specific Questions (conditional) */}
             {ageGroup && currentAgeQuestions.length > 0 && (
-              <Card className="border-blue-200 bg-blue-50/30 dark:bg-blue-950/10">
+              <Card className="border-blue-200 bg-blue-50/50 backdrop-blur-sm shadow-lg dark:bg-blue-950/20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Activity className="h-5 w-5 text-blue-500" />
@@ -1572,7 +1560,7 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
         {/* Step 2: Lifestyle */}
         {currentStep === 2 && (
           <>
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-sm border-jade/20 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Activity className="h-5 w-5 text-bamboo" />
@@ -1702,7 +1690,7 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
             </Card>
 
             {/* TCM Assessment */}
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-sm border-jade/20 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-jade">
                   TCM Assessment
@@ -1830,7 +1818,7 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
 
         {/* Step 3: Preview/Summary */}
         {currentStep === 3 && (
-          <Card className="border-blue-300 bg-blue-50/30 dark:bg-blue-900/10">
+          <Card className="border-blue-300 bg-blue-50/50 backdrop-blur-sm shadow-lg dark:bg-blue-900/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Eye className="h-5 w-5 text-blue-600" />
@@ -2062,7 +2050,7 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
 
         {/* Step 4: Consent */}
         {currentStep === 4 && (
-          <Card className="border-jade/30 bg-jade/5">
+          <Card className="border-jade/30 bg-jade/10 backdrop-blur-sm shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileSignature className="h-5 w-5 text-jade" />
@@ -2274,7 +2262,8 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
           </div>
         </DialogContent>
       </Dialog>
-      </Form>
+        </Form>
+      </div>
     </div>
   );
 }
