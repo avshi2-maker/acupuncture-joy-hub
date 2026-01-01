@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { z } from 'zod';
@@ -10,10 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { supabase } from '@/integrations/supabase/client';
 import { useTier } from '@/hooks/useTier';
+import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 import { toast } from 'sonner';
-import { Lock, ArrowLeft, Leaf, CreditCard, Upload, CheckCircle, ArrowRight, MessageCircle, Mail, Loader2, Play } from 'lucide-react';
+import { Lock, ArrowLeft, Leaf, CreditCard, Upload, CheckCircle, ArrowRight, MessageCircle, Mail, Loader2, Play, Fingerprint } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TierCard } from '@/components/pricing/TierCard';
+import { Confetti } from '@/components/ui/Confetti';
 
 const gateSchema = z.object({
   password: z
@@ -86,6 +88,13 @@ export default function Gate() {
   const [isUploading, setIsUploading] = useState(false);
   const [therapistName, setTherapistName] = useState('');
   const [therapistPhone, setTherapistPhone] = useState('');
+  const [showConfetti, setShowConfetti] = useState(false);
+  
+  // Biometric authentication
+  const { isAvailable: isBiometricAvailable, isEnabled: isBiometricEnabled, authenticate, enableBiometric, isAuthenticating } = useBiometricAuth();
+  
+  // Check if user has previously logged in (has stored tier info)
+  const hasStoredSession = localStorage.getItem('tier') !== null;
 
   const form = useForm<GateForm>({
     resolver: zodResolver(gateSchema),
@@ -210,17 +219,74 @@ export default function Gate() {
         details: { tier: result.tier },
       });
 
+      // Show confetti celebration
+      setShowConfetti(true);
+      
+      // Offer to enable biometric for next time (if available and not already enabled)
+      if (isBiometricAvailable && !isBiometricEnabled) {
+        setTimeout(async () => {
+          const enableResult = await enableBiometric();
+          if (enableResult.success) {
+            toast.success('🔐 כניסה ביומטרית הופעלה!', {
+              description: 'בפעם הבאה תוכלו להיכנס עם טביעת אצבע / Face ID',
+              duration: 5000,
+            });
+          }
+        }, 1500);
+      }
+
       // Show beautiful welcome toast with celebration
       toast.success('ברוכים הבאים! 🌿', {
         description: 'נכנסתם בהצלחה למערכת',
         duration: 4000,
         className: 'bg-gradient-to-r from-jade/10 to-gold/10 border-jade',
       });
-      navigate(buildPostLoginRedirect(), { replace: true });
+      
+      // Navigate after confetti starts
+      setTimeout(() => {
+        navigate(buildPostLoginRedirect(), { replace: true });
+      }, 800);
     } catch (error) {
       toast.error('שגיאה בכניסה. נסו שוב.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Handle biometric login
+  const handleBiometricLogin = async () => {
+    const result = await authenticate();
+    if (result.success) {
+      // Restore stored tier from localStorage
+      const storedTier = localStorage.getItem('tier') as 'trial' | 'standard' | 'premium' | null;
+      const storedExpiry = localStorage.getItem('tierExpiresAt');
+      
+      if (storedTier) {
+        setTier(storedTier);
+        if (storedExpiry) {
+          setExpiresAt(new Date(storedExpiry));
+        }
+        
+        setShowConfetti(true);
+        
+        await supabase.from('access_logs').insert({
+          action: 'biometric_login',
+          details: { tier: storedTier },
+        });
+        
+        toast.success('ברוכים הבאים! 🔐', {
+          description: 'כניסה מהירה בטביעת אצבע',
+          duration: 3000,
+        });
+        
+        setTimeout(() => {
+          navigate(buildPostLoginRedirect(), { replace: true });
+        }, 800);
+      } else {
+        toast.error('לא נמצאה כניסה קודמת. נא להיכנס עם סיסמה.');
+      }
+    } else if (result.error !== 'Authentication cancelled') {
+      toast.error('אימות ביומטרי נכשל');
     }
   };
 
@@ -551,6 +617,38 @@ export default function Gate() {
                           </>
                         )}
                       </Button>
+                      
+                      {/* Biometric login option - only shown for returning users */}
+                      {isBiometricAvailable && isBiometricEnabled && hasStoredSession && (
+                        <>
+                          <div className="relative flex items-center justify-center my-4">
+                            <div className="absolute inset-0 flex items-center">
+                              <div className="w-full border-t border-border/50" />
+                            </div>
+                            <span className="relative px-3 bg-card text-sm text-muted-foreground">או</span>
+                          </div>
+                          
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full h-12 text-lg font-medium border-2 border-jade/30 hover:border-jade hover:bg-jade/5 transition-all group"
+                            onClick={handleBiometricLogin}
+                            disabled={isAuthenticating}
+                          >
+                            {isAuthenticating ? (
+                              <>
+                                <Loader2 className="h-5 w-5 ml-2 animate-spin" />
+                                מאמת...
+                              </>
+                            ) : (
+                              <>
+                                <Fingerprint className="h-5 w-5 ml-2 text-jade group-hover:scale-110 transition-transform" />
+                                כניסה עם טביעת אצבע / Face ID
+                              </>
+                            )}
+                          </Button>
+                        </>
+                      )}
                     </form>
                   </Form>
 
@@ -580,6 +678,9 @@ export default function Gate() {
               </Card>
             </div>
           )}
+          
+          {/* Confetti celebration */}
+          <Confetti isActive={showConfetti} duration={3000} />
 
           {/* Contact footer */}
           <p className="text-center text-sm text-muted-foreground mt-8">
