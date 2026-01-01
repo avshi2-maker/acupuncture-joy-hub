@@ -56,6 +56,7 @@ import CMBrainQuestions from "./pages/CMBrainQuestions";
 import PointCoordinateEditor from "./pages/PointCoordinateEditor";
 import Contact from "./pages/Contact";
 import AdminPasswordGenerator from "./pages/AdminPasswordGenerator";
+import CAFBrowser from "./pages/CAFBrowser";
 
 const queryClient = new QueryClient();
 
@@ -122,6 +123,7 @@ const App = () => (
                       <Route path="/scenarios" element={<RequireTier><ScenariosDashboard /></RequireTier>} />
                       <Route path="/cm-brain-questions" element={<RequireTier><CMBrainQuestions /></RequireTier>} />
                       <Route path="/point-editor" element={<RequireTier><PointCoordinateEditor /></RequireTier>} />
+                      <Route path="/caf-browser" element={<RequireTier><CAFBrowser /></RequireTier>} />
 
                       <Route path="*" element={<NotFound />} />
                     </Routes>
