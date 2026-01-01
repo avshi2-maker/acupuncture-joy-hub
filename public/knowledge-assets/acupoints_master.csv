@@ -1,0 +1,362 @@
+code,name_english,name_pinyin,category,location_note,function_note
+LU1,Middle Palace,Zhongfu,Front-Mu of Lung,1st intercostal space 6 cun lateral to midline,Clears Lung heat; regulates Lung Qi
+LU2,Cloud Gate,Yunmen,-,Below clavicle 6 cun lateral to midline,Clears Lung heat; disperses fullness in chest
+LU3,Heavenly Palace,Tianfu,Window of Heaven,3 cun inferior to axillary fold on biceps,Clears Lung heat; cools blood; calms Corporeal Soul (Po)
+LU4,Guarding White,Xiabai,-,4 cun inferior to axillary fold,Regulates Qi and blood; relieves pain
+LU5,Cubit Marsh,Chize,He-Sea; Water,Elbow crease radial side of biceps tendon,Clears Heat from Lung; relaxes sinews
+LU6,Maximum Opening,Kongzui,Xi-Cleft,7 cun above wrist crease,Acute asthma; stops bleeding (hemoptysis)
+LU7,Broken Sequence,Lieque,Luo-Connecting; Command (Head/Neck),1.5 cun above wrist; styloid process,Releases exterior; opens Ren Mai; treats head/neck
+LU8,Channel Gutter,Jingqu,Jing-River; Metal,1 cun above wrist crease,Clears Lung heat; treats sore throat
+LU9,Great Abyss,Taiyuan,Shu-Stream; Yuan-Source; Earth,Wrist crease radial side of artery,Tonifies Lung Qi/Yin; influences pulse (Hui-Meeting)
+LU10,Fish Border,Yuji,Ying-Spring; Fire,Midpoint of 1st metacarpal bone,Clears Lung Heat; benefits throat
+LU11,Lesser Shang,Shaoshang,Jing-Well; Wood,Radial corner of thumbnail,Revives consciousness; clears heat (sore throat)
+LI1,Merchant Yang,Shangyang,Jing-Well; Metal,Radial corner of index finger nail,Clears heat; revives consciousness
+LI2,Second Space,Erjian,Ying-Spring; Water,Distal to 2nd MCP joint (radial),Clears heat; reduces swelling
+LI3,Third Space,Sanjian,Shu-Stream; Wood,Proximal to 2nd MCP joint (radial),Expels wind-heat; treats finger pain
+LI4,Union Valley,Hegu,Yuan-Source; Command (Face),Midpoint of 2nd metacarpal bone,Releases exterior; stops pain; induces labor (contraindicated pregnancy)
+LI5,Yang Stream,Yangxi,Jing-River; Fire,Anatomical snuffbox,Clears heat; calms spirit
+LI6,Veering Passage,Pianli,Luo-Connecting,3 cun above LI5,Opens lung water passages; treats edema
+LI7,Warm Flow,Wenliu,Xi-Cleft,5 cun above LI5,Clears heat; treats acute oral issues
+LI8,Lower Angle,Xialian,-,4 cun below LI11,Clear heat; harmonizes SI
+LI9,Upper Angle,Shanglian,-,3 cun below LI11,Shoulder/arm pain; numbness
+LI10,Arm Three Miles,Shousanli,-,2 cun below LI11,Tonifies Qi/Blood; treats arm paralysis
+LI11,Pool at the Crook,Quchi,He-Sea; Earth,Lateral end of elbow crease,Clears Heat; cools blood; eliminates wind (skin)
+LI12,Elbow Crevice,Zhouliao,-,Superior to lateral epicondyle,Elbow pain/contracture
+LI13,Arm Five Miles,Shouwuli,-,3 cun above LI11,Relieves pain; treats scrofula
+LI14,Upper Arm,Binao,-,Insertion of deltoid muscle,Brightens eyes; treats shoulder pain
+LI15,Shoulder Bone,Jianyu,-,Anterior dimple of shoulder,Eliminates wind; benefits shoulder joint
+LI16,Great Bone,Jugu,-,Depression between clavicle and scapular spine,Regulates Qi/Blood; shoulder pain
+LI17,Heavenly Vessel,Tianding,-,Post. border of SCM; level with laryngeal prom.,Benefits throat/voice
+LI18,Support Prominence,Futu,Window of Heaven,Level with laryngeal prom. between SCM heads,Benefits throat; alleviates cough
+LI19,Grain Bone,Heliao,-,Below lateral margin of nostril,Opens nasal passages
+LI20,Welcome Fragrance,Yingxiang,Meeting LI/ST,Nasolabial groove level with midpoint of ala nasi,Opens nose; clears wind-heat
+ST1,Tear Container,Chengqi,Meeting ST/Ren/Yang Qiao,Between eyeball and infraorbital ridge,Benefits eyes; stops lacrimation
+ST2,Four Whites,Sibai,-,Infraorbital foramen,Benefits eyes; clears wind (face)
+ST3,Great Crevice,Juliao,-,Directly below pupil level with nostril,Eliminates wind; reduces swelling
+ST4,Earth Granary,Dicang,-,Lateral to corner of mouth,Eliminates wind (Bell's Palsy); stops pain
+ST5,Great Welcome,Daying,-,Anterior to angle of mandible,Eliminates wind; reduces swelling
+ST6,Jaw Chariot,Jiache,-,One finger-width ant/sup to angle of mandible,Eliminates wind; benefits jaw/teeth
+ST7,Below the Joint,Xiaguan,-,Depression below zygomatic arch,Benefits ear/jaw; clears wind
+ST8,Head Support,Touwei,Meeting ST/GB,Corner of forehead (hairline),Eliminates wind; relieves headache (migraine)
+ST9,Man's Prognosis,Renying,Window of Heaven,Level with laryngeal prom.; ant. border SCM,Regulates Qi/Blood; benefits throat/BP
+ST10,Water Prominence,Shuitu,-,Midway between ST9 and ST11,Benefits throat/neck
+ST11,Qi Abode,Qishe,-,Sup. border of clavicle between SCM heads,Benefits throat/neck
+ST12,Empty Basin,Quepen,-,Supraclavicular fossa midclavicular line,Descends Lung Qi; clears heat
+ST13,Qi Door,Qihu,-,Infraclavicular fossa on midclavicular line,Descends Lung Qi
+ST14,Storeroom,Kufang,-,1st intercostal space midclavicular line,Descends Lung Qi
+ST15,Roof,Wuyi,-,2nd intercostal space midclavicular line,Stops pain/itching
+ST16,Breast Window,Yingchuang,-,3rd intercostal space midclavicular line,Relieves cough/wheezing
+ST17,Breast Center,Ruzhong,-,Center of nipple,Contraindicated for needling; landmark only
+ST18,Breast Root,Rugen,-,5th intercostal space midclavicular line,Benefits breasts (mastitis/lactation); moves Qi
+ST19,Not Passing,Burong,-,6 cun above umbilicus 2 cun lateral,Harmonizes Middle Jiao; descends Stomach Qi
+ST20,Supporting Fullness,Chengman,-,5 cun above umbilicus 2 cun lateral,Harmonizes Stomach; descends Qi
+ST21,Beam Gate,Liangmen,-,4 cun above umbilicus 2 cun lateral,Regulates Qi; relieves pain/vomiting
+ST22,Pass Gate,Guanmen,-,3 cun above umbilicus 2 cun lateral,Regulates intestines; transforms damp
+ST23,Supreme Unity,Taiyi,-,2 cun above umbilicus 2 cun lateral,Calms spirit; transforms phlegm
+ST24,Slippery Flesh,Huaroumen,-,1 cun above umbilicus 2 cun lateral,Calms spirit; harmonizes stomach
+ST25,Heaven's Pivot,Tianshu,Front-Mu of LI,Level with umbilicus 2 cun lateral,Regulates intestines/Spleen; treats diarrhea/constipation
+ST26,Outer Mound,Wailing,-,1 cun below umbilicus 2 cun lateral,Regulates Qi; relieves pain
+ST27,Great Gigantic,Daju,-,2 cun below umbilicus 2 cun lateral,Benefits Kidneys; regulates Qi
+ST28,Waterway,Shuidao,-,3 cun below umbilicus 2 cun lateral,Regulates Lower Jiao; benefits urination/uterus
+ST29,Return,Guilai,-,4 cun below umbilicus 2 cun lateral,Warms Lower Jiao; regulates menses
+ST30,Surging Qi,Qichong,Meeting of Sea of Food,5 cun below umbilicus 2 cun lateral,Regulates Chong Mai; promotes essence
+ST31,Big Thigh Gate,Biguan,-,Thigh crease lateral to sartorius,Leg pain/atrophy; dispels wind-damp
+ST32,Crouching Rabbit,Futu,-,6 cun above patella lateral border,Expels wind-damp; activates channel
+ST33,Yin Market,Yinshi,-,3 cun above patella lateral border,Dispels wind-damp; knee pain
+ST34,Liangqiu,Liangqiu,Xi-Cleft,2 cun above patella lateral border,Acute stomach pain; knee swelling
+ST35,Calf's Nose,Dubi,-,Lateral depression of patellar ligament,Disperses wind-damp; benefits knee
+ST36,Leg Three Miles,Zusanli,He-Sea; Earth; Command (Abdomen),3 cun below ST35 one finger-breadth lateral crest,Tonifies Qi/Blood/Spleen; harmonizes Stomach
+ST37,Upper Great Void,Shangjuxu,Lower He-Sea of LI,6 cun below ST35,Regulates Large Intestine; clears damp-heat
+ST38,Ribbon Opening,Tiaokou,-,8 cun below ST35,Benefits shoulder; muscle cramps
+ST39,Lower Great Void,Xiajuxu,Lower He-Sea of SI,9 cun below ST35,Regulates Small Intestine; relieves pain
+ST40,Abundant Bulge,Fenglong,Luo-Connecting,8 cun below ST35; 2 fingers lateral to crest,Transforms Phlegm (major point); calms spirit
+ST41,Ravine Divide,Jiexi,Jing-River; Fire,Ankle crease between tendons,Clears Stomach heat; calms spirit
+ST42,Surging Yang,Chongyang,Yuan-Source,Distal to ST41 on high point of dorsum,Clears Stomach heat; calms spirit
+ST43,Sunken Valley,Xiangu,Shu-Stream; Wood,Between 2nd/3rd metatarsals,Reduces facial swelling; regulates Stomach
+ST44,Inner Court,Neiting,Ying-Spring; Water,Proximal to web of 2nd/3rd toes,Clears Stomach Fire; toothache
+ST45,Strict Exchange,Lidui,Jing-Well; Metal,Lateral corner of 2nd toe nail,Clears heat; calms spirit (nightmares)
+SP1,Hidden White,Yinbai,Jing-Well; Wood,Medial corner of big toe nail,Stops bleeding; calms spirit; regulates Spleen
+SP2,Great Metropolis,Dadu,Ying-Spring; Fire,Distal to 1st MTP joint (medial),Tonifies Spleen; clears heat
+SP3,Supreme White,Taibai,Shu-Stream; Yuan-Source; Earth,Proximal to 1st MTP joint (medial),Tonifies Spleen Qi; harmonizes Stomach
+SP4,Grandfather Grandson,Gongsun,Luo-Connecting; Opening Chong Mai,Base of 1st metatarsal bone,Regulates Chong Mai/Stomach; treats gastric pain
+SP5,Shang Mound,Shangqiu,Jing-River; Metal,Depression distal/inferior to medial malleolus,Tonifies Spleen; resolves dampness
+SP6,Three Yin Intersection,Sanyinjiao,Meeting SP/LV/KI,3 cun above medial malleolus,Tonifies Spleen/Kidney; moves Liver Qi; regulates menses
+SP7,Leaking Valley,Lougu,-,6 cun above medial malleolus,Promotes urination; resolves damp
+SP8,Earth Crux,Diji,Xi-Cleft,3 cun below SP9,Acute menstrual pain; harmonizes blood
+SP9,Yin Mound Spring,Yinlingquan,He-Sea; Water,Inferior border of medial condyle of tibia,Drains Dampness; regulates water passages
+SP10,Sea of Blood,Xuehai,-,2 cun above patella on vastus medialis,Invigorates/Cools Blood; treats skin/menses
+SP11,Basket Door,Jimen,-,6 cun above SP10,Regulates urination
+SP12,Surging Gate,Chongmen,Meeting SP/LV,Groin crease lateral to artery,Invigorates blood; drains damp
+SP13,Bowels Abode,Fushe,Meeting SP/LV/Yin Wei,0.7 cun superior to SP12,Regulates Qi; relieving pain
+SP14,Abdomen Knot,Fujie,-,1.3 cun below SP15,Warms middle jiao; descends Qi
+SP15,Great Horizontal,Daheng,-,4 cun lateral to umbilicus,Regulates intestines; constipation
+SP16,Abdomen Sorrow,Fuai,Meeting SP/Yin Wei,3 cun above SP15,Clears heat; damp-heat
+SP17,Food Hole,Shidou,-,5th intercostal space 6 cun lateral,Dissipates food stagnation
+SP18,Celestial Stream,Tianxi,-,4th intercostal space 6 cun lateral,Promotes lactation; moves Qi
+SP19,Chest Village,Xiongxiang,-,3rd intercostal space 6 cun lateral,Descends Lung Qi
+SP20,Encircling Glory,Zhourong,-,2nd intercostal space 6 cun lateral,Descends Lung Qi
+SP21,Great Wrapping,Dabao,Great Luo of Spleen,6th intercostal space mid-axillary line,Regulates Qi/Blood of all Luo channels; body pain
+HT1,Utmost Source,Jiquan,-,Center of axilla,Unbinds chest; activates channel
+HT2,Green Spirit,Qingling,-,3 cun above elbow (medial),Activates channel; stops arm pain
+HT3,Lesser Sea,Shaohai,He-Sea; Water,Medial end of elbow crease,Calms Spirit; clears heat
+HT4,Spirit Path,Lingdao,Jing-River; Metal,1.5 cun above wrist crease (ulnar),Calms Spirit; benefits voice
+HT5,Penetrating Mile,Tongli,Luo-Connecting,1 cun above wrist crease (ulnar),Calms Spirit; regulates heart rhythm; tongue (speech)
+HT6,Yin Cleft,Yinxi,Xi-Cleft,0.5 cun above wrist crease (ulnar),Nourishes Heart Yin; treats night sweats/acute pain
+HT7,Spirit Gate,Shenmen,Shu-Stream; Yuan-Source; Earth,Wrist crease ulnar side,Calms Spirit (Insomnia/Anxiety); tonifies Heart
+HT8,Lesser Palace,Shaofu,Ying-Spring; Fire,Where pinky tip touches palm,Clears Heart Fire/Heat; urinary issues
+HT9,Lesser Surge,Shaochong,Jing-Well; Wood,Radial corner of pinky nail,Clears Heart Heat; revives consciousness
+SI1,Lesser Marsh,Shaoze,Jing-Well; Metal,Ulnar corner of pinky nail,Promotes lactation; clears heat
+SI2,Front Valley,Qiangu,Ying-Spring; Water,Distal to 5th MCP joint (ulnar),Clears heat; benefits eyes/ears
+SI3,Back Stream,Houxi,Shu-Stream; Wood; Opening Du Mai,Proximal to 5th MCP joint (ulnar),Benefits spine/neck; clears wind/heat
+SI4,Wrist Bone,Wangu,Yuan-Source,Depression between 5th metacarpal/triquetral,Clears damp-heat (jaundice); pain along channel
+SI5,Yang Valley,Yanggu,Jing-River; Fire,Ulnar side of wrist in depression,Clears heat; calms spirit
+SI6,Nursing the Old,Yanglao,Xi-Cleft,Dorsal ulnar head (palm to chest),Benefits eyes; acute shoulder/arm pain
+SI7,Branch of the Upright,Zhizheng,Luo-Connecting,5 cun above wrist,Calms spirit; releases exterior
+SI8,Small Sea,Xiaohai,He-Sea; Earth,Groove between olecranon/medial epicondyle,Clears heat; calms spirit; arm pain
+SI9,Shoulder Integrity,Jianzhen,-,1 cun superior to post. axillary crease,Benefits shoulder; expels wind
+SI10,Upper Arm Shu,Naoshu,Meeting SI/Yang Wei/Yang Qiao,Superior to posterior axillary crease,Benefits shoulder; resolves phlegm
+SI11,Heavenly Gathering,Tianzong,-,Center of infrascapular fossa,Moves Qi in chest/scapula; benefits breasts
+SI12,Grasping the Wind,Bingfeng,Meeting SI/LI/SJ/GB,Center of suprascapular fossa,Expels wind; benefits shoulder
+SI13,Crooked Wall,Quyuan,-,Medial end of suprascapular fossa,Shoulder blade pain
+SI14,Outer Shoulder Shu,Jianwaishu,-,3 cun lateral to T1,Shoulder/back pain; expels wind-cold
+SI15,Middle Shoulder Shu,Jianzhongshu,-,2 cun lateral to C7,Unbinds chest; clears heat; asthma
+SI16,Heavenly Window,Tianchuang,Window of Heaven,Posterior border SCM level with laryngeal prom.,Benefits ears/throat; sudden deafness
+SI17,Heavenly Appearance,Tianrong,Window of Heaven,Posterior to angle of mandible,Benefits neck/throat; resolves swelling
+SI18,Cheek Bone Crevice,Quanliao,-,Below zygomatic arch directly below outer canthus,Eliminates wind; toothache; face pain
+SI19,Palace of Hearing,Tinggong,-,Depression anterior to tragus (mouth open),Benefits ears/hearing; calms spirit
+BL1,Bright Eyes,Jingming,Meeting BL/SI/ST/GB/SJ,Inner canthus of eye,Benefits eyes; expels wind
+BL2,Gathering Bamboo,Zanzhu,-,Medial end of eyebrow,Benefits eyes; clears wind; headache
+BL3,Eyebrow Ascension,Meichong,-,0.5 cun within hairline directly above BL2,Headache; nasal issues
+BL4,Crooked Curve,Qucha,-,1.5 cun lateral to midline 0.5 cun within hairline,Headache; eye pain
+BL5,Five Places,Wuchu,-,1 cun posterior to BL4,Headache; epilepsy
+BL6,Light Guard,Chengguang,-,1.5 cun posterior to BL5,Clear heat; visual dizziness
+BL7,Heavenly Connection,Tongtian,-,1.5 cun posterior to BL6,Nasal congestion/polyps
+BL8,Declining Connection,Luoque,-,1.5 cun posterior to BL7,Visual dizziness; tinnitus
+BL9,Jade Pillow,Yuzhen,-,Level with upper border of ext. occipital protuberance,Headache; neck pain
+BL10,Celestial Pillar,Tianzhu,Window of Heaven,1.3 cun lateral to midline in trapezius depression,Occipital headache; neck rigidity; clears wind
+BL11,Great Shuttle,Dazhu,Hui-Meeting of Bone,1.5 cun lateral to T1,Benefits bones/joints; expels wind
+BL12,Wind Gate,Fengmen,Meeting BL/GV,1.5 cun lateral to T2,Expels wind (prevention of cold/flu)
+BL13,Lung Shu,Feishu,Back-Shu of Lung,1.5 cun lateral to T3,Tonifies Lung Qi/Yin; clears heat
+BL14,Pericardium Shu,Jueyinshu,Back-Shu of PC,1.5 cun lateral to T4,Regulates Heart; calms spirit
+BL15,Heart Shu,Xinshu,Back-Shu of Heart,1.5 cun lateral to T5,Tonifies Heart; calms spirit (major emotional point)
+BL16,Governor Shu,Dushu,Back-Shu of GV,1.5 cun lateral to T6,Regulates Heart/blood; skin issues
+BL17,Diaphragm Shu,Geshu,Hui-Meeting of Blood,1.5 cun lateral to T7,Invigorates/Cools Blood; tonifies blood
+BL18,Liver Shu,Ganshu,Back-Shu of Liver,1.5 cun lateral to T9,Tonifies Liver; moves Qi; benefits eyes
+BL19,Gallbladder Shu,Danshu,Back-Shu of GB,1.5 cun lateral to T10,Clears GB Damp-Heat; harmonizes Shao Yang
+BL20,Spleen Shu,Pishu,Back-Shu of Spleen,1.5 cun lateral to T11,Tonifies Spleen Qi; resolves dampness
+BL21,Stomach Shu,Weishu,Back-Shu of Stomach,1.5 cun lateral to T12,Harmonizes Stomach; resolves food stagnation
+BL22,Triple Burner Shu,Sanjiaoshu,Back-Shu of TE,1.5 cun lateral to L1,Regulates water passages; resolves edema
+BL23,Kidney Shu,Shenshu,Back-Shu of Kidney,1.5 cun lateral to L2,Tonifies Kidney Yang/Yin/Essence; lumbar pain
+BL24,Sea of Qi Shu,Qihaishu,-,1.5 cun lateral to L3,Strengthens lower back; regulates menses
+BL25,Large Intestine Shu,Dachangshu,Back-Shu of LI,1.5 cun lateral to L4,Regulates intestines; treats sciatica
+BL26,Origin Shu,Guanyuanshu,-,1.5 cun lateral to L5,Strengthens lower back; urination
+BL27,Small Intestine Shu,Xiaochangshu,Back-Shu of SI,1.5 cun lateral to 1st sacral foramen,Regulates SI; bladder issues
+BL28,Bladder Shu,Pangguangshu,Back-Shu of BL,1.5 cun lateral to 2nd sacral foramen,Regulates Bladder; damp-heat
+BL29,Mid Spine Shu,Zhonglushu,-,1.5 cun lateral to 3rd sacral foramen,Sciatica; hernia
+BL30,White Ring Shu,Baihuanshu,-,1.5 cun lateral to 4th sacral foramen,Leukorrhea; seminal emission
+BL31,Upper Crevice,Shangliao,Meeting BL/GB,1st sacral foramen,Regulates menses/urination; lumbar pain
+BL32,Second Crevice,Ciliao,Meeting BL/GB,2nd sacral foramen,Regulates menses/urination; induces labor
+BL33,Middle Crevice,Zhongliao,Meeting BL/GB,3rd sacral foramen,Regulates menses/urination
+BL34,Lower Crevice,Xialiao,Meeting BL/GB,4th sacral foramen,Regulates menses/urination
+BL35,Meeting of Yang,Huiyang,-,0.5 cun lateral to coccyx tip,Treats hemorrhoids; coccyx pain
+BL36,Bearing Support,Chengfu,-,Center of gluteal fold,Sciatica; hemorrhoids
+BL37,Gate of Abundance,Yinmen,-,6 cun below BL36,Sciatica; back pain
+BL38,Floating Cleft,Fuxi,-,1 cun superior to BL39,Relax sinews; knee pain
+BL39,Outside the Crook,Weiyang,Lower He-Sea of TE,Lateral end of popliteal crease,Harmonizes Triple Burner; regulates water
+BL40,Middle of the Crook,Weizhong,He-Sea; Earth; Command (Back),Midpoint of popliteal crease,Clears Heat; benefits lumbar back; cools blood
+BL41,Attached Branch,Fufen,-,3 cun lateral to T2,Stiffness of shoulder/back
+BL42,Door of the Corporeal Soul,Pohu,-,3 cun lateral to T3,Tonifies Lung; soothes Po soul
+BL43,Vital Region Shu,Gaohuangshu,-,3 cun lateral to T4,Tonifies severe deficiency; chronic illness
+BL44,Hall of the Spirit,Shentang,-,3 cun lateral to T5,Calms Shen; anxiety/insomnia
+BL45,Yi Xi,Yixi,-,3 cun lateral to T6,Malaria; fever
+BL46,Diaphragm Gate,Geguan,-,3 cun lateral to T7,Difficulty swallowing; belching
+BL47,Gate of the Ethereal Soul,Hunmen,-,3 cun lateral to T9,Regulates Liver Qi; soothes Hun soul
+BL48,Yang Head,Yanggang,-,3 cun lateral to T10,Damp-heat; borborygmus
+BL49,Abode of Thought,Yishe,-,3 cun lateral to T11,Stimulates memory/concentration (Yi)
+BL50,Stomach Granary,Weicang,-,3 cun lateral to T12,Harmonizes stomach
+BL51,Huang Gate,Huangmen,-,3 cun lateral to L1,Constipation; breast issues
+BL52,Will Chamber,Zhishi,-,3 cun lateral to L2,Tonifies Willpower (Zhi); urination; essence
+BL53,Bladder Huang,Baohuang,-,3 cun lateral to S2,Urogenital issues; lumbar pain
+BL54,Order Limit,Zhibian,-,3 cun lateral to hiatus of sacrum,Sciatica; piriformis syndrome
+BL55,Yang Union,Heyang,-,2 cun below BL40,Lumbar pain; uterine bleeding
+BL56,Sinew Support,Chengjin,-,5 cun below BL40,Relax sinews; hemorrhoids
+BL57,Support Mountain,Chengshan,-,Distal depression of gastrocnemius belly,Treats hemorrhoids (empiric); calf cramps
+BL58,Soaring Upwards,Feiyang,Luo-Connecting,7 cun above BL60,Expels wind (sciatica); hemorrhoids
+BL59,Instep Yang,Fuyang,Xi-Cleft of Yang Qiao,3 cun above BL60,Heavy head; lumbar pain
+BL60,Kunlun Mountains,Kunlun,Jing-River; Fire,Depression between lateral malleolus and Achilles,Clears heat; alleviates pain; contraindicated pregnancy
+BL61,Servant's Aide,Pucan,Meeting BL/Yang Qiao,Posterior/inferior to lateral malleolus,Heel pain
+BL62,Extending Vessel,Shenmai,Opening Yang Qiao,Inferior to lateral malleolus,Calms spirit (insomnia); treats epilepsy/wind
+BL63,Golden Gate,Jinmen,Xi-Cleft,Anterior/inferior to BL62,Acute pain; infantile convulsion
+BL64,Capital Bone,Jinggu,Yuan-Source,Below tuberosity of 5th metatarsal,Clear head/eyes; palpitations
+BL65,Bundle Bone,Shugu,Shu-Stream; Wood,Posterior to 5th MTP joint,Clears heat; headache
+BL66,Foot Penetrating Valley,Zhutonggu,Ying-Spring; Water,Anterior to 5th MTP joint,Clears wind/heat
+BL67,Reaching Yin,Zhiyin,Jing-Well; Metal,Lateral corner of pinky toe nail,Turns malpositioned fetus; clears head
+KI1,Gushing Spring,Yongquan,Jing-Well; Wood,Depression on sole (1/3 distance),Calms Spirit; descends excess Yang; revives consciousness
+KI2,Blazing Valley,Rangu,Ying-Spring; Fire,Anterior/Inferior to navicular tuberosity,Clears deficiency heat; regulates menses
+KI3,Supreme Stream,Taixi,Shu-Stream; Yuan-Source; Earth,Midway between medial malleolus and Achilles,Tonifies Kidney Yin/Yang/Qi (Major point)
+KI4,Great Bell,Dazhong,Luo-Connecting,0.5 cun posterior/inferior to KI3,Anchors Qi; strengthens will
+KI5,Water Spring,Shuiquan,Xi-Cleft,1 cun inferior to KI3,Regulates menses; difficult urination
+KI6,Shining Sea,Zhaohai,Opening Yin Qiao,Depression inferior to medial malleolus,Nourishes Yin; calms spirit; sore throat (dry)
+KI7,Recover Flow,Fuliu,Jing-River; Metal,2 cun above KI3,Tonifies Kidney Yang; regulates sweating/edema
+KI8,Intersection Reach,Jiaoxin,Xi-Cleft of Yin Qiao,2 cun above KI3 (anterior to KI7),Regulates menses; stops uterine bleeding
+KI9,Guest House,Zhubin,Xi-Cleft of Yin Wei,5 cun above KI3,Calms spirit; clears heart (detox)
+KI10,Yin Valley,Yingu,He-Sea; Water,Medial side of popliteal crease,Clears damp-heat; urinary difficulty
+KI11,Horizontal Bone,Henggu,-,5 cun below umbilicus 0.5 cun lateral,Lower jiao benefits
+KI12,Great Manifestation,Dahe,-,4 cun below umbilicus 0.5 cun lateral,Tonifies Essence; genital issues
+KI13,Qi Hole,Qixue,-,3 cun below umbilicus 0.5 cun lateral,Regulates Chong/Ren; menses
+KI14,Four Fullness,Siman,-,2 cun below umbilicus 0.5 cun lateral,Regulates Qi; blood stasis
+KI15,Middle Flow,Zhongzhu,-,1 cun below umbilicus 0.5 cun lateral,Constipation; irreg menses
+KI16,Vitals Shu,Huangshu,-,Level with umbilicus 0.5 cun lateral,Harmonizes Kidneys/Stomach
+KI17,Shang Bend,Shangqu,-,2 cun above umbilicus 0.5 cun lateral,Digestion; abdominal pain
+KI18,Stone Pass,Shiguan,-,3 cun above umbilicus 0.5 cun lateral,Stomach pain; postpartum
+KI19,Yin Metropolis,Yindu,-,4 cun above umbilicus 0.5 cun lateral,Harmonizes Stomach/Spleen
+KI20,Abdomen Penetrating Valley,Futonggu,-,5 cun above umbilicus 0.5 cun lateral,Chest tightness; vomiting
+KI21,Dark Gate,Youmen,-,6 cun above umbilicus 0.5 cun lateral,Stops vomiting; clears heat
+KI22,Walking Veranda,Bulang,-,5th intercostal space 2 cun lateral,Cough; asthma
+KI23,Spirit Seal,Shenfeng,-,4th intercostal space 2 cun lateral,Calms spirit; opens chest
+KI24,Spirit Ruin,Lingxu,-,3rd intercostal space 2 cun lateral,Calms spirit; cough
+KI25,Spirit Storehouse,Shencang,-,2nd intercostal space 2 cun lateral,Asthma; chest pain
+KI26,Lively Center,Yuzhong,-,1st intercostal space 2 cun lateral,Cough; accumulation of phlegm
+KI27,Shu Mansion,Shufu,-,Lower border of clavicle 2 cun lateral,Asthma; descends Lung Qi
+PC1,Heavenly Pool,Tianchi,-,4th intercostal space 1 cun lateral to nipple,Unbinds chest; resolves phlegm
+PC2,Heavenly Spring,Tianquan,-,2 cun below axillary fold,Unbinds chest; invigorates blood
+PC3,Marsh at the Crook,Quze,He-Sea; Water,Ulnar side of biceps tendon at elbow,Clears Heat (Nutritive level); stops tremors
+PC4,Cleft Gate,Ximen,Xi-Cleft,5 cun above wrist crease,Acute chest pain; calms spirit
+PC5,Intermediate Messenger,Jianshi,Jing-River; Metal,3 cun above wrist crease,Transforms phlegm (insubstantial); settles Stomach
+PC6,Inner Pass,Neiguan,Luo-Connecting; Opening Yin Wei,2 cun above wrist crease,Calms Spirit; stops nausea; opens chest
+PC7,Great Mound,Daling,Shu-Stream; Yuan-Source; Earth,Wrist crease between tendons,Calms Spirit; clears Heart Fire
+PC8,Palace of Toil,Laogong,Ying-Spring; Fire,Center of palm (where middle finger hits),Clears Heart Fire; mouth ulcers
+PC9,Middle Rushing,Zhongchong,Jing-Well; Wood,Tip of middle finger,Clears heat; restores consciousness
+TE1,Rushing Pass,Guanchong,Jing-Well; Metal,Ulnar corner of ring finger nail,Clears heat; headache
+TE2,Fluid Gate,Yemen,Ying-Spring; Water,Web margin between 4th/5th fingers,Clears heat; benefits ears
+TE3,Central Islet,Zhongzhu,Shu-Stream; Wood,Proximal to 4th/5th MCP joint,Benefits ears (tinnitus); clears wind-heat
+TE4,Yang Pool,Yangchi,Yuan-Source,Wrist crease dorsal (ulnar side),Relaxes sinews; regulates water
+TE5,Outer Pass,Waiguan,Luo-Connecting; Opening Yang Wei,2 cun above wrist dorsal,Expels wind-heat; immune support; temporal headache
+TE6,Branch Ditch,Zhigou,Jing-River; Fire,3 cun above wrist dorsal,Moves Qi (Constipation); clears heat
+TE7,Assembly of Ancestors,Huizong,Xi-Cleft,3 cun above wrist (ulnar to TE6),Benefits ears; epilepsy
+TE8,Three Yang Luo,Sanyangluo,-,4 cun above wrist,Sudden deafness; voice loss
+TE9,Four Rivers,Sidu,-,5 cun below olecranon,Sudden deafness; toothache
+TE10,Heavenly Well,Tianjing,He-Sea; Earth,Depression 1 cun superior to olecranon,Transforms phlegm; dissipates nodules (scrofula)
+TE11,Clear Cold Abyss,Qinglengyuan,-,1 cun above TE10,Shoulder/arm pain
+TE12,Dispersing Luo River,Xiaoluo,-,Midway between TE11 and TE13,Neck rigidity; headache
+TE13,Upper Arm Meeting,Naohui,Meeting TE/Yang Wei,Inferior to border of deltoid,Goiter; shoulder pain
+TE14,Shoulder Crevice,Jianliao,-,Posterior dimple of shoulder,Shoulder pain/immobility
+TE15,Heavenly Crevice,Tianliao,Meeting TE/GB/Yang Wei,Midway between GB21 and SI13,Shoulder/neck pain
+TE16,Heavenly Window,Tianyou,Window of Heaven,Post. border SCM level with mandible angle,Sudden deafness; neck rigidity
+TE17,Wind Screen,Yifeng,Meeting TE/GB,Behind earlobe depression,Benefits ears (tinnitus/deafness); expels wind (facial paralysis)
+TE18,Spasm Vessel,Chimai,-,Posterior to ear center of curve,Headache; tinnitus
+TE19,Skull Rest,Luxi,-,Posterior to ear upper third,Headache; ear pain
+TE20,Angle of the Ear,Jiaosun,-,Directly above ear apex within hairline,Redness of ear; toothache
+TE21,Ear Gate,Ermen,-,Anterior to supratragic notch,Ear problems; TMJ
+TE22,Ear Harmony Crevice,Erheliao,-,Anterior to ear lock,Headache; tinnitus
+TE23,Silken Bamboo Hollow,Sizhukong,-,Depression at lateral end of eyebrow,Headache; eye redness
+GB1,Pupil Crevice,Tongziliao,Meeting GB/SI/TE,0.5 cun lateral to outer canthus,Benefits eyes; headache
+GB2,Meeting of Hearing,Tinghui,-,Anterior to intertragic notch,Benefits ears; TMJ
+GB3,Upper Guest,Shangguan,Meeting GB/ST/TR,Superior border of zygomatic arch,Headache; deafness; toothache
+GB4,Jaw Serenity,Hanyan,-,Within hairline temporal region,Migraine; tinnitus
+GB5,Suspended Skull,Xuanlu,-,Midway between ST8 and GB7,Migraine; facial swelling
+GB6,Suspended Li,Xuanli,-,Posterior to GB5,Migraine; tinnitus
+GB7,Crook of the Temple,Qubin,-,Crossing point of horizontal ear line/hairline,Migraine; lockjaw
+GB8,Leading Valley,Shuaigu,Meeting GB/BL,1.5 cun superior to ear apex,Migraine (Vertex); vertigo
+GB9,Heavenly Rushing,Tianchong,-,0.5 cun posterior to GB8,Headache; epilepsy
+GB10,Floating White,Fubai,-,Posterior/inferior to GB9,Headache; tinnitus
+GB11,Head Portal Yin,Touqiaoyin,-,Posterior/inferior to GB10,Headache; stiff neck
+GB12,Mastoid Process,Wangu,-,Posterior/inferior to mastoid,Insomnia; headache
+GB13,Root of the Spirit,Benshen,Meeting GB/Yang Wei,0.5 cun within hairline (lat to midline),Calms spirit; epilepsy
+GB14,Yang White,Yangbai,Meeting GB/Yang Wei,1 cun above eyebrow mid-pupil,Benefits eyes; facial paralysis; headache
+GB15,Head Governor of Tears,Toulinqi,-,Directly above GB14 within hairline,Nasal congestion; eye pain
+GB16,Window of the Eye,Muchuang,-,1 cun posterior to GB15,Eye pain; facial edema
+GB17,Upright Nutrition,Zhengying,-,1 cun posterior to GB16,Migraine; visual dizziness
+GB18,Support Spirit,Chengling,-,1.5 cun posterior to GB17,Nasal congestion; epistaxis
+GB19,Brain Hollow,Naokong,-,1.5 cun posterior to GB18,Headache; stiff neck
+GB20,Wind Pool,Fengchi,Meeting GB/TR/Yang Wei,Depression between SCM and Trapezius,Expels Wind (Int/Ext); benefits eyes; headache (Major point)
+GB21,Shoulder Well,Jianjing,Meeting GB/TE/ST/Yang Wei,Midway clavicle/scapula spine,Descends Qi (contraindicated pregnancy); neck/shoulder pain
+GB22,Armpit Abyss,Yuanye,-,3 cun below axilla mid-axillary,Rib pain; armpit swelling
+GB23,Flank Ribs,Zhejin,-,1 cun anterior to GB22,Acid reflux; asthma
+GB24,Sun and Moon,Riyue,Front-Mu of GB,7th intercostal space (nipple line),Clears GB damp-heat; gallstones
+GB25,Capital Gate,Jingmen,Front-Mu of Kidney,Tip of 12th rib,Tonifies Kidney; regulates water
+GB26,Girdling Vessel,Daimai,Meeting GB/Dai Mai,Level with umbilicus at free end of 11th rib,Regulates Dai Mai; leukorrhea; menses
+GB27,Five Pivots,Wushu,-,Anterior to ASIS,Leukorrhea; hernia
+GB28,Linking Path,Weidao,-,0.5 cun anterior/inferior to GB27,Leukorrhea; lower ab pain
+GB29,Squatting Bone,Juliao,Meeting GB/Yang Qiao,Midway ASIS and trochanter,Hip pain; sciatica
+GB30,Jumping Circle,Huantiao,Meeting GB/BL,Posterior/superior to greater trochanter,Sciatica (Major point); hip pain
+GB31,Wind Market,Fengshi,-,Lateral thigh (where middle finger touches),Expels Wind (skin itching); sciatica
+GB32,Middle Ditch,Zhongdu,-,2 cun below GB31,Sciatica; hemiplegia
+GB33,Knee Yang Gate,Xiyangguan,-,3 cun above GB34,Knee pain
+GB34,Yang Mound Spring,Yanglingquan,He-Sea; Earth; Hui-Meeting of Sinews,Anterior/inferior to fibular head,Benefits sinews/joints; clears GB damp-heat; spreads Liver Qi
+GB35,Yang Intersection,Yangjiao,Xi-Cleft of Yang Wei,7 cun above lateral malleolus,Hypochondriac pain
+GB36,Outer Hill,Waiqiu,Xi-Cleft,7 cun above lateral malleolus (ant to GB35),Rabies detox (ancient); neck pain
+GB37,Bright Light,Guangming,Luo-Connecting,5 cun above lateral malleolus,Benefits eyes (Major point); night blindness
+GB38,Yang Assistance,Yangfu,Jing-River; Fire,4 cun above lateral malleolus,Clears GB Heat; migraine
+GB39,Suspended Bell,Xuanzhong,Hui-Meeting of Marrow,3 cun above lateral malleolus,Benefits marrow/bones; neck stiffness
+GB40,Mound of Ruins,Qiuxu,Yuan-Source,Anterior/inferior to lateral malleolus,Spreads Liver Qi; ankle pain
+GB41,Foot Governor of Tears,Zulinqi,Shu-Stream; Wood; Opening Dai Mai,Between 4th/5th metatarsals,Migraine; breast pain; regulates Dai Mai
+GB42,Earth Five Meetings,Diwuhui,-,Distal to GB41,Tinnitus; breast abscess
+GB43,Clamped Stream,Xiaxi,Ying-Spring; Water,Between 4th/5th toes,Clears heat; migraine; dizziness
+GB44,Yin Portals of Foot,Zuqiaoyin,Jing-Well; Metal,Lateral corner of 4th toe nail,Clears heat; nightmare; headache
+LV1,Great Pile,Dadun,Jing-Well; Wood,Lateral corner of big toe nail,Regulates menses; hernia; revives consciousness
+LV2,Walking Between,Xingjian,Ying-Spring; Fire,Between 1st/2nd toes,Clears Liver Fire (Major point); irritability
+LV3,Great Rushing,Taichong,Shu-Stream; Yuan-Source; Earth,Between 1st/2nd metatarsals,Spreads Liver Qi; extinguishes wind; calms Shen (Major point)
+LV4,Middle Seal,Zhongfeng,Jing-River; Metal,Anterior to medial malleolus,Spreads Liver Qi; genital pain
+LV5,Woodworm Canal,Ligou,Luo-Connecting,5 cun above medial malleolus,Treats genitals (itch/discharge); plum pit qi
+LV6,Central Metropolis,Zhongdu,Xi-Cleft,7 cun above medial malleolus,Acute hepatitis; uterine bleeding
+LV7,Knee Guan,Xiguan,-,Posterior/inferior to SP9,Knee pain
+LV8,Spring at the Crook,Ququan,He-Sea; Water,Medial end of popliteal crease,Nourishes Liver Blood/Yin; genital issues
+LV9,Yin Wrapping,Yinbao,-,4 cun above medial epicondyle,Menses; urination
+LV10,Leg Five Miles,Zuwuli,-,3 cun below ST30,Urinary retention; sleepy
+LV11,Yin Angle,Yinlian,-,2 cun below ST30,Infertility; leg pain
+LV12,Urgent Pulse,Jimai,-,2.5 cun lateral to scrotal base,Hernia; genital pain
+LV13,Completion Gate,Zhangmen,Front-Mu of Spleen; Hui-Meeting of Zang,Tip of 11th rib,Harmonizes Liver/Spleen; accumulation
+LV14,Cycle Gate,Qimen,Front-Mu of Liver,6th intercostal space (nipple line),Spreads Liver Qi; harmonizes Liver/Stomach
+CV1,Meeting of Yin,Huiyin,Meeting of Ren/Du/Chong,Perineum,Revives drowning; genital issues
+CV2,Curved Bone,Qugu,Meeting Ren/LV,Pubic symphysis upper border,Urination; leukorrhea
+CV3,Central Pole,Zhongji,Front-Mu of Bladder,4 cun below umbilicus,Regulates Bladder/Uterus; damp-heat
+CV4,Gate of Origin,Guanyuan,Front-Mu of SI; Meeting Ren/SP/LV/KI,3 cun below umbilicus,Tonifies Qi/Yang/Blood/Essence (Major point)
+CV5,Stone Gate,Shimen,Front-Mu of TE,2 cun below umbilicus,Water passages; contraception (ancient)
+CV6,Sea of Qi,Qihai,-,1.5 cun below umbilicus,Tonifies Qi/Yang; collapses
+CV7,Yin Intersection,Yinjiao,Meeting Ren/Chong/KI,1 cun below umbilicus,Menses; hernia
+CV8,Spirit Gateway,Shenque,-,Center of umbilicus,Rescue Yang (Salt Moxa only); diarrhea
+CV9,Water Separation,Shuifen,-,1 cun above umbilicus,Regulates water passages; edema
+CV10,Lower Venter,Xiawan,Meeting Ren/SP,2 cun above umbilicus,Food stagnation
+CV11,Building Up the Interior,Jianli,-,3 cun above umbilicus,Harmonizes stomach
+CV12,Middle Venter,Zhongwan,Front-Mu of Stomach; Hui-Meeting of Fu,4 cun above umbilicus,Tonifies Stomach/Spleen; resolves damp
+CV13,Upper Venter,Shangwan,Meeting Ren/ST/SI,5 cun above umbilicus,Nausea; stomach pain
+CV14,Great Gateway,Juque,Front-Mu of Heart,6 cun above umbilicus,Calms Spirit; regulates Heart
+CV15,Turtledove Tail,Jiuwei,Luo-Connecting,Below xiphoid process,Calms Spirit (manic); epilepsy
+CV16,Central Courtyard,Zhongting,-,Level with 5th intercostal space,Chest fullness
+CV17,Chest Center,Danzhong,Front-Mu of PC; Hui-Meeting of Qi,Level with 4th intercostal space,Tonifies Qi; benefits breasts/lactation
+CV18,Jade Hall,Yutang,-,Level with 3rd intercostal space,Cough; chest pain
+CV19,Purple Palace,Zigong,-,Level with 2nd intercostal space,Cough; chest pain
+CV20,Florid Canopy,Huagai,-,Level with 1st intercostal space,Asthma; cough
+CV21,Jade Pivot,Xuanji,-,Manubrium midline,Throat obstruction; cough
+CV22,Heavenly Chimney,Tiantu,Window of Heaven,Suprasternal fossa,Descends Lung Qi; benefits throat (plum pit)
+CV23,Ridge Spring,Lianquan,-,Superior to laryngeal prominence,Speech; tongue issues; swallowing
+CV24,Container of Fluids,Chengjiang,Meeting Ren/ST,Mentolabial groove,Facial paralysis; dental pain
+GV1,Long Strong,Changqiang,Luo-Connecting; Meeting Du/GB/KI,Midway coccyx/anus,Hemorrhoids; mania
+GV2,Lumbar Shu,Yaoshu,-,Sacral hiatus,Epilepsy; lumbar pain
+GV3,Lumbar Yang Pass,Yaoyangguan,-,Below L4 spinous process,Lumbar pain; weak legs
+GV4,Life Gate,Mingmen,-,Below L2 spinous process,Tonifies Kidney Yang (Major point); warms gate of vitality
+GV5,Suspended Pivot,Xuanshu,-,Below L1 spinous process,Diarrhea; stiff back
+GV6,Spinal Center,Jizhong,-,Below T11 spinous process,Jaundice; epilepsy
+GV7,Central Pivot,Zhongshu,-,Below T10 spinous process,Back pain; vision
+GV8,Sinew Contraction,Jinsuo,-,Below T9 spinous process,Liver wind; spasms
+GV9,Supreme Yang,Zhiyang,-,Below T7 spinous process,Jaundice; unbinds chest/diaphragm
+GV10,Spirit Tower,Lingtai,-,Below T6 spinous process,Boils (empiric); cough
+GV11,Spirit Path,Shendao,-,Below T5 spinous process,Calms spirit; heart conditions
+GV12,Body Pillar,Shenzhu,-,Below T3 spinous process,Calms spirit; lung heat
+GV13,Way of Happiness,Taodao,Meeting Du/BL,Below T1 spinous process,Clears heat; malaria
+GV14,Great Vertebra,Dazhui,Meeting of all Yang channels,Below C7 spinous process,Clears Heat (all types); releases exterior; tonifies Yang
+GV15,Mute's Gate,Yamen,Window of Heaven; Meeting Du/Yang Wei,0.5 cun within hairline (neck),Speech difficulties; clears mind
+GV16,Wind Palace,Fengfu,Window of Heaven; Meeting Du/Yang Wei,1 cun within hairline (neck),Expels Wind (Int/Ext); stroke
+GV17,Brain Door,Naohu,Meeting Du/BL,1.5 cun above GV16,Dizziness; neck pain
+GV18,Strong Interspace,Qiangjian,-,1.5 cun above GV17,Headache; stiff neck
+GV19,Posterior Vertex,Houding,-,1.5 cun above GV18,Headache; mania
+GV20,Hundred Meetings,Baihui,Meeting Du/BL/GB/TE/LV,Vertex of head (midpoint ears),Raises Yang; calms spirit; clears senses
+GV21,Anterior Vertex,Qianding,-,1.5 cun anterior to GV20,Headache; dizziness
+GV22,Fontanelle Meeting,Xinhui,-,2 cun posterior to hairline,Headache; nasal issues
+GV23,Upper Star,Shangxing,-,1 cun posterior to hairline,Nasal congestion; nosebleed
+GV24,Courtyard of the Spirit,Shenting,Meeting Du/ST/BL,0.5 cun posterior to hairline,Calms Spirit; insomnia; anxiety
+GV25,White Crevice,Suliao,-,Tip of nose,Rescues consciousness; nosebleed
+GV26,Man's Middle,Renzhong,Meeting Du/LI/ST,Philtrum (upper 1/3),Rescues consciousness (shock/fainting); acute back pain
+GV27,Extremity of the Mouth,Duiduan,-,Upper lip tubercle,Mouth ulcers; mental issues
+GV28,Gum Intersection,Yinjiao,Meeting Du/Ren/ST,Inside upper lip frenulum,Gum issues; hemorrhoids
