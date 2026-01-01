@@ -399,7 +399,15 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
     toast.info('Draft discarded');
   }, [clearDraft]);
 
-  // Update age group when DOB changes
+  // Auto-validate all steps on step change to show error indicators
+  useEffect(() => {
+    // Trigger validation for all steps to populate error state
+    const allFields = Object.values(stepFields).flat();
+    if (allFields.length > 0) {
+      form.trigger(allFields);
+    }
+  }, [currentStep, form]);
+
   useEffect(() => {
     if (watchDob) {
       const group = getAgeGroup(watchDob);
@@ -996,10 +1004,20 @@ export function PatientIntakeForm({ patientId, onSuccess, returnTo, testMode = f
                 variant="destructive"
                 size="sm"
                 onClick={jumpToFirstError}
-                className="w-full mt-2 animate-pulse"
+                className="w-full mt-2 relative overflow-hidden group"
               >
-                <AlertTriangle className="h-4 w-4 mr-2" />
-                Jump to First Error
+                {/* Pulsing background effect */}
+                <span className="absolute inset-0 bg-white/20 animate-ping rounded-md" />
+                <span className="absolute inset-0 bg-gradient-to-r from-destructive via-red-400 to-destructive bg-[length:200%_100%] animate-[shimmer_2s_linear_infinite]" style={{ backgroundSize: '200% 100%' }} />
+                <span className="relative flex items-center justify-center gap-2">
+                  <AlertTriangle className="h-4 w-4 animate-bounce" />
+                  <span className="font-semibold">Jump to First Error</span>
+                  <span className="text-xs bg-white/20 px-1.5 py-0.5 rounded">
+                    {Object.values(stepFields).filter(fields => 
+                      fields.some(field => !!form.formState.errors[field])
+                    ).length} step(s)
+                  </span>
+                </span>
               </Button>
             )}
           </div>
