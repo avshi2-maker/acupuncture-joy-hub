@@ -209,6 +209,20 @@ const BUILTIN_ASSETS = [
     defaultLanguage: 'en',
   },
   {
+    id: 'fertility-protocols',
+    label: 'Fertility Protocols (IVF, Male Factor, Recurrent Loss)',
+    path: '/knowledge-assets/fertility-protocols.csv',
+    defaultCategory: 'womens_health',
+    defaultLanguage: 'en',
+  },
+  {
+    id: 'pregnancy-trimester-guide',
+    label: 'Pregnancy Trimester Guide (Safe Points, Labor, Postpartum)',
+    path: '/knowledge-assets/pregnancy-trimester-guide.csv',
+    defaultCategory: 'womens_health',
+    defaultLanguage: 'en',
+  },
+  {
     id: 'work-stress-burnout',
     label: 'work-stress-burnout.csv',
     path: '/knowledge-assets/work-stress-burnout.csv',
