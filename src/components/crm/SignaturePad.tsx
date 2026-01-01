@@ -173,7 +173,11 @@ export function SignaturePad({
           type="button"
           variant="outline"
           size="sm"
-          onClick={clearCanvas}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            clearCanvas();
+          }}
           disabled={disabled || !hasSignature}
         >
           <Eraser className="h-4 w-4 mr-2" />
@@ -182,7 +186,11 @@ export function SignaturePad({
         <Button
           type="button"
           size="sm"
-          onClick={saveSignature}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            saveSignature();
+          }}
           disabled={disabled || !hasSignature}
           className="bg-jade hover:bg-jade/90"
         >
