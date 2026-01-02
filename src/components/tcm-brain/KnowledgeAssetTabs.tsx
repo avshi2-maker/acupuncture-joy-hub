@@ -164,14 +164,14 @@ export const KNOWLEDGE_ASSETS: KnowledgeAsset[] = [
     category: 'specialties'
   },
   { 
-    id: 'pediatric', 
-    name: 'Pediatric', 
-    nameHe: 'ילדים',
-    icon: Baby, 
-    color: 'text-pink-600', 
-    bgColor: 'bg-pink-50 dark:bg-pink-950/30', 
-    borderColor: 'border-pink-300 dark:border-pink-700',
-    file: 'pediatric-acupuncture.csv',
+    id: 'brain-health', 
+    name: 'Brain Health', 
+    nameHe: 'בריאות המוח',
+    icon: Brain, 
+    color: 'text-violet-500', 
+    bgColor: 'bg-violet-50 dark:bg-violet-950/30', 
+    borderColor: 'border-violet-300 dark:border-violet-700',
+    file: 'brain-health-tcm.csv',
     category: 'specialties'
   },
   { 
