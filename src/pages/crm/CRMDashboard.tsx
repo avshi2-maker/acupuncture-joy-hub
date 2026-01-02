@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Users, Clock, TrendingUp, Plus, ArrowRight, Video, FileText, Trash2, BookOpen, Leaf, Volume2, VolumeX } from 'lucide-react';
+import { Calendar, Users, Clock, TrendingUp, Plus, ArrowRight, Video, FileText, Trash2, BookOpen, Leaf, Volume2, VolumeX, Bell, BellOff } from 'lucide-react';
 import { WhatsAppReminderButton } from '@/components/crm/WhatsAppReminderButton';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,6 +10,7 @@ import { CRMLayout } from '@/components/crm/CRMLayout';
 import { PullToRefreshContainer } from '@/components/ui/PullToRefreshContainer';
 import { QuickPatientSearch } from '@/components/crm/QuickPatientSearch';
 import { toast } from 'sonner';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 interface DashboardStats {
   totalPatients: number;
   todayAppointments: number;
@@ -57,6 +58,12 @@ export default function CRMDashboard() {
   });
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const reminderShownRef = useRef<Set<string>>(new Set());
+  const pushNotificationShownRef = useRef<Set<string>>(new Set());
+  
+  const { permission, isSupported, requestPermission, showAppointmentReminder } = usePushNotifications();
+  const [pushEnabled, setPushEnabled] = useState(() => {
+    return localStorage.getItem('appt_push_reminder') !== 'false';
+  });
 
   useEffect(() => {
     fetchDashboardData();
@@ -140,27 +147,40 @@ export default function CRMDashboard() {
         setCountdown(`Starts in ${hours}h ${mins}m`);
       }
 
-      // Audio reminder at 15 min and 5 min
+      // Audio and push notification reminders at 15 min and 5 min
       const reminderKey15 = `${next.id}-15`;
       const reminderKey5 = `${next.id}-5`;
+      const patientName = next.patients?.full_name || next.title;
       
       if (diffMins === 15 && !reminderShownRef.current.has(reminderKey15)) {
         reminderShownRef.current.add(reminderKey15);
         playReminderSound();
-        toast.info(`Appointment in 15 minutes: ${next.patients?.full_name || next.title}`, { duration: 5000 });
+        toast.info(`Appointment in 15 minutes: ${patientName}`, { duration: 5000 });
+        
+        // Push notification (works in background)
+        if (pushEnabled && !pushNotificationShownRef.current.has(reminderKey15)) {
+          pushNotificationShownRef.current.add(reminderKey15);
+          showAppointmentReminder(patientName, 15, next.id);
+        }
       }
       
       if (diffMins === 5 && !reminderShownRef.current.has(reminderKey5)) {
         reminderShownRef.current.add(reminderKey5);
         playReminderSound();
-        toast.warning(`Appointment in 5 minutes: ${next.patients?.full_name || next.title}`, { duration: 8000 });
+        toast.warning(`Appointment in 5 minutes: ${patientName}`, { duration: 8000 });
+        
+        // Push notification (works in background)
+        if (pushEnabled && !pushNotificationShownRef.current.has(reminderKey5)) {
+          pushNotificationShownRef.current.add(reminderKey5);
+          showAppointmentReminder(patientName, 5, next.id);
+        }
       }
     };
 
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
-  }, [todayAppts, playReminderSound]);
+  }, [todayAppts, playReminderSound, pushEnabled, showAppointmentReminder]);
 
   const toggleAudio = () => {
     const newValue = !audioEnabled;
@@ -168,6 +188,23 @@ export default function CRMDashboard() {
     localStorage.setItem('appt_audio_reminder', String(newValue));
     toast.success(newValue ? 'Audio reminders enabled' : 'Audio reminders disabled');
     if (newValue) playReminderSound();
+  };
+
+  const togglePush = async () => {
+    if (!isSupported) {
+      toast.error('Push notifications not supported in this browser');
+      return;
+    }
+    
+    if (!pushEnabled && permission !== 'granted') {
+      const granted = await requestPermission();
+      if (!granted) return;
+    }
+    
+    const newValue = !pushEnabled;
+    setPushEnabled(newValue);
+    localStorage.setItem('appt_push_reminder', String(newValue));
+    toast.success(newValue ? 'Push notifications enabled' : 'Push notifications disabled');
   };
 
   const fetchDashboardData = useCallback(async () => {
@@ -345,6 +382,19 @@ export default function CRMDashboard() {
                             <VolumeX className="h-3 w-3 text-muted-foreground" />
                           )}
                         </button>
+                        {isSupported && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); togglePush(); }}
+                            className="p-0.5 hover:bg-muted rounded"
+                            title={pushEnabled ? 'Disable push notifications' : 'Enable push notifications (works in background)'}
+                          >
+                            {pushEnabled && permission === 'granted' ? (
+                              <Bell className="h-3 w-3 text-jade" />
+                            ) : (
+                              <BellOff className="h-3 w-3 text-muted-foreground" />
+                            )}
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
