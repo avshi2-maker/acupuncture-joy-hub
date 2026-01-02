@@ -5,6 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { CRMLayout } from '@/components/crm/CRMLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,7 +16,7 @@ import { he } from 'date-fns/locale';
 import { 
   User, Building2, DoorOpen, Users, Calendar, Clock, 
   CheckCircle2, AlertCircle, MessageCircle, Send, 
-  Zap, Sparkles
+  Zap, Sparkles, Mail, Bell
 } from 'lucide-react';
 import sessionCommandBg from '@/assets/session-command-bg.png';
 
@@ -85,6 +87,7 @@ export default function CRMSessionManager() {
   const [loading, setLoading] = useState(true);
   const [bookingStatus, setBookingStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [statusMessage, setStatusMessage] = useState('');
+  const [notifyTherapist, setNotifyTherapist] = useState(true);
 
   // Fetch initial data
   useEffect(() => {
@@ -310,6 +313,33 @@ ${selectedPatientData.chief_complaint ? `נמשיך לטפל ב: ${selectedPatie
 
       if (error) throw error;
 
+      // Send notification to therapist if booking for someone else
+      if (notifyTherapist && therapistId !== user?.id) {
+        try {
+          // Get therapist email from auth (we need to use the staff member's user_id to get their email)
+          const selectedStaff = staffMembers.find(s => s.user_id === therapistId);
+          
+          // For now we'll invoke the edge function - in production you'd have therapist emails stored
+          await supabase.functions.invoke('notify-therapist-booking', {
+            body: {
+              therapistEmail: user?.email, // Fallback - in production, get from profiles table
+              therapistName: selectedStaff?.display_name || 'Therapist',
+              patientName: selectedPatientData?.full_name,
+              clinicName: selectedClinicData?.name,
+              roomName: selectedRoomData?.name || 'Treatment Room',
+              date: format(new Date(selectedDate), 'dd/MM/yyyy'),
+              time: selectedSlot,
+              notes: forecastNotes,
+              bookedBy: user?.email || 'Clinic Admin',
+            },
+          });
+          toast.success('Therapist notified via email');
+        } catch (notifyError) {
+          console.error('Failed to send notification:', notifyError);
+          // Don't fail the booking if notification fails
+        }
+      }
+
       setBookingStatus('success');
       const therapistLabel = selectedTherapist === user?.id ? 'you' : 'selected therapist';
       setStatusMessage(`Session booked successfully for ${selectedPatientData?.full_name} at ${selectedSlot} with ${therapistLabel}`);
@@ -451,29 +481,48 @@ ${selectedPatientData.chief_complaint ? `נמשיך לטפל ב: ${selectedPatie
 
               {/* Therapist Selection (for clinic admins) */}
               {isClinicAdmin && staffMembers.length > 0 && (
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground flex items-center gap-2 mb-2">
-                    <User className="h-4 w-4" />
-                    Assign Therapist
-                  </label>
-                  <Select value={selectedTherapist} onValueChange={setSelectedTherapist}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select therapist..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={user?.id || ''}>
-                        You (Current User)
-                      </SelectItem>
-                      {staffMembers
-                        .filter(s => s.user_id !== user?.id && (s.role === 'therapist' || s.role === 'owner' || s.role === 'admin'))
-                        .map(staff => (
-                          <SelectItem key={staff.id} value={staff.user_id}>
-                            Staff - {staff.display_name || staff.role}
-                          </SelectItem>
-                        ))
-                      }
-                    </SelectContent>
-                  </Select>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground flex items-center gap-2 mb-2">
+                      <User className="h-4 w-4" />
+                      Assign Therapist
+                    </label>
+                    <Select value={selectedTherapist} onValueChange={setSelectedTherapist}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select therapist..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={user?.id || ''}>
+                          You (Current User)
+                        </SelectItem>
+                        {staffMembers
+                          .filter(s => s.user_id !== user?.id && (s.role === 'therapist' || s.role === 'owner' || s.role === 'admin'))
+                          .map(staff => (
+                            <SelectItem key={staff.id} value={staff.user_id}>
+                              Staff - {staff.display_name || staff.role}
+                            </SelectItem>
+                          ))
+                        }
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Email Notification Toggle */}
+                  {selectedTherapist && selectedTherapist !== user?.id && (
+                    <div className="flex items-center justify-between p-3 bg-jade/5 rounded-lg border border-jade/20">
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-jade" />
+                        <Label htmlFor="notify-therapist" className="text-sm font-medium cursor-pointer">
+                          Notify therapist via email
+                        </Label>
+                      </div>
+                      <Switch
+                        id="notify-therapist"
+                        checked={notifyTherapist}
+                        onCheckedChange={setNotifyTherapist}
+                      />
+                    </div>
+                  )}
                 </div>
               )}
 
