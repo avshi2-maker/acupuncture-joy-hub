@@ -312,6 +312,28 @@ serve(async (req) => {
       console.error('Quiz Results query error:', quizError);
     }
 
+    // Query Clinical Trials for evidence-based data
+    let clinicalTrials: any[] = [];
+    try {
+      const searchWords = searchQuery.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
+      const hasTrialTerms = ['study', 'trial', 'research', 'evidence', 'clinical', 'efficacy', 'outcome', 'nct'].some(
+        term => searchQuery.toLowerCase().includes(term)
+      );
+      // Also search if condition/symptom is mentioned
+      if (hasTrialTerms || searchWords.length > 0) {
+        const { data: trialData } = await supabaseClient
+          .from('clinical_trials')
+          .select('*')
+          .or(searchWords.map((w: string) => `condition.ilike.%${w}%,title.ilike.%${w}%,intervention.ilike.%${w}%,results_summary.ilike.%${w}%`).join(','))
+          .order('sapir_verified', { ascending: false })
+          .limit(5);
+        clinicalTrials = trialData || [];
+        console.log(`Clinical Trials matched: ${clinicalTrials.length}`);
+      }
+    } catch (trialError) {
+      console.error('Clinical Trials query error:', trialError);
+    }
+
     // Then get other relevant chunks
     const { data: otherChunks, error: searchError } = await supabaseClient
       .from('knowledge_chunks')
@@ -395,6 +417,31 @@ TCM Observations:
       quizResultsContext += '\n=== END QUIZ ASSESSMENTS ===';
     }
 
+    // Add Clinical Trials context for evidence-based data
+    let clinicalTrialsContext = '';
+    if (clinicalTrials.length > 0) {
+      clinicalTrialsContext = '\n\n=== CLINICAL TRIALS EVIDENCE ===\n';
+      clinicalTrialsContext += clinicalTrials.map((trial, i) => {
+        const verifiedTag = trial.sapir_verified ? '✅ Dr. Sapir Verified' : '⚠️ Unverified';
+        return `
+[Clinical Trial #${i + 1}: ${trial.nct_id || 'N/A'}] ${verifiedTag}
+Title: ${trial.title}
+Condition: ${trial.condition} ${trial.icd11_code ? `(ICD-11: ${trial.icd11_code})` : ''}
+Intervention: ${trial.intervention || 'Not specified'}
+Acupoints Used: ${trial.points_used?.join(', ') || 'Not specified'}
+Herbal Formula: ${trial.herbal_formula || 'None'}
+Phase: ${trial.phase || 'N/A'} | Enrollment: ${trial.enrollment || 'N/A'}
+Status: ${trial.study_status || 'Unknown'}
+Primary Outcome: ${trial.primary_outcome || 'Not specified'}
+Results: ${trial.results_summary || 'No results available'}
+Efficacy Rating: ${trial.efficacy_rating || 'Not rated'}
+${trial.sapir_notes ? `Dr. Sapir Notes: ${trial.sapir_notes}` : ''}
+Source: ${trial.source_url || trial.citation || 'ClinicalTrials.gov'}
+`;
+      }).join('\n---\n');
+      clinicalTrialsContext += '\n=== END CLINICAL TRIALS ===';
+    }
+
     console.log(`Priority chunks - Age-Specific: ${ageSpecificChunks.length}, Diagnostics: ${diagnosticsChunks?.length || 0}, Pulse/Tongue: ${pulseChunks?.length || 0}, Zang-Fu: ${zangfuChunks?.length || 0}, Acupoints: ${acuChunks?.length || 0}, QA: ${qaChunks?.length || 0}, Treatment: ${treatmentChunks?.length || 0}, Other: ${otherChunks?.length || 0}`);
 
     // Build context from retrieved chunks
@@ -467,8 +514,8 @@ ${chunk.content}`;
       // Using external AI - no RAG context, use general knowledge
       systemMessage = EXTERNAL_AI_SYSTEM_PROMPT + ageContextPrefix + patientContextPrefix;
       console.log('Using external AI mode - no RAG context');
-    } else if (context || cafStudiesContext || quizResultsContext) {
-      systemMessage = `${TCM_RAG_SYSTEM_PROMPT}${ageContextPrefix}${patientContextPrefix}\n\n=== CONTEXT FROM DR. SAPIR'S KNOWLEDGE BASE ===\n\n${context}${cafStudiesContext}${quizResultsContext}\n\n=== END CONTEXT ===`;
+    } else if (context || cafStudiesContext || quizResultsContext || clinicalTrialsContext) {
+      systemMessage = `${TCM_RAG_SYSTEM_PROMPT}${ageContextPrefix}${patientContextPrefix}\n\n=== CONTEXT FROM DR. SAPIR'S KNOWLEDGE BASE ===\n\n${context}${cafStudiesContext}${quizResultsContext}${clinicalTrialsContext}\n\n=== END CONTEXT ===`;
     } else {
       systemMessage = `${TCM_RAG_SYSTEM_PROMPT}${ageContextPrefix}${patientContextPrefix}\n\nNOTE: No relevant entries found in the knowledge base for this query.`;
     }

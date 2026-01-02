@@ -290,11 +290,86 @@ Deno.serve(async (req) => {
         }
 
         // Insert new record
-        const { error } = await supabase
+        const { data: insertedTrial, error } = await supabase
           .from('clinical_trials')
-          .insert(trialData);
+          .insert(trialData)
+          .select()
+          .single();
 
         if (error) throw error;
+        
+        // Also create a knowledge chunk for RAG text search
+        if (insertedTrial) {
+          const chunkContent = `Clinical Trial: ${trialData.title}
+Condition: ${trialData.condition} ${trialData.icd11_code ? `(ICD-11: ${trialData.icd11_code})` : ''}
+Intervention: ${trialData.intervention || 'Not specified'}
+Acupoints Used: ${trialData.points_used?.join(', ') || 'Not specified'}
+Herbal Formula: ${trialData.herbal_formula || 'None'}
+Phase: ${trialData.phase || 'N/A'} | Enrollment: ${trialData.enrollment || 'N/A'}
+Status: ${trialData.study_status || 'Unknown'}
+Primary Outcome: ${trialData.primary_outcome || 'Not specified'}
+Results: ${trialData.results_summary || 'No results available'}
+NCT ID: ${trialData.nct_id || 'N/A'}
+Source: ${trialData.source_url || trialData.citation || 'ClinicalTrials.gov'}`;
+
+          // Check if we have a document for clinical trials chunks
+          let docId: string;
+          const { data: existingDoc } = await supabase
+            .from('knowledge_documents')
+            .select('id')
+            .eq('file_name', 'clinical_trials_database')
+            .maybeSingle();
+          
+          if (existingDoc) {
+            docId = existingDoc.id;
+          } else {
+            // Create a document entry for clinical trials
+            const { data: newDoc, error: docError } = await supabase
+              .from('knowledge_documents')
+              .insert({
+                file_name: 'clinical_trials_database',
+                original_name: 'Clinical Trials Database',
+                file_hash: 'clinical_trials_live_db',
+                status: 'indexed',
+                category: 'clinical_trials',
+                indexed_at: new Date().toISOString()
+              })
+              .select()
+              .single();
+            
+            if (docError) {
+              console.error('Failed to create clinical trials document:', docError);
+            }
+            docId = newDoc?.id;
+          }
+
+          if (docId) {
+            // Get next chunk index
+            const { count } = await supabase
+              .from('knowledge_chunks')
+              .select('*', { count: 'exact', head: true })
+              .eq('document_id', docId);
+
+            await supabase
+              .from('knowledge_chunks')
+              .insert({
+                document_id: docId,
+                chunk_index: (count || 0) + 1,
+                content: chunkContent,
+                content_type: 'clinical_trial',
+                question: `What does research say about ${trialData.condition}?`,
+                answer: chunkContent,
+                metadata: {
+                  trial_id: insertedTrial.id,
+                  nct_id: trialData.nct_id,
+                  condition: trialData.condition,
+                  sapir_verified: trialData.sapir_verified
+                }
+              });
+            console.log(`Created knowledge chunk for trial: ${trialData.title}`);
+          }
+        }
+        
         results.imported++;
         
       } catch (err) {
