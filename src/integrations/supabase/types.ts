@@ -438,6 +438,96 @@ export type Database = {
           },
         ]
       }
+      clinical_trials: {
+        Row: {
+          citation: string | null
+          completion_date: string | null
+          condition: string
+          condition_mesh_terms: string[] | null
+          created_at: string
+          data_source: string | null
+          efficacy_rating: string | null
+          enrollment: number | null
+          herbal_formula: string | null
+          icd11_code: string | null
+          icd11_description: string | null
+          id: string
+          intervention: string | null
+          license: string | null
+          nct_id: string | null
+          phase: string | null
+          points_used: string[] | null
+          primary_outcome: string | null
+          results_summary: string | null
+          sapir_notes: string | null
+          sapir_verified: boolean | null
+          source_url: string | null
+          start_date: string | null
+          study_status: string | null
+          title: string
+          updated_at: string
+          verified_at: string | null
+        }
+        Insert: {
+          citation?: string | null
+          completion_date?: string | null
+          condition: string
+          condition_mesh_terms?: string[] | null
+          created_at?: string
+          data_source?: string | null
+          efficacy_rating?: string | null
+          enrollment?: number | null
+          herbal_formula?: string | null
+          icd11_code?: string | null
+          icd11_description?: string | null
+          id?: string
+          intervention?: string | null
+          license?: string | null
+          nct_id?: string | null
+          phase?: string | null
+          points_used?: string[] | null
+          primary_outcome?: string | null
+          results_summary?: string | null
+          sapir_notes?: string | null
+          sapir_verified?: boolean | null
+          source_url?: string | null
+          start_date?: string | null
+          study_status?: string | null
+          title: string
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Update: {
+          citation?: string | null
+          completion_date?: string | null
+          condition?: string
+          condition_mesh_terms?: string[] | null
+          created_at?: string
+          data_source?: string | null
+          efficacy_rating?: string | null
+          enrollment?: number | null
+          herbal_formula?: string | null
+          icd11_code?: string | null
+          icd11_description?: string | null
+          id?: string
+          intervention?: string | null
+          license?: string | null
+          nct_id?: string | null
+          phase?: string | null
+          points_used?: string[] | null
+          primary_outcome?: string | null
+          results_summary?: string | null
+          sapir_notes?: string | null
+          sapir_verified?: boolean | null
+          source_url?: string | null
+          start_date?: string | null
+          study_status?: string | null
+          title?: string
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       clinics: {
         Row: {
           address: string | null
