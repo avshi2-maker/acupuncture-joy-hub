@@ -309,7 +309,7 @@ Format the response clearly with headers. Include both English and Hebrew for qu
     return focus.length > 0 ? focus : ['Complete diagnostic assessment', 'Identify primary pattern'];
   }, []);
 
-  const generateSessionBrief = useCallback(async (patientId: string): Promise<SessionBrief | null> => {
+  const generateSessionBrief = useCallback(async (patientId: string, showToast = true): Promise<SessionBrief | null> => {
     setIsLoading(true);
     setError(null);
 
@@ -364,6 +364,15 @@ Format the response clearly with headers. Include both English and Hebrew for qu
       };
 
       setSessionBrief(brief);
+      
+      // Show success toast when analysis is ready
+      if (showToast) {
+        toast.success(`✨ Session brief ready for ${intake.full_name}`, {
+          description: `${brief.keyFindings.length} key findings, ${brief.suggestedQuestions.length} suggested questions`,
+          duration: 4000
+        });
+      }
+      
       return brief;
 
     } catch (err) {
@@ -374,7 +383,7 @@ Format the response clearly with headers. Include both English and Hebrew for qu
     } finally {
       setIsLoading(false);
     }
-  }, [fetchPatientIntake, buildIntakePrompt, parseSuggestedQuestions, parseKeyFindings, parseTreatmentFocus]);
+  }, [fetchPatientIntake, fetchVisitHistory, buildIntakePrompt, parseSuggestedQuestions, parseKeyFindings, parseTreatmentFocus]);
 
   const clearBrief = useCallback(() => {
     setSessionBrief(null);

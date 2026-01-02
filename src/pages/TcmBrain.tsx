@@ -190,6 +190,16 @@ export default function TcmBrain() {
     };
   }, []);
 
+  // Auto-trigger Session Brief when patient is selected
+  useEffect(() => {
+    if (selectedPatient?.id) {
+      setShowSessionBrief(true);
+      toast.info('🧠 Generating session brief...', { duration: 2000 });
+    } else {
+      setShowSessionBrief(false);
+    }
+  }, [selectedPatient?.id]);
+
   // Tab navigation
   const tabItems = [
     { id: 'diagnostics', label: 'Diagnostics', icon: Stethoscope, description: 'P1-P2' },
@@ -247,6 +257,14 @@ export default function TcmBrain() {
           const idx = tabItems.findIndex(t => t.id === prev);
           return tabItems[(idx - 1 + tabItems.length) % tabItems.length].id;
         });
+        break;
+      case 'show-brief':
+        setShowSessionBrief(true);
+        toast.success('📋 Session Brief opened');
+        break;
+      case 'hide-brief':
+        setShowSessionBrief(false);
+        toast.info('Session Brief closed');
         break;
     }
   }, [sessionStatus, startSession, pauseSession, continueSession, endSession, clearChat, tabItems]);
@@ -875,6 +893,9 @@ export default function TcmBrain() {
           onQuestionUsed={(question) => {
             streamChat(question);
             setActiveTab('diagnostics');
+          }}
+          onQuestionPinned={(question) => {
+            toast.success(`📌 Pinned: "${question.slice(0, 50)}..."`);
           }}
           autoTrigger={true}
         />

@@ -60,7 +60,9 @@ export type TcmVoiceCommand =
   | 'end-session'
   | 'clear-chat'
   | 'next-tab'
-  | 'previous-tab';
+  | 'previous-tab'
+  | 'show-brief'
+  | 'hide-brief';
 
 interface TcmBrainToolbarProps {
   sessionStatus: 'idle' | 'running' | 'paused' | 'ended';
@@ -95,6 +97,11 @@ const ENGLISH_COMMANDS: Record<string, TcmVoiceCommand> = {
   'clear': 'clear-chat',
   'next tab': 'next-tab',
   'previous tab': 'previous-tab',
+  'show brief': 'show-brief',
+  'brief': 'show-brief',
+  'session brief': 'show-brief',
+  'hide brief': 'hide-brief',
+  'close brief': 'hide-brief',
 };
 
 const HEBREW_COMMANDS: Record<string, TcmVoiceCommand> = {
@@ -109,6 +116,9 @@ const HEBREW_COMMANDS: Record<string, TcmVoiceCommand> = {
   'נקה': 'clear-chat',
   'הבא': 'next-tab',
   'הקודם': 'previous-tab',
+  'תקציר': 'show-brief',
+  'הצג תקציר': 'show-brief',
+  'סגור תקציר': 'hide-brief',
 };
 
 export function TcmBrainToolbar({
