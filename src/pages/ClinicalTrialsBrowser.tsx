@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Search, Database, FlaskConical, Star, ExternalLink, Users, Calendar, CheckCircle2, Clock } from 'lucide-react';
+import { ArrowLeft, Search, Database, FlaskConical, Star, ExternalLink, Users, Calendar, CheckCircle2, Clock, RefreshCw, Download } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Tables } from '@/integrations/supabase/types';
+import { toast } from 'sonner';
 
 type ClinicalTrial = Tables<'clinical_trials'>;
 
@@ -20,6 +21,8 @@ export default function ClinicalTrialsBrowser() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: trials, isLoading, error } = useQuery({
     queryKey: ['clinical-trials'],
@@ -33,6 +36,29 @@ export default function ClinicalTrialsBrowser() {
       return data as ClinicalTrial[];
     },
   });
+
+  const fetchFromClinicalTrials = async () => {
+    setIsFetching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-clinicaltrials', {
+        body: {
+          searchTerms: ['acupuncture', 'traditional chinese medicine', 'moxibustion'],
+          maxResults: 50,
+          status: 'COMPLETED'
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success(`${data.message}`);
+      queryClient.invalidateQueries({ queryKey: ['clinical-trials'] });
+    } catch (err) {
+      console.error('Fetch error:', err);
+      toast.error('Failed to fetch from ClinicalTrials.gov');
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   const filteredTrials = useMemo(() => {
     if (!trials) return [];
@@ -92,6 +118,20 @@ export default function ClinicalTrialsBrowser() {
               <Database className="h-3 w-3" />
               ClinicalTrials.gov
             </Badge>
+            <Button
+              onClick={fetchFromClinicalTrials}
+              disabled={isFetching}
+              size="sm"
+              variant="outline"
+              className="gap-2"
+            >
+              {isFetching ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
+              Fetch New Trials
+            </Button>
           </div>
         </header>
 
