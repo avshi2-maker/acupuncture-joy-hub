@@ -298,6 +298,35 @@ serve(async (req) => {
     
     console.log(`Vagus Nerve chunks: ${vagusChunks?.length || 0}`);
 
+    // Priority 9: Neurodegenerative TCM knowledge (Parkinson's, Alzheimer's, Dementia, etc.)
+    const hasNeuroTerms = ['parkinson', 'alzheimer', 'dementia', 'tremor', 'neurodegen', 'memory loss', 'cognitive', 'dopamine', 'basal ganglia', 'brain fog', 'rigidity', 'bradykinesia', 'freezing', 'gait', 'dyskinesia', 'apathy', 'hallucination', 'sundowning'].some(
+      term => searchQuery.toLowerCase().includes(term)
+    );
+    
+    let neuroChunks: any[] = [];
+    if (hasNeuroTerms) {
+      const { data: neuroData, error: neuroError } = await supabaseClient
+        .from('knowledge_chunks')
+        .select(`
+          id,
+          content,
+          question,
+          answer,
+          chunk_index,
+          metadata,
+          document:knowledge_documents!inner(id, file_name, original_name, category)
+        `)
+        .or('file_name.ilike.%neuro%,file_name.ilike.%degenerative%,file_name.ilike.%parkinson%,file_name.ilike.%alzheimer%', { referencedTable: 'document' })
+        .textSearch('content', searchTerms, {
+          type: 'websearch',
+          config: 'english'
+        })
+        .limit(8);
+      
+      neuroChunks = neuroData || [];
+      console.log(`Neurodegenerative chunks: ${neuroChunks.length}`);
+    }
+
     // Also query CAF Master Studies table directly for pattern matching
     let cafStudies: any[] = [];
     try {
@@ -377,8 +406,9 @@ serve(async (req) => {
       console.error('Search error:', searchError || diagError || pulseError || zangfuError || acuError || qaError || treatmentError || ageError || cafError || vagusError);
     }
 
-    // Merge with priority order: CAF studies, vagus nerve, age-specific, diagnostics, pulse/tongue, zang-fu, acupoints, QA, treatment protocols, then others
+    // Merge with priority order: Neurodegenerative (if relevant), CAF studies, vagus nerve, age-specific, diagnostics, pulse/tongue, zang-fu, acupoints, QA, treatment protocols, then others
     const prioritizedIds = new Set([
+      ...neuroChunks.map(c => c.id),
       ...(cafChunks || []).map(c => c.id),
       ...(vagusChunks || []).map(c => c.id),
       ...ageSpecificChunks.map(c => c.id),
@@ -391,6 +421,7 @@ serve(async (req) => {
     ]);
     
     const chunks = [
+      ...neuroChunks,
       ...(cafChunks || []),
       ...(vagusChunks || []),
       ...ageSpecificChunks,

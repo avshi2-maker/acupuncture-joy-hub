@@ -136,7 +136,6 @@ const App = () => (
                       <Route path="/scenarios" element={<RequireTier><ScenariosDashboard /></RequireTier>} />
                       <Route path="/caf-browser" element={<RequireTier><CAFBrowser /></RequireTier>} />
                       <Route path="/cm-brain-questions" element={<RequireTier><CMBrainQuestions /></RequireTier>} />
-                      <Route path="/caf-browser" element={<RequireTier><CAFBrowser /></RequireTier>} />
                       <Route path="/clinical-trials" element={<RequireTier><ClinicalTrialsBrowser /></RequireTier>} />
                       <Route path="/patient-valuator" element={<RequireTier><PatientValuator /></RequireTier>} />
 
