@@ -53,3 +53,12 @@ verify_jwt = false
 
 [functions.elevenlabs-transcribe]
 verify_jwt = false
+
+[functions.notify-therapist-booking]
+verify_jwt = false
+
+[functions.send-qa-report]
+verify_jwt = false
+
+[functions.generate-session-summary]
+verify_jwt = false
