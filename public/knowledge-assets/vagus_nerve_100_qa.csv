@@ -1,0 +1,101 @@
+Question_Symptom,Scientific_Mechanism_Vagus,TCM_Dot_Numbers_Acupoints,Pharmacopeia_Formula
+"Do you feel 'wired but tired', unable to calm your racing heart?",Low Vagal Tone causing Sympathetic Overdrive,HT7 (Shenmen) + PC6 (Neiguan) + Ear Shen Men,Tian Wang Bu Xin Dan
+"Do you have a 'gut feeling' of anxiety or nausea when stressed?",Gut-Brain Axis dysregulation via Vagus afferent fibers,ST36 (Zusanli) + CV12 (Zhongwan) + PC6 (Neiguan),Wen Dan Tang
+"Do you find it hard to make eye contact or connect socially?",Ventral Vagus shutdown (Social Engagement System),HT5 (Tongli) + DU20 (Baihui) + Ear Point Zero,Gan Mai Da Zao Tang
+"Do you suffer from chronic inflammation or auto-immune flare-ups?",Cholinergic Anti-inflammatory Pathway (CAP) dysfunction,LI11 (Quchi) + ST36 (Zusanli) + Ear Vagus Zone,Xiao Chai Hu Tang
+"Do you experience 'frozen' states or dissociation during trauma recall?",Dorsal Vagal Shutdown (Freeze response),GV20 (Baihui) + KI1 (Yongquan) + GV4 (Mingmen),Chai Hu Long Gu Mu Li Tang
+"Do you have a lump in your throat (Plum Pit Qi)?",Vagus Nerve laryngeal branch constriction due to stress,CV22 (Tiantu) + PC6 (Neiguan) + LR3 (Taichong),Ban Xia Hou Po Tang
+"Does your heart skip beats or palpitate when sleeping?",Vagal brake failure on the Sinoatrial Node,HT7 (Shenmen) + PC6 (Neiguan) + UB15 (Xinshu),Gui Pi Tang
+"Do you wake up between 1 AM and 3 AM regularly?",Liver-Vagus circadian rhythm disruption,LR14 (Qimen) + UB18 (Ganshu) + Ear Liver,Long Dan Xie Gan Tang
+"Is your digestion slow, causing bloating after eating?",Gastric Vagal motor inhibition (low motility),ST36 (Zusanli) + SP4 (Gongsun) + CV12 (Zhongwan),Xiang Sha Liu Jun Zi Tang
+"Do you startle easily at loud noises (Hyper-vigilance)?",Dysfunctional Vagal braking mechanism,PC7 (Daling) + HT7 (Shenmen) + KI3 (Taixi),Suan Zao Ren Tang
+"Do you have cold hands and feet despite being warm?",Vagus withdrawal causing peripheral vasoconstriction,LI4 (Hegu) + LR3 (Taichong) [Four Gates],Si Ni San
+"Do you feel emotionally numb or empty inside?",Vagus-Insula cortex disconnection (Interoception loss),GV20 (Baihui) + Sishencong + HT9 (Shaochong),Bu Nao Wan
+"Do you have chronic neck stiffness and tension headaches?",Accessory Nerve / Vagus Nerve crosstalk tension,GB20 (Fengchi) + UB10 (Tianzhu) + SI3 (Houxi),Ge Gen Tang
+"Do you crave sugar or carbs when emotional?",Vagus-Gut signaling seeking dopamine hit,SP6 (Sanyinjiao) + ST36 (Zusanli) + Ear Stomach,Gui Pi Tang
+"Do you have difficulty taking a deep satisfying breath?",Phrenic/Vagus nerve diaphragm tension,LU9 (Taiyuan) + LU7 (Lieque) + CV17 (Danzhong),Su Zi Jiang Qi Tang
+"Do you suffer from silent reflux or GERD?",Lower Esophageal Sphincter vagal malfunction,CV12 (Zhongwan) + ST36 (Zusanli) + PC6 (Neiguan),Ban Xia Xie Xin Tang
+"Is your voice weak, hoarse, or easily lost?",Recurrent Laryngeal Nerve (Vagus branch) weakness,LU9 (Taiyuan) + KI6 (Zhaohai) + CV22 (Tiantu),Bu Zhong Yi Qi Tang
+"Do you have frequent yawning or sighing?",Body attempting to manually stimulate Vagus reset,LR3 (Taichong) + GB34 (Yanglingquan) + PC6 (Neiguan),Yue Ju Wan
+"Do you feel dizzy or lightheaded upon standing (POTS)?",Baroreceptor Vagal reflex dysfunction,GV20 (Baihui) + ST36 (Zusanli) + PC6 (Neiguan),Bu Zhong Yi Qi Tang
+"Do you have tinnitus worsened by stress?",Auricular Vagus Branch inflammation/tension,SJ17 (Yifeng) + GB2 (Tinghui) + Ear Shen Men,Er Long Zuo Ci Wan
+"Do you have brain fog that clears only after exercise?",Low Vagal tone reducing cerebral blood flow,GV20 (Baihui) + ST40 (Fenglong) + SP9 (Yinlingquan),Ban Xia Bai Zhu Tian Ma Tang
+"Do you suffer from slow-transit constipation?",Vagal enteric neuron hypo-activity,ST25 (Tianshu) + SJ6 (Zhigou) + BL25 (Dachangshu),Ma Zi Ren Wan
+"Do you feel a sense of impending doom for no reason?",Kidney-Heart Vagal disconnect (Fear overrides Calm),KI3 (Taixi) + UB23 (Shenshu) + HT7 (Shenmen),Zhi Bai Di Huang Wan
+"Do you have poor memory recall under pressure?",Hippocampal Vagal modulation failure,HT7 (Shenmen) + SP6 (Sanyinjiao) + GV20 (Baihui),Bu Nao Wan
+"Do you struggle to swallow pills or food (Dysphagia)?",Pharyngeal Vagus motor dysfunction,CV22 (Tiantu) + ST9 (Renying) + LI4 (Hegu),Hou Shi Hei San
+"Do you feel 'out of body' or ungrounded?",Shen disturbance due to Vagal shutdown,KI1 (Yongquan) + GV20 (Baihui) + PC8 (Laogong),Tian Wang Bu Xin Dan
+"Do you have chronic pelvic pain or tightness?",Pelvic Splanchnic/Vagus crosstalk dysfunction,LV3 (Taichong) + SP6 (Sanyinjiao) + CV4 (Guanyuan),Shao Fu Zhu Yu Tang
+"Do you sweat excessively when nervous?",Autonomic instability (Vagus failure),HT6 (Yinxi) + KI7 (Fuliu) + LI4 (Hegu),Yu Ping Feng San
+"Do you have dry mouth and dry eyes (Sjogren's-like)?",Parasympathetic Secretomotor inhibition,KI6 (Zhaohai) + SP6 (Sanyinjiao) + CV23 (Lianquan),Sha Shen Mai Men Dong Tang
+"Do you feel better after humming or singing?",Vagal tone stimulation via vocal cords,CV22 (Tiantu) + PC5 (Jianshi),Gan Mai Da Zao Tang
+"Do you have migraines triggered by weather changes?",Trigemino-Vagal system sensitivity,GB20 (Fengchi) + SJ5 (Waiguan) + GB41 (Zulinqi),Tian Ma Gou Teng Yin
+"Do you have restless legs at night?",Dopamine/Vagal modulation variance,GB31 (Fengshi) + SP10 (Xuehai) + LV3 (Taichong),Shao Yao Gan Cao Tang
+"Do you feel intense grief that is stuck in your chest?",Lung-Vagus respiratory lock,LU1 (Zhongfu) + UB13 (Feishu) + CV17 (Danzhong),Gan Mai Da Zao Tang
+"Do you have autoimmune thyroid issues (Hashimoto's)?",Vagal immune modulation failure,ST9 (Renying) + LI4 (Hegu) + KI3 (Taixi),Xiao Yao San
+"Do you have cold sores that erupt when stressed?",Immune suppression from low Vagal tone,LI11 (Quchi) + DU14 (Dazhui) + SP10 (Xuehai),Long Dan Xie Gan Tang
+"Do you feel sleepy after meals (Food Coma)?",Spleen Qi deficiency / Vagal insulin spike,ST36 (Zusanli) + SP3 (Taibai) + CV12 (Zhongwan),Liu Jun Zi Tang
+"Do you have chronic lower back pain linked to mood?",Kidney-Vagus stress response loop,UB23 (Shenshu) + UB40 (Weizhong) + DU4 (Mingmen),Du Huo Ji Sheng Tang
+"Do you have irregular periods worsened by stress?",Liver-Vagus reproductive axis disruption,SP6 (Sanyinjiao) + LV3 (Taichong) + CV4 (Guanyuan),Xiao Yao San
+"Do you feel 'hangry' (irritable when hungry)?",Vagal glucose sensing dysregulation,LV2 (Xingjian) + ST44 (Neiting) + LI4 (Hegu),Long Dan Xie Gan Tang
+"Do you have trouble recognizing faces or emotions?",Ventral Vagal social engagement deficit,HT7 (Shenmen) + SI3 (Houxi) + UB62 (Shenmai),Ding Zhi Wan
+"Do you clench your jaw at night (Bruxism)?",Trigeminal nerve tension (Vagus partner),ST6 (Jiache) + ST7 (Xiaguan) + GB20 (Fengchi),Shao Yao Gan Cao Tang
+"Do you have chronic sinus congestion?",Vagal mucociliary clearance issue,LI20 (Yingxiang) + LU7 (Lieque) + GV23 (Shangxing),Cang Er Zi San
+"Do you feel a 'heavy blanket' of depression?",Dampness suppression of Vagal signal,ST40 (Fenglong) + SP9 (Yinlingquan) + GV20 (Baihui),Yue Ju Wan
+"Do you have fainting spells (Vasovagal Syncope)?",Overactive Vagal drop in Heart Rate,GV26 (Renzhong) + PC6 (Neiguan) + ST36 (Zusanli),Sheng Mai San
+"Do you have itchy skin that moves around?",Wind-Vagus neurogenic inflammation,GB31 (Fengshi) + LI11 (Quchi) + SP10 (Xuehai),Xiao Feng San
+"Do you have trouble hearing low frequency sounds?",Kidney Vagal branch weakness,KI3 (Taixi) + GB2 (Tinghui) + SJ3 (Zhongzhu),Er Long Zuo Ci Wan
+"Do you feel pain more intensely than others?",Central sensitization (Low Vagal modulation),Ear Shen Men + LI4 (Hegu) + LV3 (Taichong),Yan Hu Suo Formula
+"Do you have shallow breathing into the chest only?",Diaphragm Vagal paralysis (mild),CV17 (Danzhong) + LU1 (Zhongfu) + KD25 (Shencang),Bu Fei Tang
+"Do you have mood swings before your cycle (PMS)?",Liver Vagal estrogen sensitivity,LV3 (Taichong) + PC6 (Neiguan) + GB34 (Yanglingquan),Jia Wei Xiao Yao San
+"Do you feel calmer in nature or near water?",Biophilia effect on Vagal Tone,PC6 (Neiguan) + HT7 (Shenmen),None (Lifestyle)
+"Do you have frequent urination when nervous?",Kidney-Bladder Vagal reflex,CV3 (Zhongji) + UB23 (Shenshu) + KI3 (Taixi),Suo Quan Wan
+"Do you have cold urticaria (hives from cold)?",Vagal immune histamine response,LI11 (Quchi) + SP10 (Xuehai) + UB12 (Fengmen),Yu Ping Feng San
+"Do you lose your train of thought mid-sentence?",Heart Qi/Vagal interruption,HT5 (Tongli) + DU20 (Baihui) + Sishencong,Gui Pi Tang
+"Do you have tremors or shaking when tired?",Internal Wind / Vagal exhaustion,LV3 (Taichong) + GB20 (Fengchi) + SP6 (Sanyinjiao),Tian Ma Gou Teng Yin
+"Do you wake up with a rapid heartbeat?",Sympathetic surge / Vagal failure at wake,HT7 (Shenmen) + PC6 (Neiguan) + Yin Tang,Tian Wang Bu Xin Dan
+"Do you feel safer sitting in a corner?",Kidney fear / Vagal safety search,UB23 (Shenshu) + UB52 (Zhishi) + KI1 (Yongquan),Zhi Bai Di Huang Wan
+"Do you have acid regurgitation at night?",Stomach Qi rebellion / Vagal sphincter issue,CV12 (Zhongwan) + ST36 (Zusanli) + PC6 (Neiguan),Zuo Jin Wan
+"Do you have difficulty bonding with your baby?",Oxytocin-Vagus loop disruption,CV17 (Danzhong) + HT7 (Shenmen) + Ear Endocrine,Gan Mai Da Zao Tang
+"Do you feel 'stuck' in life, unable to move forward?",Gallbladder Vagal decision paralysis,GB40 (Qiuxu) + GB34 (Yanglingquan) + LV3 (Taichong),Wen Dan Tang
+"Do you have chronic fatigue that sleep doesn't fix?",Mitochondrial Vagal shutdown,ST36 (Zusanli) + CV6 (Qihai) + UB20 (Pishu),Bu Zhong Yi Qi Tang
+"Do you have sensitivity to bright lights?",Liver Vagal pupil constriction lag,GB37 (Guangming) + LV2 (Xingjian) + UB18 (Ganshu),Qi Ju Di Huang Wan
+"Do you feel nauseous when traveling (Motion Sickness)?",Vestibular-Vagal mismatch,PC6 (Neiguan) + ST36 (Zusanli) + Ear Stomach,Huo Xiang Zheng Qi San
+"Do you have numbness in your fingertips?",Peripheral Vagal circulation signaling,LI4 (Hegu) + SI3 (Houxi) + PC8 (Laogong),Bu Yang Huan Wu Tang
+"Do you catch colds easily (Low Immunity)?",Vagal immune modulation failure,LU7 (Lieque) + LI4 (Hegu) + ST36 (Zusanli),Yu Ping Feng San
+"Do you have obsessive repetitive thoughts?",Spleen Vagal 'looping',SP3 (Taibai) + HT7 (Shenmen) + ST40 (Fenglong),Gui Pi Tang
+"Do you feel a phantom vibration in your pocket?",High Sympathetic Tone / Vagal noise,HT7 (Shenmen) + PC7 (Daling),An Shen Ding Zhi Wan
+"Do you have tightness in the chest not related to heart?",Pericardium Vagal constraint,PC6 (Neiguan) + CV17 (Danzhong) + LV3 (Taichong),Xue Fu Zhu Yu Tang
+"Do you have trouble visualizing images in your mind?",Liver Blood Vagal deficiency,UB18 (Ganshu) + UB47 (Hunmen) + GB37 (Guangming),Si Wu Tang
+"Do you feel better after a cold shower?",Mammalian Dive Reflex (Vagus trigger),GV14 (Dazhui) + BL13 (Feishu),None (Lifestyle)
+"Do you have painful periods (Dysmenorrhea)?",Uterine Vagal spasm,SP8 (Diji) + LI4 (Hegu) + CV4 (Guanyuan),Tao Hong Si Wu Tang
+"Do you feel like you can't get enough air?",Kidney not grasping Lung Qi (Vagal),KI25 (Shencang) + LU9 (Taiyuan) + CV17 (Danzhong),Su Zi Jiang Qi Tang
+"Do you have dry, cracking skin on your heels?",Kidney Yin Vagal deficiency,KI3 (Taixi) + KI6 (Zhaohai) + SP6 (Sanyinjiao),Liu Wei Di Huang Wan
+"Do you have chronic hiccups?",Vagal diaphragm spasm,UB17 (Geshu) + PC6 (Neiguan) + CV12 (Zhongwan),Ju Pi Zhu Ru Tang
+"Do you feel rage that is hard to control?",Liver Yang Vagal explosion,LV2 (Xingjian) + GB20 (Fengchi) + LI4 (Hegu),Long Dan Xie Gan Tang
+"Do you have floaters in your eyes?",Liver Blood/Kidney Vagal deficiency,UB18 (Ganshu) + KI3 (Taixi) + GB37 (Guangming),Ming Mu Di Huang Wan
+"Do you have weak ankles or trip often?",Gallbladder Vagal proprioception issue,GB40 (Qiuxu) + ST41 (Jiexi) + UB60 (Kunlun),Bu Yang Huan Wu Tang
+"Do you have a metallic taste in your mouth?",Large Intestine Vagal signaling,LI4 (Hegu) + LI11 (Quchi) + ST44 (Neiting),Bai Hu Tang
+"Do you feel guilt for resting?",Yang Overdrive / Vagal suppression,GV20 (Baihui) + Yintang + HT7 (Shenmen),An Shen Ding Zhi Wan
+"Do you have sleep apnea or snoring?",Pharyngeal Vagal tone loss,ST9 (Renying) + CV23 (Lianquan) + LU7 (Lieque),Bu Fei Tang
+"Do you have tingling on top of your head?",Liver Wind Vagal irritation,GV20 (Baihui) + LV3 (Taichong) + GB20 (Fengchi),Tian Ma Gou Teng Yin
+"Do you feel crying would help but you can't?",Lung Qi constriction (Vagal block),LU7 (Lieque) + CV17 (Danzhong) + UB13 (Feishu),Gan Mai Da Zao Tang
+"Do you have excessive earwax?",Gallbladder/San Jiao Vagal dampness,SJ17 (Yifeng) + GB2 (Tinghui) + SI19 (Tinggong),Long Dan Xie Gan Tang
+"Do you have pain that moves from joint to joint?",Wind Bi Vagal signaling,GB20 (Fengchi) + UB12 (Fengmen) + SP10 (Xuehai),Fang Feng Tang
+"Do you feel disconnected from your intuition?",Heart-Kidney Vagal axis break,HT7 (Shenmen) + KI3 (Taixi) + CV15 (Jiuwei),Ding Zhi Wan
+"Do you have hemorrhoids flare-ups?",Spleen Vagal sinking Qi,GV20 (Baihui) + UB57 (Chengshan) + Er Bai,Bu Zhong Yi Qi Tang
+"Do you have chronic bad breath (Halitosis)?",Stomach Fire Vagal fermentation,ST44 (Neiting) + PC7 (Daling) + CV12 (Zhongwan),Qing Wei San
+"Do you have cracking joints?",Liver Vagal tendon dryness,GB34 (Yanglingquan) + LV3 (Taichong) + ST36 (Zusanli),Du Huo Ji Sheng Tang
+"Do you feel you are 'losing your mind'?",Kidney Essence Vagal decline,GB39 (Xuanzhong) + KI3 (Taixi) + GV20 (Baihui),Zuo Gui Wan
+"Do you have sensitivity to loud sounds?",Kidney Vagal dampening failure,KD3 (Taixi) + SJ3 (Zhongzhu) + GB43 (Xiaxi),Zhi Bai Di Huang Wan
+"Do you have tightness in the solar plexus?",Liver attacking Stomach Vagal reflex,CV12 (Zhongwan) + LV3 (Taichong) + ST36 (Zusanli),Chai Hu Shu Gan San
+"Do you have weak bladder control when sneezing?",Kidney Qi Vagal leak,CV4 (Guanyuan) + CV6 (Qihai) + UB23 (Shenshu),Suo Quan Wan
+"Do you have chronic yeast infections?",Damp Heat Vagal immunity drop,SP9 (Yinlingquan) + LV5 (Ligou) + CV3 (Zhongji),Long Dan Xie Gan Tang
+"Do you feel better after vomiting?",Stomach Vagal reset (Rebellious Qi),PC6 (Neiguan) + CV12 (Zhongwan) + ST36 (Zusanli),Huo Xiang Zheng Qi San
+"Do you have pain at the base of your skull?",Occipital Vagal tension,GB20 (Fengchi) + UB10 (Tianzhu) + GV16 (Fengfu),Ge Gen Tang
+"Do you have restless sleep with vivid nightmares?",Heart Fire Vagal agitation,HT8 (Shaofu) + LV2 (Xingjian) + PC7 (Daling),Dao Chi San
+"Do you feel uninspired or lacking creativity?",Kidney Spirit (Zhi) Vagal low,UB52 (Zhishi) + UB23 (Shenshu) + GV4 (Mingmen),You Gui Wan
+"Do you have frequent nosebleeds?",Lung Heat / Vagal vascular instability,LI20 (Yingxiang) + GV23 (Shangxing) + LU6 (Kongzui),Yu Nu Jian
+"Do you feel physically heavy and sluggish?",Dampness Vagal inhibition,SP9 (Yinlingquan) + ST40 (Fenglong) + CV12 (Zhongwan),Ping Wei San
+"Do you have chronic throat clearing?",Phlegm stagnation Vagal reflex,ST40 (Fenglong) + CV22 (Tiantu) + PC6 (Neiguan),Er Chen Tang
+"Do you feel lonely even when with people?",Heart Vagal connection failure,HT5 (Tongli) + HT7 (Shenmen) + PC6 (Neiguan),Gan Mai Da Zao Tang
