@@ -27,7 +27,8 @@ import {
   Zap,
   History,
   Calendar,
-  MapPin
+  MapPin,
+  Pin
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSessionBrief, SuggestedQuestion, VisitHistorySummary } from '@/hooks/useSessionBrief';
@@ -41,6 +42,7 @@ interface SessionBriefPanelProps {
   isOpen: boolean;
   onClose: () => void;
   onQuestionUsed?: (question: string) => void;
+  onQuestionPinned?: (question: string) => void;
   autoTrigger?: boolean;
 }
 
@@ -64,6 +66,7 @@ export function SessionBriefPanel({
   isOpen,
   onClose,
   onQuestionUsed,
+  onQuestionPinned,
   autoTrigger = true
 }: SessionBriefPanelProps) {
   const { isLoading, sessionBrief, error, generateSessionBrief, clearBrief } = useSessionBrief();
@@ -71,6 +74,7 @@ export function SessionBriefPanel({
   const [questionsExpanded, setQuestionsExpanded] = useState(true);
   const [historyExpanded, setHistoryExpanded] = useState(true);
   const [copiedQuestion, setCopiedQuestion] = useState<number | null>(null);
+  const [pinnedQuestions, setPinnedQuestions] = useState<Set<number>>(new Set());
   const [hasAutoTriggered, setHasAutoTriggered] = useState(false);
 
   // Auto-trigger generation when patient is selected
@@ -103,6 +107,21 @@ export function SessionBriefPanel({
   const handleUseQuestion = (question: string) => {
     onQuestionUsed?.(question);
     toast.success('Question added to notes');
+  };
+
+  const handlePinQuestion = (question: string, index: number) => {
+    setPinnedQuestions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+        toast.info('Question unpinned');
+      } else {
+        newSet.add(index);
+        onQuestionPinned?.(question);
+        toast.success('📌 Question pinned!');
+      }
+      return newSet;
+    });
   };
 
   if (!isOpen) return null;
@@ -372,7 +391,8 @@ export function SessionBriefPanel({
                                 transition={{ delay: i * 0.05 }}
                                 className={cn(
                                   "p-3 rounded-lg border-l-4 transition-all hover:shadow-md",
-                                  priorityColors[q.priority]
+                                  priorityColors[q.priority],
+                                  pinnedQuestions.has(i) && "ring-2 ring-amber-400 bg-amber-50/50 dark:bg-amber-950/30"
                                 )}
                               >
                                 <div className="flex items-start justify-between gap-2 mb-2">
@@ -391,8 +411,18 @@ export function SessionBriefPanel({
                                     <Button
                                       variant="ghost"
                                       size="icon"
+                                      className={cn("h-6 w-6", pinnedQuestions.has(i) && "text-amber-500")}
+                                      onClick={() => handlePinQuestion(q.questionEn || q.questionHe, i)}
+                                      title="Pin question"
+                                    >
+                                      <Pin className={cn("h-3 w-3", pinnedQuestions.has(i) && "fill-amber-500")} />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
                                       className="h-6 w-6"
                                       onClick={() => handleCopyQuestion(q.questionEn || q.questionHe, i)}
+                                      title="Copy question"
                                     >
                                       {copiedQuestion === i ? (
                                         <Check className="h-3 w-3 text-green-500" />
@@ -405,6 +435,7 @@ export function SessionBriefPanel({
                                       size="icon"
                                       className="h-6 w-6"
                                       onClick={() => handleUseQuestion(q.questionEn || q.questionHe)}
+                                      title="Add to notes"
                                     >
                                       <MessageCircle className="h-3 w-3" />
                                     </Button>

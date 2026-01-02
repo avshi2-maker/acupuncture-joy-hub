@@ -571,6 +571,8 @@ export default function VideoSession() {
     { patterns: ['follow up', 'מעקב', 'followup'], action: () => setShowFollowUpPlan(true), description: 'Follow-up plan', category: 'navigation' },
     { patterns: ['settings', 'הגדרות'], action: () => setShowSettings(true), description: 'Open settings', category: 'navigation' },
     { patterns: ['brain', 'מוח', 'tcm', 'ai'], action: () => setShowTcmBrainPanel(true), description: 'Open TCM Brain', category: 'ai' },
+    { patterns: ['brief', 'session brief', 'תקציר', 'show brief'], action: () => setShowSessionBrief(true), description: 'Show session brief', category: 'ai' },
+    { patterns: ['hide brief', 'close brief', 'סגור תקציר'], action: () => setShowSessionBrief(false), description: 'Hide session brief', category: 'ai' },
     { patterns: ['pregnancy', 'הריון', 'pregnant', 'בהריון', 'gestation'], action: () => setShowPregnancyCalc(true), description: 'Pregnancy calculator', category: 'ai' },
     { patterns: ['elderly', 'קשישים', 'seniors', 'lifestyle', 'aging', 'healthy aging'], action: () => setShowElderlyGuide(true), description: 'Elderly lifestyle guide', category: 'ai' },
     { patterns: ['anxiety', 'חרדה', 'qa', 'questions'], action: () => setShowAnxietyQA(true), description: 'Anxiety Q&A', category: 'ai' },
@@ -1043,6 +1045,13 @@ export default function VideoSession() {
   const handleSessionBriefQuestion = useCallback((question: string) => {
     const timestamp = formatDuration(sessionDuration);
     setNotes(sessionNotes + `\n❓ [${timestamp}] ${question}`);
+    haptic.success();
+  }, [sessionDuration, sessionNotes, setNotes, haptic]);
+
+  // Handle pinning question from Session Brief to notes with pin marker
+  const handleSessionBriefPinnedQuestion = useCallback((question: string) => {
+    const timestamp = formatDuration(sessionDuration);
+    setNotes(sessionNotes + `\n📌 [${timestamp}] PINNED: ${question}`);
     haptic.success();
   }, [sessionDuration, sessionNotes, setNotes, haptic]);
 
@@ -2490,6 +2499,7 @@ export default function VideoSession() {
         isOpen={showSessionBrief}
         onClose={() => setShowSessionBrief(false)}
         onQuestionUsed={handleSessionBriefQuestion}
+        onQuestionPinned={handleSessionBriefPinnedQuestion}
         autoTrigger={true}
       />
       
