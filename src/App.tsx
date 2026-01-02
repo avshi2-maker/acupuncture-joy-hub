@@ -121,11 +121,12 @@ const App = () => (
 
                       <Route path="/admin" element={<RequireTier><Admin /></RequireTier>} />
                       <Route path="/admin/feedback" element={<RequireTier><AdminFeedback /></RequireTier>} />
-                      <Route path="/admin/knowledge" element={<RequireTier><KnowledgeRegistry /></RequireTier>} />
+                      {/* Knowledge Registry is protected by email/password auth inside the page (not tier-gated) */}
+                      <Route path="/admin/knowledge" element={<KnowledgeRegistry />} />
                       <Route path="/admin/disclaimers" element={<RequireTier><AdminDisclaimers /></RequireTier>} />
                       <Route path="/admin/passwords" element={<RequireTier><AdminPasswordGenerator /></RequireTier>} />
 
-                      <Route path="/knowledge-registry" element={<RequireTier><KnowledgeRegistry /></RequireTier>} />
+                      <Route path="/knowledge-registry" element={<KnowledgeRegistry />} />
                       <Route path="/bazi-calculator" element={<RequireTier><BaziCalculator /></RequireTier>} />
                       <Route path="/legal-report" element={<RequireTier><LegalReport /></RequireTier>} />
                       <Route path="/symptom-checker" element={<RequireTier><SymptomChecker /></RequireTier>} />
