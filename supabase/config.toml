@@ -1,5 +1,8 @@
 project_id = "hwwwioyrsbewptuwvrix"
 
+[functions.import-clinical-trials]
+verify_jwt = false
+
 [api]
 enabled = true
 port = 54321
