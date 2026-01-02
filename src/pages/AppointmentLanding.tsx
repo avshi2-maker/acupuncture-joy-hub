@@ -16,6 +16,9 @@ interface AppointmentDetails {
     phone: string | null;
     booking_contact_phone: string | null;
     general_instructions: string | null;
+    landing_page_bg_url: string | null;
+    parking_instructions: string | null;
+    map_embed_url: string | null;
   };
 }
 
@@ -71,6 +74,7 @@ export default function AppointmentLanding() {
     clinicName: 'TCM Clinic',
     mapEmbedURL: '',
     parkingInfo: lang === 'he' ? 'חניה זמינה בקרבת מקום' : 'Nearby parking available',
+    backgroundImage: '',
   });
 
   useEffect(() => {
@@ -106,7 +110,9 @@ export default function AppointmentLanding() {
             clinicName: clinic.name || prev.clinicName,
             clinicAddress: clinic.address || prev.clinicAddress,
             therapistPhone: clinic.booking_contact_phone?.replace(/\D/g, '') || clinic.phone?.replace(/\D/g, '') || prev.therapistPhone,
-            parkingInfo: clinic.general_instructions || prev.parkingInfo,
+            parkingInfo: clinic.parking_instructions || clinic.general_instructions || prev.parkingInfo,
+            mapEmbedURL: clinic.map_embed_url || prev.mapEmbedURL,
+            backgroundImage: clinic.landing_page_bg_url || '',
           }));
         }
       }
@@ -137,12 +143,14 @@ export default function AppointmentLanding() {
     window.location.href = waLink;
   };
 
+  const bgImage = config.backgroundImage || appointmentBg;
+
   if (loading) {
     return (
       <div 
         className="min-h-screen flex items-center justify-center"
         style={{
-          backgroundImage: `url(${appointmentBg})`,
+          backgroundImage: `url(${bgImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
@@ -161,7 +169,7 @@ export default function AppointmentLanding() {
       <div 
         className="min-h-screen flex items-center justify-center p-4"
         style={{
-          backgroundImage: `url(${appointmentBg})`,
+          backgroundImage: `url(${bgImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
@@ -186,7 +194,7 @@ export default function AppointmentLanding() {
     <div 
       className="min-h-screen flex items-center justify-center p-4"
       style={{
-        backgroundImage: `url(${appointmentBg})`,
+        backgroundImage: `url(${bgImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed',

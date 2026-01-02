@@ -447,8 +447,11 @@ export type Database = {
           email: string | null
           general_instructions: string | null
           id: string
+          landing_page_bg_url: string | null
+          map_embed_url: string | null
           name: string
           owner_id: string
+          parking_instructions: string | null
           phone: string | null
           timezone: string | null
           updated_at: string
@@ -461,8 +464,11 @@ export type Database = {
           email?: string | null
           general_instructions?: string | null
           id?: string
+          landing_page_bg_url?: string | null
+          map_embed_url?: string | null
           name: string
           owner_id: string
+          parking_instructions?: string | null
           phone?: string | null
           timezone?: string | null
           updated_at?: string
@@ -475,8 +481,11 @@ export type Database = {
           email?: string | null
           general_instructions?: string | null
           id?: string
+          landing_page_bg_url?: string | null
+          map_embed_url?: string | null
           name?: string
           owner_id?: string
+          parking_instructions?: string | null
           phone?: string | null
           timezone?: string | null
           updated_at?: string
