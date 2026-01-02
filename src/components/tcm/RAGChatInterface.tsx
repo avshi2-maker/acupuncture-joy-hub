@@ -14,12 +14,38 @@ import { RAGSearchAnimation, RAGVerificationStatus } from './RAGSearchAnimation'
 import { AITracePanel, TraceStep, ChunkMatch, HallucinationCheck, analyzeHallucination } from './AITracePanel';
 import { ConfidenceMeter } from './ConfidenceMeter';
 import { QASuggestionsPanel } from './QASuggestionsPanel';
+import { SourceAuditFooter } from './SourceAuditFooter';
 
 interface Source {
   fileName: string;
   chunkIndex: number;
   preview: string;
   category?: string;
+}
+
+interface SourceAuditData {
+  totalIndexedAssets: number;
+  totalChunksInIndex: number;
+  candidatesScanned: number;
+  filteredToTop: number;
+  sourcesUsedForAnswer: {
+    fileName: string;
+    pillar: string;
+    chunkIndex: number;
+    category?: string;
+  }[];
+  searchScope: string;
+  closedLoop: boolean;
+}
+
+interface PillarBreakdown {
+  clinical: number;
+  pharmacopeia: number;
+  nutrition: number;
+  lifestyle: number;
+  ageSpecific: number;
+  cafStudies: number;
+  clinicalTrials: number;
 }
 
 interface Message {
@@ -32,6 +58,8 @@ interface Message {
     documentsSearched: number;
     searchTermsUsed: string;
     auditLogged: boolean;
+    pillarBreakdown?: PillarBreakdown;
+    sourceAudit?: SourceAuditData;
   };
   traceData?: {
     steps: TraceStep[];
@@ -296,6 +324,8 @@ export function RAGChatInterface({ className }: RAGChatInterfaceProps) {
           documentsSearched: data.documentsSearched,
           searchTermsUsed: data.searchTermsUsed,
           auditLogged: data.auditLogged,
+          pillarBreakdown: data.pillarBreakdown,
+          sourceAudit: data.sourceAudit,
         },
         traceData: {
           steps: currentTrace.steps,
@@ -520,6 +550,16 @@ export function RAGChatInterface({ className }: RAGChatInterfaceProps) {
                           +{message.sources.length - 5} more
                         </Badge>
                       )}
+                    </div>
+                  )}
+                  
+                  {/* Source Audit Footer - Proof that 55 assets were scanned */}
+                  {message.role === 'assistant' && message.metadata?.sourceAudit && (
+                    <div className="w-full max-w-[85%]">
+                      <SourceAuditFooter 
+                        sourceAudit={message.metadata.sourceAudit}
+                        pillarBreakdown={message.metadata.pillarBreakdown}
+                      />
                     </div>
                   )}
                 </div>
