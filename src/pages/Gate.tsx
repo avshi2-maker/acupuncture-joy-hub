@@ -18,7 +18,10 @@ import { TierCard } from '@/components/pricing/TierCard';
 import { Confetti } from '@/components/ui/Confetti';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Checkbox } from '@/components/ui/checkbox';
-import gateBg from '@/assets/gate-bamboo-bg.jpg';
+import gateBg from '@/assets/gate-background.png';
+
+// Dev test password for development/testing
+const DEV_TEST_PASSWORD = 'dev2025';
 
 // Session expiry timer component
 function SessionExpiryTimer() {
@@ -621,9 +624,52 @@ export default function Gate() {
                   )}
                 </div>
 
+                {/* Quick Login for Returning Therapists */}
+                {hasStoredSession && isBiometricEnabled && (
+                  <div className="mb-8">
+                    <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 max-w-md mx-auto border border-gold/30 shadow-xl">
+                      <div className="text-center">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-jade to-jade-dark flex items-center justify-center">
+                          <Fingerprint className="h-8 w-8 text-white" />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-800 mb-2">כניסה מהירה</h3>
+                        <p className="text-sm text-slate-600 mb-4">היי! זוהית כמטפל/ת חוזר/ת</p>
+                        <Button
+                          onClick={handleBiometricLogin}
+                          disabled={isAuthenticating}
+                          className="w-full bg-gradient-to-r from-jade to-jade-dark hover:from-jade-dark hover:to-jade text-white py-3"
+                        >
+                          {isAuthenticating ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                          ) : (
+                            <>
+                              <Fingerprint className="h-5 w-5 ml-2" />
+                              כניסה עם טביעת אצבע / Face ID
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                    <p className="text-center text-white/80 text-sm mt-4">או בחרו תוכנית חדשה למטה</p>
+                  </div>
+                )}
+
                 {/* Quick Test Access for Daily Testing */}
                 <div className="text-center space-y-3">
                   <div className="flex items-center justify-center gap-4 flex-wrap">
+                    {/* Dev Test Password Button */}
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        form.setValue('password', DEV_TEST_PASSWORD);
+                        setCurrentStep('password');
+                        toast.info('סיסמת בדיקה הוזנה - לחצו "כניסה"');
+                      }}
+                      className="border-amber-400/50 text-amber-200 hover:bg-amber-500/20 backdrop-blur-sm"
+                    >
+                      <Sparkles className="h-4 w-4 ml-2" />
+                      Dev Test Login
+                    </Button>
                     <Button 
                       variant="outline" 
                       onClick={() => {
