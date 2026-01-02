@@ -1,6 +1,96 @@
 project_id = "hwwwioyrsbewptuwvrix"
 
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://127.0.0.1"
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["https://127.0.0.1:3000"]
+jwt_expiry = 3600
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+[functions.appointment-confirm]
+verify_jwt = false
+
+[functions.create-zoom-meeting]
+verify_jwt = false
+
+[functions.elevenlabs-scribe-token]
+verify_jwt = false
+
+[functions.elevenlabs-transcribe]
+verify_jwt = false
+
+[functions.elevenlabs-tts]
+verify_jwt = false
+
+[functions.generate-legal-report]
+verify_jwt = false
+
+[functions.generate-session-report]
+verify_jwt = false
+
+[functions.generate-session-summary]
+verify_jwt = false
+
+[functions.import-knowledge]
+verify_jwt = false
+
+[functions.notify-payment-proof]
+verify_jwt = false
+
+[functions.notify-therapist-booking]
+verify_jwt = false
+
+[functions.send-appointment-followup]
+verify_jwt = false
+
+[functions.send-appointment-reminders]
+verify_jwt = false
+
+[functions.send-contact-email]
+verify_jwt = false
+
+[functions.send-followup-reminders]
+verify_jwt = false
+
+[functions.send-qa-report]
+verify_jwt = false
+
+[functions.symptom-checker]
+verify_jwt = false
+
 [functions.tcm-chat]
+verify_jwt = false
+
+[functions.tcm-rag-chat]
+verify_jwt = false
+
+[functions.text-to-speech]
+verify_jwt = false
+
+[functions.treatment-planner]
 verify_jwt = false
 
 [functions.voice-to-text]
