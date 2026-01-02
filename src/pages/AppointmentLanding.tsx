@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { MapPin, Navigation, Car, Loader2, Calendar, Clock, ParkingCircle, MessageCircle } from 'lucide-react';
+import { MapPin, Navigation, Car, Loader2, Calendar, Clock, ParkingCircle, MessageCircle, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import appointmentBg from '@/assets/appointment-landing-bg.jpg';
+import appointmentBg from '@/assets/whatsapp-landing-bg.png';
 
 interface AppointmentDetails {
   title: string;
@@ -20,13 +19,50 @@ interface AppointmentDetails {
   };
 }
 
+// Translations
+const translations = {
+  en: {
+    loading: 'Loading...',
+    error: 'Error',
+    appointmentReminder: 'Appointment Reminder',
+    hello: 'Hello',
+    reminderText: 'This is a reminder for your TCM treatment.',
+    confirmBelow: 'Please confirm your arrival below.',
+    willAttend: 'Will you be attending?',
+    noReschedule: 'No / Reschedule',
+    confirmArrival: 'Confirm Arrival',
+    whatsappNote: 'Clicking will open WhatsApp with a pre-written message',
+    confirmYes: 'Hi, I confirm my arrival for the upcoming treatment. See you there! ✅',
+    confirmNo: 'Hi, unfortunately I cannot make it to the treatment. Please contact me to reschedule. ❌',
+  },
+  he: {
+    loading: 'טוען...',
+    error: 'שגיאה',
+    appointmentReminder: 'תזכורת לתור',
+    hello: 'שלום',
+    reminderText: 'זוהי תזכורת לטיפול הרפואה הסינית שלך.',
+    confirmBelow: 'אנא אשר/י את הגעתך למטה.',
+    willAttend: 'האם תגיע/י לתור?',
+    noReschedule: 'לא / לתאם מחדש',
+    confirmArrival: 'אישור הגעה',
+    whatsappNote: 'לחיצה תפתח וואטסאפ עם הודעה מוכנה',
+    confirmYes: 'היי, אני מאשר/ת את הגעתי לטיפול. נתראה! ✅',
+    confirmNo: 'היי, לצערי לא אוכל להגיע לטיפול. אנא צרו איתי קשר לתיאום מחדש. ❌',
+  }
+};
+
 export default function AppointmentLanding() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
+  const langParam = searchParams.get('lang');
   
   const [loading, setLoading] = useState(true);
   const [appointment, setAppointment] = useState<AppointmentDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [lang, setLang] = useState<'en' | 'he'>(langParam === 'he' ? 'he' : 'en');
+
+  const t = translations[lang];
+  const isRTL = lang === 'he';
 
   // Configuration - can be overridden by clinic data
   const [config, setConfig] = useState({
@@ -34,7 +70,7 @@ export default function AppointmentLanding() {
     clinicAddress: 'Tel Aviv, Israel',
     clinicName: 'TCM Clinic',
     mapEmbedURL: '',
-    parkingInfo: 'Nearby parking available',
+    parkingInfo: lang === 'he' ? 'חניה זמינה בקרבת מקום' : 'Nearby parking available',
   });
 
   useEffect(() => {
@@ -42,7 +78,7 @@ export default function AppointmentLanding() {
       fetchAppointmentDetails();
     } else {
       setLoading(false);
-      setError('Invalid link');
+      setError(t.error);
     }
   }, [token]);
 
@@ -75,10 +111,14 @@ export default function AppointmentLanding() {
         }
       }
     } catch (err) {
-      setError('Error loading appointment details');
+      setError(t.error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleLanguage = () => {
+    setLang(prev => prev === 'en' ? 'he' : 'en');
   };
 
   const openWaze = () => {
@@ -92,10 +132,7 @@ export default function AppointmentLanding() {
   };
 
   const sendWhatsAppReply = (isConfirming: boolean) => {
-    const message = isConfirming
-      ? `Hi, I confirm my arrival for the upcoming treatment. See you there! ✅`
-      : `Hi, unfortunately I cannot make it to the treatment. Please contact me to reschedule. ❌`;
-    
+    const message = isConfirming ? t.confirmYes : t.confirmNo;
     const waLink = `https://wa.me/${config.therapistPhone}?text=${encodeURIComponent(message)}`;
     window.location.href = waLink;
   };
@@ -113,7 +150,7 @@ export default function AppointmentLanding() {
       >
         <div className="bg-white/95 backdrop-blur-md rounded-3xl p-8 shadow-2xl text-center">
           <Loader2 className="h-12 w-12 animate-spin mx-auto text-jade mb-4" />
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t.loading}</p>
         </div>
       </div>
     );
@@ -129,12 +166,13 @@ export default function AppointmentLanding() {
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
         }}
+        dir={isRTL ? 'rtl' : 'ltr'}
       >
         <div className="bg-white/95 backdrop-blur-md rounded-3xl p-8 shadow-2xl text-center max-w-md w-full">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <MapPin className="h-8 w-8 text-red-500" />
           </div>
-          <h1 className="text-xl font-semibold mb-2">Error</h1>
+          <h1 className="text-xl font-semibold mb-2">{t.error}</h1>
           <p className="text-muted-foreground">{error}</p>
         </div>
       </div>
@@ -153,23 +191,33 @@ export default function AppointmentLanding() {
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed',
       }}
+      dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden max-w-md w-full border border-white/80">
+        {/* Language Toggle */}
+        <button
+          onClick={toggleLanguage}
+          className="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg hover:bg-white transition-colors"
+          title={lang === 'en' ? 'עברית' : 'English'}
+        >
+          <Globe className="h-5 w-5 text-jade" />
+        </button>
+
         {/* Header */}
-        <div className="bg-jade text-white p-6 text-center">
+        <div className="bg-jade text-white p-6 text-center relative">
           <span className="text-2xl mb-2 block">🌿</span>
-          <h1 className="text-xl font-semibold">Appointment Reminder</h1>
+          <h1 className="text-xl font-semibold">{t.appointmentReminder}</h1>
           <p className="text-jade-foreground/80 text-sm mt-1">{config.clinicName}</p>
         </div>
 
         {/* Greeting & Details */}
         <div className="p-6 text-center">
           <h2 className="text-2xl font-semibold text-foreground mb-2">
-            Hello{appointment?.patients?.full_name ? `, ${appointment.patients.full_name.split(' ')[0]}` : ''}!
+            {t.hello}{appointment?.patients?.full_name ? `, ${appointment.patients.full_name.split(' ')[0]}` : ''}!
           </h2>
           <p className="text-muted-foreground mb-4">
-            This is a reminder for your TCM treatment.<br />
-            <strong>Please confirm your arrival below.</strong>
+            {t.reminderText}<br />
+            <strong>{t.confirmBelow}</strong>
           </p>
 
           {/* Appointment Time */}
@@ -177,7 +225,10 @@ export default function AppointmentLanding() {
             <div className="bg-jade/10 rounded-xl p-4 mb-4 inline-flex flex-col items-center gap-2">
               <div className="flex items-center gap-2 text-jade font-medium">
                 <Calendar className="h-5 w-5" />
-                {format(new Date(appointment.start_time), 'EEEE, MMMM d, yyyy')}
+                {isRTL 
+                  ? format(new Date(appointment.start_time), 'EEEE, d בMMMM yyyy', { locale: he })
+                  : format(new Date(appointment.start_time), 'EEEE, MMMM d, yyyy')
+                }
               </div>
               <div className="flex items-center gap-2 text-jade text-lg font-bold">
                 <Clock className="h-5 w-5" />
@@ -225,7 +276,7 @@ export default function AppointmentLanding() {
 
           {/* Confirmation Section */}
           <div className="border-t pt-6">
-            <h3 className="text-center font-semibold text-lg mb-4">Will you be attending?</h3>
+            <h3 className="text-center font-semibold text-lg mb-4">{t.willAttend}</h3>
             <div className="grid grid-cols-2 gap-4">
               <Button
                 onClick={() => sendWhatsAppReply(false)}
@@ -233,18 +284,18 @@ export default function AppointmentLanding() {
                 className="h-14 text-base border-muted-foreground/30 hover:bg-muted flex items-center justify-center gap-2"
               >
                 <MessageCircle className="h-5 w-5" />
-                No / Reschedule
+                {t.noReschedule}
               </Button>
               <Button
                 onClick={() => sendWhatsAppReply(true)}
                 className="h-14 text-base bg-jade hover:bg-jade/90 flex items-center justify-center gap-2"
               >
                 <MessageCircle className="h-5 w-5" />
-                Confirm Arrival
+                {t.confirmArrival}
               </Button>
             </div>
             <p className="text-center text-xs text-muted-foreground mt-3">
-              Clicking will open WhatsApp with a pre-written message
+              {t.whatsappNote}
             </p>
           </div>
         </div>
