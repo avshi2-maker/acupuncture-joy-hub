@@ -81,9 +81,10 @@ const tiers = [
     name: 'Trial',
     nameHe: 'ניסיון',
     price: 'חינם',
+    period: '7 ימי ניסיון',
     description: '7 ימי ניסיון חינם לכל הפיצ׳רים הבסיסיים',
     features: [
-      { name: 'TCM Brain - מאגר ידע', included: true },
+      { name: 'מאגר ידע - TCM Brain', included: true },
       { name: 'יומן תורים', included: true },
       { name: 'ניהול מטופלים (CRM)', included: true },
       { name: 'מפת גוף אינטראקטיבית', included: true },
@@ -96,9 +97,11 @@ const tiers = [
     name: 'Standard',
     nameHe: 'סטנדרט',
     price: '₪40',
+    period: '/ חודש',
+    periodSub: 'כולל מע״מ',
     description: 'כולל תזכורות אוטומטיות למטופלים + מע״מ',
     features: [
-      { name: 'TCM Brain - מאגר ידע', included: true },
+      { name: 'מאגר ידע - TCM Brain', included: true },
       { name: 'יומן תורים', included: true },
       { name: 'ניהול מטופלים (CRM)', included: true },
       { name: 'מפת גוף אינטראקטיבית', included: true },
@@ -112,9 +115,11 @@ const tiers = [
     name: 'Premium',
     nameHe: 'פרימיום',
     price: '₪50',
+    period: '/ חודש',
+    periodSub: 'כולל פגישות וידאו + מע״מ',
     description: 'כל הפיצ׳רים כולל פגישות וידאו + מע״מ',
     features: [
-      { name: 'TCM Brain - מאגר ידע', included: true },
+      { name: 'מאגר ידע - TCM Brain', included: true },
       { name: 'יומן תורים', included: true },
       { name: 'ניהול מטופלים (CRM)', included: true },
       { name: 'מפת גוף אינטראקטיבית', included: true },
@@ -491,90 +496,164 @@ export default function Gate() {
               </div>
             </div>
 
-            {/* Step 1: Tier Selection - New Welcome Header */}
+            {/* Step 1: Tier Selection - Stunning Glass Design */}
             {currentStep === 'tiers' && (
               <>
-                {/* Glassmorphism header */}
-                <div className="text-center mb-10 mx-auto max-w-3xl">
-                  <div className="bg-white/95 backdrop-blur-md rounded-3xl p-8 md:p-12 shadow-2xl border border-white/60">
-                    <h1 className="font-display text-3xl md:text-4xl text-jade-dark mb-4">
-                      ברוכים הבאים לקליניקה
-                    </h1>
-                    <p className="text-slate-600 text-lg">
-                      בחרו את הנתיב המתאים ביותר לביקור שלכם היום
-                    </p>
-                  </div>
+                {/* Header with text shadow for dark backgrounds */}
+                <div className="text-center mb-10 text-white" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+                  <h1 className="font-display text-3xl md:text-4xl font-bold mb-3">
+                    ברוכים הבאים לקליניקה
+                  </h1>
+                  <p className="text-lg opacity-90">
+                    בחרו את הנתיב המתאים ביותר לביקור שלכם היום
+                  </p>
                 </div>
 
-              <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-8">
-                {isPageLoading ? (
-                  // Skeleton loading state
-                  <>
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="rounded-xl border bg-card p-6 space-y-4 animate-pulse">
-                        <div className="space-y-2">
-                          <Skeleton className="h-6 w-24 mx-auto" />
-                          <Skeleton className="h-10 w-20 mx-auto" />
-                          <Skeleton className="h-4 w-40 mx-auto" />
+                {/* Glass Cards Grid */}
+                <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-8 items-center">
+                  {isPageLoading ? (
+                    // Skeleton loading state
+                    <>
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="rounded-2xl bg-white/80 backdrop-blur-xl p-6 space-y-4 animate-pulse">
+                          <div className="space-y-2">
+                            <Skeleton className="h-6 w-24 mx-auto" />
+                            <Skeleton className="h-10 w-20 mx-auto" />
+                            <Skeleton className="h-4 w-40 mx-auto" />
+                          </div>
+                          <div className="space-y-2 pt-4">
+                            {[1, 2, 3, 4, 5, 6, 7].map((j) => (
+                              <div key={j} className="flex items-center gap-2">
+                                <Skeleton className="h-4 w-4 rounded-full" />
+                                <Skeleton className="h-4 flex-1" />
+                              </div>
+                            ))}
+                          </div>
+                          <Skeleton className="h-10 w-full mt-4" />
                         </div>
-                        <div className="space-y-2 pt-4">
-                          {[1, 2, 3, 4, 5, 6, 7].map((j) => (
-                            <div key={j} className="flex items-center gap-2">
-                              <Skeleton className="h-4 w-4 rounded-full" />
-                              <Skeleton className="h-4 flex-1" />
-                            </div>
+                      ))}
+                    </>
+                  ) : (
+                    // Stunning Glass Tier Cards
+                    tiers.map((tier) => (
+                      <div
+                        key={tier.name}
+                        className={`
+                          relative flex flex-col h-full
+                          rounded-[20px] p-8 text-center
+                          transition-all duration-300
+                          backdrop-blur-xl border
+                          ${tier.highlighted 
+                            ? 'bg-white/[0.92] border-2 border-[#d4af37] scale-105 z-10 shadow-[0_20px_50px_rgba(212,175,55,0.25)]' 
+                            : 'bg-white/85 border-white/40 hover:bg-white/95 shadow-[0_10px_30px_rgba(0,0,0,0.2)]'
+                          }
+                          hover:-translate-y-2.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]
+                        `}
+                        style={{ fontFamily: "'Heebo', sans-serif" }}
+                      >
+                        {/* Badge for highlighted */}
+                        {tier.highlighted && (
+                          <div 
+                            className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-white text-sm font-bold"
+                            style={{ 
+                              background: '#d4af37',
+                              boxShadow: '0 4px 10px rgba(212, 175, 55, 0.4)'
+                            }}
+                          >
+                            הכי פופולרי
+                          </div>
+                        )}
+
+                        {/* Plan Name */}
+                        <h3 className="text-xl font-bold mb-1" style={{ color: '#2c6e49' }}>
+                          {tier.nameHe}
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-5">{tier.name}</p>
+
+                        {/* Price */}
+                        <div className="mb-2">
+                          <span className="text-4xl font-extrabold" style={{ color: '#1a202c' }}>
+                            {tier.price}
+                          </span>
+                          {tier.period && (
+                            <span className="text-base text-gray-600 mr-1">{tier.period}</span>
+                          )}
+                        </div>
+                        {tier.periodSub && (
+                          <p className="text-sm text-gray-500 mb-6">{tier.periodSub}</p>
+                        )}
+                        {!tier.periodSub && <div className="mb-6" />}
+
+                        {/* Features List */}
+                        <ul className="space-y-3 mb-8 flex-1 text-right">
+                          {tier.features.map((feature, idx) => (
+                            <li 
+                              key={idx} 
+                              className={`flex items-center text-sm ${feature.included ? 'text-gray-700' : 'text-gray-400 line-through'}`}
+                            >
+                              <span 
+                                className={`ml-2.5 font-bold w-5 text-center ${feature.included ? 'text-[#2c6e49]' : 'text-gray-300'}`}
+                              >
+                                {feature.included ? '✓' : '✕'}
+                              </span>
+                              {feature.name}
+                            </li>
                           ))}
-                        </div>
-                        <Skeleton className="h-10 w-full mt-4" />
-                      </div>
-                    ))}
-                  </>
-                ) : (
-                  // Actual tier cards
-                  tiers.map((tier) => (
-                    <TierCard
-                      key={tier.name}
-                      {...tier}
-                      onSelect={() => handleSelectTier(tier.name)}
-                      buttonText={tier.name === 'Trial' ? 'התחל ניסיון' : 'בחר תוכנית'}
-                    />
-                  ))
-                )}
-              </div>
+                        </ul>
 
-              {/* Quick Test Access for Daily Testing */}
-              <div className="text-center space-y-3">
-                <div className="flex items-center justify-center gap-4">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      // Set trial tier for 24 hours
-                      const tomorrow = new Date();
-                      tomorrow.setHours(23, 59, 59, 999);
-                      setTier('trial');
-                      setExpiresAt(tomorrow);
-                      toast.success('Trial access activated for today!');
-                      navigate('/tcm-brain');
-                    }}
-                    className="border-jade text-jade hover:bg-jade hover:text-white"
-                  >
-                    <Play className="h-4 w-4 ml-2" />
-                    Quick Test Access (Daily)
-                  </Button>
-                  <Button 
-                    variant="link" 
-                    onClick={() => setCurrentStep('password')}
-                    className="text-jade"
-                  >
-                    כבר יש לי סיסמה - דלגו לכניסה
-                  </Button>
+                        {/* CTA Button */}
+                        <button
+                          onClick={() => handleSelectTier(tier.name)}
+                          className={`
+                            w-full py-4 rounded-xl font-bold text-base
+                            transition-all duration-300
+                            ${tier.highlighted 
+                              ? 'text-white shadow-[0_4px_15px_rgba(184,150,40,0.3)] hover:brightness-110' 
+                              : 'bg-transparent border-2 border-[#2c6e49] text-[#2c6e49] hover:bg-[#2c6e49] hover:text-white'
+                            }
+                          `}
+                          style={tier.highlighted ? { background: 'linear-gradient(135deg, #d4af37, #b89628)' } : {}}
+                        >
+                          {tier.name === 'Trial' ? 'התחל ניסיון' : 'בחר חבילה'}
+                        </button>
+                      </div>
+                    ))
+                  )}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Test access expires at midnight. For full access, select a plan above.
-                </p>
-              </div>
-            </>
-          )}
+
+                {/* Quick Test Access for Daily Testing */}
+                <div className="text-center space-y-3">
+                  <div className="flex items-center justify-center gap-4 flex-wrap">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        // Set trial tier for 24 hours
+                        const tomorrow = new Date();
+                        tomorrow.setHours(23, 59, 59, 999);
+                        setTier('trial');
+                        setExpiresAt(tomorrow);
+                        toast.success('Trial access activated for today!');
+                        navigate('/tcm-brain');
+                      }}
+                      className="border-white/50 text-white hover:bg-white/20 backdrop-blur-sm"
+                    >
+                      <Play className="h-4 w-4 ml-2" />
+                      Quick Test Access (Daily)
+                    </Button>
+                    <Button 
+                      variant="link" 
+                      onClick={() => setCurrentStep('password')}
+                      className="text-white hover:text-gold"
+                    >
+                      כבר יש לי סיסמה - דלגו לכניסה
+                    </Button>
+                  </div>
+                  <p className="text-xs text-white/70">
+                    Test access expires at midnight. For full access, select a plan above.
+                  </p>
+                </div>
+              </>
+            )}
 
           {/* Step: Intake Pathways (shown after tier selection for visual context) */}
           {currentStep === 'pathways' && (
@@ -681,16 +760,16 @@ export default function Gate() {
                       בצעו תשלום
                     </h3>
                     <p className="text-sm text-muted-foreground mb-3">
-                      לחצו על הכפתור להעברת תשלום דרך Invoice4U:
+                      לחצו על הכפתור להעברת תשלום:
                     </p>
                     <Button asChild className="w-full" variant="outline">
                       <a 
-                        href="https://app.invoice4u.co.il/link/13006-1/nPmb" 
+                        href="https://grow.business/" 
                         target="_blank" 
                         rel="noopener noreferrer"
                       >
                         <CreditCard className="h-4 w-4 ml-2" />
-                        עבור לתשלום ב-Invoice4U
+                        עבור לתשלום
                       </a>
                     </Button>
                   </div>
