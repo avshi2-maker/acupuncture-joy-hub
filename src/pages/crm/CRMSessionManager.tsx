@@ -25,6 +25,13 @@ interface Clinic {
   phone: string | null;
 }
 
+interface StaffMember {
+  id: string;
+  user_id: string;
+  role: string;
+  display_name?: string;
+}
+
 interface Room {
   id: string;
   name: string;
@@ -63,6 +70,7 @@ export default function CRMSessionManager() {
   const [selectedClinic, setSelectedClinic] = useState<string>('');
   const [selectedRoom, setSelectedRoom] = useState<string>('');
   const [selectedPatient, setSelectedPatient] = useState<string>('');
+  const [selectedTherapist, setSelectedTherapist] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
   const [selectedSlot, setSelectedSlot] = useState<string>('');
   const [forecastNotes, setForecastNotes] = useState<string>('');
@@ -72,6 +80,8 @@ export default function CRMSessionManager() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
+  const [isClinicAdmin, setIsClinicAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [bookingStatus, setBookingStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [statusMessage, setStatusMessage] = useState('');
@@ -98,6 +108,11 @@ export default function CRMSessionManager() {
 
       if (clinicsRes.data) setClinics(clinicsRes.data);
       if (patientsRes.data) setPatients(patientsRes.data);
+      
+      // Default therapist to current user
+      if (user) {
+        setSelectedTherapist(user.id);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load data');
@@ -106,32 +121,85 @@ export default function CRMSessionManager() {
     }
   };
 
-  // Fetch rooms when clinic changes
+  // Fetch rooms and staff when clinic changes
   useEffect(() => {
-    const fetchRooms = async () => {
+    const fetchRoomsAndStaff = async () => {
       if (!selectedClinic) {
         setRooms([]);
         setSelectedRoom('');
+        setStaffMembers([]);
+        setIsClinicAdmin(false);
         return;
       }
 
-      const { data, error } = await supabase
+      // Fetch rooms
+      const { data: roomsData, error: roomsError } = await supabase
         .from('rooms')
         .select('id, name, clinic_id, color, description')
         .eq('clinic_id', selectedClinic)
         .eq('is_active', true);
 
-      if (data) {
-        setRooms(data);
-        if (data.length > 0 && !selectedRoom) {
-          setSelectedRoom(data[0].id);
+      if (roomsData) {
+        setRooms(roomsData);
+        if (roomsData.length > 0 && !selectedRoom) {
+          setSelectedRoom(roomsData[0].id);
         }
       }
-      if (error) console.error('Error fetching rooms:', error);
+      if (roomsError) console.error('Error fetching rooms:', roomsError);
+
+      // Check if current user is clinic admin/owner
+      if (user) {
+        const { data: clinicData } = await supabase
+          .from('clinics')
+          .select('owner_id')
+          .eq('id', selectedClinic)
+          .single();
+
+        const isOwner = clinicData?.owner_id === user.id;
+
+        const { data: staffRole } = await supabase
+          .from('clinic_staff')
+          .select('role')
+          .eq('clinic_id', selectedClinic)
+          .eq('user_id', user.id)
+          .single();
+
+        const isAdmin = isOwner || staffRole?.role === 'admin' || staffRole?.role === 'owner';
+        setIsClinicAdmin(isAdmin);
+
+        // If admin, fetch all staff members
+        if (isAdmin) {
+          const { data: staffData } = await supabase
+            .from('clinic_staff')
+            .select('id, user_id, role')
+            .eq('clinic_id', selectedClinic)
+            .eq('is_active', true);
+
+          if (staffData) {
+            // Include owner as well
+            const allStaff: StaffMember[] = staffData.map(s => ({
+              ...s,
+              display_name: s.role === 'owner' ? 'Owner' : s.role.charAt(0).toUpperCase() + s.role.slice(1)
+            }));
+            
+            // Add owner if not already in staff list
+            if (isOwner && !allStaff.find(s => s.user_id === user.id)) {
+              allStaff.unshift({
+                id: 'owner',
+                user_id: user.id,
+                role: 'owner',
+                display_name: 'You (Owner)'
+              });
+            }
+            
+            setStaffMembers(allStaff);
+          }
+        }
+      }
     };
 
-    fetchRooms();
-  }, [selectedClinic]);
+    fetchRoomsAndStaff();
+  }, [selectedClinic, user]);
 
   const fetchAppointmentsForDateAndRoom = async () => {
     if (!selectedDate || !selectedRoom) return;
@@ -214,7 +282,8 @@ ${selectedPatientData.chief_complaint ? `נמשיך לטפל ב: ${selectedPatie
   }, [selectedPatientData, selectedClinicData, selectedRoomData, selectedSlot, selectedDate, forecastNotes]);
 
   const handleConfirmSession = async () => {
-    if (!selectedClinic || !selectedRoom || !selectedPatient || !selectedSlot || !user) {
+    const therapistId = selectedTherapist || user?.id;
+    if (!selectedClinic || !selectedRoom || !selectedPatient || !selectedSlot || !therapistId) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -226,7 +295,7 @@ ${selectedPatientData.chief_complaint ? `נמשיך לטפל ב: ${selectedPatie
       const { data, error } = await supabase
         .from('appointments')
         .insert({
-          therapist_id: user.id,
+          therapist_id: therapistId,
           patient_id: selectedPatient,
           clinic_id: selectedClinic,
           room_id: selectedRoom,
@@ -242,7 +311,8 @@ ${selectedPatientData.chief_complaint ? `נמשיך לטפל ב: ${selectedPatie
       if (error) throw error;
 
       setBookingStatus('success');
-      setStatusMessage(`Session booked successfully for ${selectedPatientData?.full_name} at ${selectedSlot}`);
+      const therapistLabel = selectedTherapist === user?.id ? 'you' : 'selected therapist';
+      setStatusMessage(`Session booked successfully for ${selectedPatientData?.full_name} at ${selectedSlot} with ${therapistLabel}`);
       toast.success('Session booked!');
       
       // Refresh appointments
@@ -379,12 +449,40 @@ ${selectedPatientData.chief_complaint ? `נמשיך לטפל ב: ${selectedPatie
                 </Select>
               </div>
 
+              {/* Therapist Selection (for clinic admins) */}
+              {isClinicAdmin && staffMembers.length > 0 && (
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground flex items-center gap-2 mb-2">
+                    <User className="h-4 w-4" />
+                    Assign Therapist
+                  </label>
+                  <Select value={selectedTherapist} onValueChange={setSelectedTherapist}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select therapist..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={user?.id || ''}>
+                        You (Current User)
+                      </SelectItem>
+                      {staffMembers
+                        .filter(s => s.user_id !== user?.id && (s.role === 'therapist' || s.role === 'owner' || s.role === 'admin'))
+                        .map(staff => (
+                          <SelectItem key={staff.id} value={staff.user_id}>
+                            Staff - {staff.display_name || staff.role}
+                          </SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               {/* Quick Summary */}
               {selectedClinic && selectedRoom && selectedPatient && (
                 <div className="p-4 rounded-xl bg-gradient-to-r from-jade/5 to-blue-500/5 border border-jade/20">
                   <p className="text-sm font-medium text-jade mb-2">Session Summary</p>
                   <div className="space-y-1 text-sm text-muted-foreground">
-                    <p>👨‍⚕️ Therapist: You</p>
+                    <p>👨‍⚕️ Therapist: {selectedTherapist === user?.id ? 'You' : 'Staff Member'}</p>
                     <p>👤 Patient: {selectedPatientData?.full_name}</p>
                     <p>🏥 Clinic: {selectedClinicData?.name}</p>
                     <p>🚪 Room: {selectedRoomData?.name}</p>

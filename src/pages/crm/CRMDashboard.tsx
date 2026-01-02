@@ -1,21 +1,28 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Users, Clock, TrendingUp, Plus, ArrowRight, Video, FileText, Trash2, BookOpen, Leaf, Volume2, VolumeX, Bell, BellOff } from 'lucide-react';
+import { Calendar, Users, Clock, TrendingUp, Plus, ArrowRight, Video, FileText, Trash2, BookOpen, Leaf, Volume2, VolumeX, Bell, BellOff, CheckCircle, XCircle, HelpCircle } from 'lucide-react';
 import { WhatsAppReminderButton } from '@/components/crm/WhatsAppReminderButton';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { format, formatDistanceToNow, differenceInMinutes, differenceInSeconds } from 'date-fns';
+import { format, formatDistanceToNow, differenceInMinutes, differenceInSeconds, startOfWeek, endOfWeek } from 'date-fns';
 import { CRMLayout } from '@/components/crm/CRMLayout';
 import { PullToRefreshContainer } from '@/components/ui/PullToRefreshContainer';
 import { QuickPatientSearch } from '@/components/crm/QuickPatientSearch';
 import { toast } from 'sonner';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+
 interface DashboardStats {
   totalPatients: number;
   todayAppointments: number;
   upcomingAppointments: number;
   weeklyVisits: number;
+}
+
+interface ConfirmationStats {
+  confirmed: number;
+  pending: number;
+  cancelled: number;
 }
 
 const DRAFT_KEY = 'patient_intake_draft';
@@ -53,6 +60,11 @@ export default function CRMDashboard() {
   const [draftInfo, setDraftInfo] = useState<DraftInfo | null>(null);
   const [countdown, setCountdown] = useState<string>('');
   const [nextAppt, setNextAppt] = useState<any>(null);
+  const [confirmationStats, setConfirmationStats] = useState<ConfirmationStats>({
+    confirmed: 0,
+    pending: 0,
+    cancelled: 0,
+  });
   const [audioEnabled, setAudioEnabled] = useState(() => {
     return localStorage.getItem('appt_audio_reminder') !== 'false';
   });
@@ -213,6 +225,10 @@ export default function CRMDashboard() {
     const startOfDay = new Date(today.setHours(0, 0, 0, 0)).toISOString();
     const endOfDay = new Date(today.setHours(23, 59, 59, 999)).toISOString();
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    
+    // Get week range for confirmation stats
+    const weekStart = startOfWeek(new Date(), { weekStartsOn: 0 }).toISOString();
+    const weekEnd = endOfWeek(new Date(), { weekStartsOn: 0 }).toISOString();
 
     try {
       // Get patient count
@@ -240,6 +256,22 @@ export default function CRMDashboard() {
         .from('visits')
         .select('*', { count: 'exact', head: true })
         .gte('visit_date', weekAgo);
+
+      // Get weekly confirmation stats
+      const { data: weeklyAppts } = await supabase
+        .from('appointments')
+        .select('status')
+        .gte('start_time', weekStart)
+        .lte('start_time', weekEnd);
+
+      if (weeklyAppts) {
+        const stats = {
+          confirmed: weeklyAppts.filter(a => a.status === 'confirmed').length,
+          pending: weeklyAppts.filter(a => a.status === 'scheduled' || a.status === 'pending').length,
+          cancelled: weeklyAppts.filter(a => a.status === 'cancelled').length,
+        };
+        setConfirmationStats(stats);
+      }
 
       setStats({
         totalPatients: patientCount || 0,
@@ -407,9 +439,42 @@ export default function CRMDashboard() {
           ))}
         </div>
 
-        {/* Today's Schedule & Quick Actions */}
-        <div className="grid lg:grid-cols-2 gap-4 md:gap-6">
-          <Card className="border-border/50">
+        {/* Today's Schedule, Confirmation Stats & Quick Actions */}
+        <div className="grid lg:grid-cols-3 gap-4 md:gap-6">
+          {/* Confirmation Stats Card */}
+          <Card className="border-border/50 lg:col-span-1">
+            <CardHeader className="pb-3 px-4 md:px-6">
+              <CardTitle className="text-base md:text-lg">Week Confirmations</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 md:px-6 space-y-3">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-emerald-500" />
+                  <span className="text-sm font-medium">Confirmed</span>
+                </div>
+                <span className="text-2xl font-bold text-emerald-500">{confirmationStats.confirmed}</span>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <div className="flex items-center gap-2">
+                  <HelpCircle className="h-5 w-5 text-amber-500" />
+                  <span className="text-sm font-medium">Pending</span>
+                </div>
+                <span className="text-2xl font-bold text-amber-500">{confirmationStats.pending}</span>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                <div className="flex items-center gap-2">
+                  <XCircle className="h-5 w-5 text-red-500" />
+                  <span className="text-sm font-medium">Cancelled</span>
+                </div>
+                <span className="text-2xl font-bold text-red-500">{confirmationStats.cancelled}</span>
+              </div>
+              <p className="text-xs text-muted-foreground text-center pt-2">
+                This week's appointment statuses
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50 lg:col-span-1">
             <CardHeader className="pb-3 px-4 md:px-6">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base md:text-lg">Today's Schedule</CardTitle>
