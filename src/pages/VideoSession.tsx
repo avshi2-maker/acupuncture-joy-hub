@@ -1711,6 +1711,16 @@ export default function VideoSession() {
                 id: 'wellness-category',
                 boxes: [
                   {
+                    id: 'stress-biofeedback',
+                    name: 'Stress',
+                    nameHe: 'לחץ',
+                    icon: Activity,
+                    color: 'text-orange-500',
+                    borderColor: 'border-orange-300',
+                    tooltip: 'TCM Stress & Biofeedback - 75 Q&A with points & formulas',
+                    onClick: () => setShowTcmBrainPanel(true),
+                  },
+                  {
                     id: 'nutrition',
                     name: 'Nutrition',
                     nameHe: 'תזונה',
