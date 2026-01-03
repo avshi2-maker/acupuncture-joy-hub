@@ -44,8 +44,10 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
   const [audioCache, setAudioCache] = useState<Record<string, string>>({});
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [countdown, setCountdown] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Generate and cache audio for a phase
   const generateAudio = useCallback(async (phaseKey: 'inhale' | 'hold' | 'exhale') => {
@@ -112,7 +114,7 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
     }
   }, [isMuted, audioCache, generateAudio]);
 
-  // Phase transition logic with progress bar
+  // Phase transition logic with progress bar and countdown
   useEffect(() => {
     if (!isRunning || phase === 'ready') return;
 
@@ -124,8 +126,20 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
 
     // Progress bar update
     const phaseDuration = PHASE_DURATIONS[phase];
+    const phaseDurationSeconds = phaseDuration / 1000;
     const updateInterval = 50; // Update every 50ms for smooth animation
     let elapsed = 0;
+
+    // Initialize countdown
+    setCountdown(phaseDurationSeconds);
+
+    // Countdown timer (updates every second)
+    countdownIntervalRef.current = setInterval(() => {
+      setCountdown(prev => {
+        const newVal = prev - 1;
+        return newVal >= 0 ? newVal : 0;
+      });
+    }, 1000);
 
     progressIntervalRef.current = setInterval(() => {
       elapsed += updateInterval;
@@ -141,7 +155,11 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
       }
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+      }
       setProgress(0);
+      setCountdown(0);
 
       if (nextPhase === 'inhale') {
         const newCount = cycleCount + 1;
@@ -163,6 +181,9 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
       clearTimeout(timer);
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
+      }
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
       }
     };
   }, [phase, isRunning, cycleCount, playPhaseAudio]);
@@ -188,8 +209,12 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
     setPhase('ready');
     setCycleCount(0);
     setProgress(0);
+    setCountdown(0);
     if (progressIntervalRef.current) {
       clearInterval(progressIntervalRef.current);
+    }
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
     }
     if (audioRef.current) {
       audioRef.current.pause();
@@ -283,10 +308,17 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
                 )}
               />
 
-              {/* Cycle counter */}
-              {isRunning && (
-                <span className="relative z-10 text-white font-bold text-2xl">
-                  {cycleCount + 1}/3
+              {/* Countdown Timer */}
+              {isRunning && phase !== 'ready' && (
+                <span className="relative z-10 text-white font-extrabold text-5xl drop-shadow-lg">
+                  {countdown}
+                </span>
+              )}
+              
+              {/* Cycle counter - shown when not running */}
+              {!isRunning && phase === 'ready' && (
+                <span className="relative z-10 text-white/80 font-bold text-lg">
+                  3 מחזורים
                 </span>
               )}
             </div>
