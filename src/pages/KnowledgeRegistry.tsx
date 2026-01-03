@@ -800,7 +800,7 @@ export default function KnowledgeRegistry() {
   };
 
   // Per-document translation
-  const translateSingleDocument = async (docId: string, docName: string) => {
+  const translateSingleDocument = async (docId: string, docName: string, force: boolean = false) => {
     if (translatingDocId) {
       toast.error('A translation is already in progress');
       return;
@@ -814,7 +814,7 @@ export default function KnowledgeRegistry() {
 
     try {
       const { data, error } = await supabase.functions.invoke('translate-knowledge', {
-        body: { targetLanguage: 'he', documentId: docId },
+        body: { targetLanguage: 'he', documentId: docId, force },
       });
 
       if (error) {
@@ -834,7 +834,7 @@ export default function KnowledgeRegistry() {
       }));
 
       if (translated > 0) {
-        toast.success(`Translated ${translated} chunks from "${docName}" to Hebrew`);
+        toast.success(`${force ? 'Re-translated' : 'Translated'} ${translated} chunks from "${docName}" to Hebrew`);
       } else {
         toast.info(`No new chunks to translate in "${docName}" (already translated)`);
       }
@@ -1489,9 +1489,10 @@ ${report.verificationInstructions || ''}
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => translateSingleDocument(doc.id, doc.original_name)}
+                              onClick={() => translateSingleDocument(doc.id, doc.original_name, false)}
                               disabled={!!translatingDocId || isTranslating}
                               className="gap-1 h-8"
+                              title="Translate new chunks to Hebrew"
                             >
                               {isTranslatingThis ? (
                                 <>
@@ -1504,6 +1505,17 @@ ${report.verificationInstructions || ''}
                                   <span className="text-xs">→ HE</span>
                                 </>
                               )}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => translateSingleDocument(doc.id, doc.original_name, true)}
+                              disabled={!!translatingDocId || isTranslating}
+                              className="gap-1 h-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                              title="Delete existing Hebrew translations and re-translate"
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                              <span className="text-xs">Reset</span>
                             </Button>
                             {docTransStatus?.status === 'done' && (
                               <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">

@@ -42,7 +42,23 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { targetLanguage = "he", documentId } = await req.json();
+    const { targetLanguage = "he", documentId, force = false } = await req.json();
+    
+    // If force=true, delete existing translations for this document first
+    if (force && documentId) {
+      console.log(`Force mode: Deleting existing ${targetLanguage} translations for document ${documentId}`);
+      const { error: deleteError, count } = await supabaseAdmin
+        .from("knowledge_chunks")
+        .delete()
+        .eq("document_id", documentId)
+        .eq("language", targetLanguage);
+      
+      if (deleteError) {
+        console.error("Error deleting existing translations:", deleteError);
+      } else {
+        console.log(`Deleted ${count || 0} existing ${targetLanguage} chunks`);
+      }
+    }
     
     // Get English chunks that don't have Hebrew translations yet
     let query = supabaseAdmin
