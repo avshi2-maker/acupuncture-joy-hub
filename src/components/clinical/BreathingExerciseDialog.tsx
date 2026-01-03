@@ -11,7 +11,7 @@ interface BreathingExerciseDialogProps {
   autoTriggered?: boolean;
 }
 
-type Phase = 'ready' | 'inhale' | 'hold' | 'exhale';
+type Phase = 'ready' | 'inhale' | 'hold' | 'exhale' | 'complete';
 
 const PHASE_DURATIONS = {
   inhale: 4000,
@@ -24,6 +24,7 @@ const PHASE_TEXT: Record<Phase, { main: string; sub: string }> = {
   inhale: { main: 'שאפו...', sub: '4 שניות' },
   hold: { main: 'החזיקו...', sub: '7 שניות' },
   exhale: { main: 'נשפו...', sub: '8 שניות' },
+  complete: { main: 'כל הכבוד!', sub: 'השלמת את התרגיל בהצלחה' },
 };
 
 const AUDIO_PROMPTS = {
@@ -116,16 +117,18 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
 
   // Phase transition logic with progress bar and countdown
   useEffect(() => {
-    if (!isRunning || phase === 'ready') return;
+    if (!isRunning || phase === 'ready' || phase === 'complete') return;
 
-    // Play audio at phase start
-    playPhaseAudio(phase);
+    // Play audio at phase start (only for breathing phases)
+    if (phase === 'inhale' || phase === 'hold' || phase === 'exhale') {
+      playPhaseAudio(phase);
+    }
 
     // Reset progress at phase start
     setProgress(0);
 
     // Progress bar update
-    const phaseDuration = PHASE_DURATIONS[phase];
+    const phaseDuration = PHASE_DURATIONS[phase as keyof typeof PHASE_DURATIONS];
     const phaseDurationSeconds = phaseDuration / 1000;
     const updateInterval = 50; // Update every 50ms for smooth animation
     let elapsed = 0;
@@ -166,11 +169,7 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
         setCycleCount(newCount);
         if (newCount >= 3) {
           setIsRunning(false);
-          setPhase('ready');
-          setCycleCount(0);
-          toast.success('כל הכבוד! סיימת 3 מחזורי נשימה', {
-            description: 'רמת הלחץ שלך צריכה לרדת משמעותית',
-          });
+          setPhase('complete');
           return;
         }
       }
@@ -308,18 +307,28 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
                 )}
               />
 
-              {/* Countdown Timer */}
-              {isRunning && phase !== 'ready' && (
-                <span className="relative z-10 text-white font-extrabold text-5xl drop-shadow-lg">
-                  {countdown}
-                </span>
+              {/* Countdown Timer & Cycle Counter - shown during exercise */}
+              {isRunning && phase !== 'ready' && phase !== 'complete' && (
+                <div className="relative z-10 flex flex-col items-center">
+                  <span className="text-white font-extrabold text-5xl drop-shadow-lg">
+                    {countdown}
+                  </span>
+                  <span className="text-white/90 text-sm font-medium mt-1 bg-black/10 px-3 py-0.5 rounded-full">
+                    מחזור {cycleCount + 1}/3
+                  </span>
+                </div>
               )}
               
-              {/* Cycle counter - shown when not running */}
+              {/* Ready state - shown before start */}
               {!isRunning && phase === 'ready' && (
                 <span className="relative z-10 text-white/80 font-bold text-lg">
                   3 מחזורים
                 </span>
+              )}
+
+              {/* Complete state checkmark */}
+              {phase === 'complete' && (
+                <span className="relative z-10 text-white font-extrabold text-4xl">✓</span>
               )}
             </div>
 
@@ -334,7 +343,7 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
             </div>
 
             {/* Progress Bar */}
-            {isRunning && phase !== 'ready' && (
+            {isRunning && phase !== 'ready' && phase !== 'complete' && (
               <div className="w-3/5 h-1.5 bg-emerald-200 rounded-full overflow-hidden mt-4">
                 <div 
                   className="h-full bg-emerald-600 rounded-full transition-[width] duration-50 ease-linear"
@@ -343,9 +352,24 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
               </div>
             )}
 
+            {/* Complete state - additional message */}
+            {phase === 'complete' && (
+              <p className="text-emerald-600/80 text-sm mt-2">
+                אתם מוכנים להמשיך.
+              </p>
+            )}
+
+            {/* Controls */}
             {/* Controls */}
             <div className="flex gap-3 mt-4">
-              {!isRunning ? (
+              {phase === 'complete' ? (
+                <Button
+                  onClick={() => handleOpenChange(false)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-8 py-2 text-lg"
+                >
+                  חזרה לדשבורד
+                </Button>
+              ) : !isRunning ? (
                 <Button
                   onClick={handleStart}
                   disabled={isLoadingAudio}
