@@ -862,6 +862,53 @@ export type Database = {
         }
         Relationships: []
       }
+      patient_assessments: {
+        Row: {
+          assessment_type: string
+          created_at: string
+          details: Json | null
+          id: string
+          patient_id: string
+          score: number | null
+          status: string
+          summary: string | null
+          therapist_id: string
+          updated_at: string
+        }
+        Insert: {
+          assessment_type: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          patient_id: string
+          score?: number | null
+          status?: string
+          summary?: string | null
+          therapist_id: string
+          updated_at?: string
+        }
+        Update: {
+          assessment_type?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          patient_id?: string
+          score?: number | null
+          status?: string
+          summary?: string | null
+          therapist_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_assessments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_consents: {
         Row: {
           answers: Json | null

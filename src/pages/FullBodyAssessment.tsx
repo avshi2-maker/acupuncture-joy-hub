@@ -19,10 +19,14 @@ import {
   Mail,
   Check,
   Heart,
-  User
+  User,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { usePatients } from '@/hooks/usePatients';
+import { useCreateAssessment } from '@/hooks/usePatientAssessments';
+import { useAuth } from '@/hooks/useAuth';
 
 type Language = 'he' | 'en' | 'ru';
 
@@ -40,11 +44,8 @@ interface Translations {
   protocol: string;
   selectPatient: string;
   guest: string;
-}
-
-interface PatientOption {
-  id: string;
-  name: string;
+  saving: string;
+  loginRequired: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -62,6 +63,8 @@ const translations: Record<Language, Translations> = {
     protocol: 'פרוטוקול טיפולי',
     selectPatient: 'שיוך למטופל:',
     guest: 'אורח (לא לשמור)',
+    saving: 'שומר...',
+    loginRequired: 'יש להתחבר כדי לשמור',
   },
   en: {
     title: '🧘 Full Body Assessment (15 Points)',
@@ -77,6 +80,8 @@ const translations: Record<Language, Translations> = {
     protocol: 'Treatment Protocol',
     selectPatient: 'Assign to patient:',
     guest: 'Guest (do not save)',
+    saving: 'Saving...',
+    loginRequired: 'Login required to save',
   },
   ru: {
     title: '🧘 Полная оценка тела (15 точек)',
@@ -92,15 +97,10 @@ const translations: Record<Language, Translations> = {
     protocol: 'Протокол лечения',
     selectPatient: 'Назначить пациенту:',
     guest: 'Гость (не сохранять)',
+    saving: 'Сохранение...',
+    loginRequired: 'Требуется вход для сохранения',
   },
 };
-
-// Mock patients - will be replaced with real Supabase data
-const mockPatients: PatientOption[] = [
-  { id: '1', name: 'ישראל ישראלי' },
-  { id: '2', name: 'שרה כהן' },
-  { id: '3', name: 'דוד לוי' },
-];
 
 interface BodyMetric {
   id: string;
@@ -141,15 +141,19 @@ const bodyMetrics: BodyMetric[] = [
 
 export default function FullBodyAssessment() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [language, setLanguage] = useState<Language>('he');
   const [selectedSymptoms, setSelectedSymptoms] = useState<Set<string>>(new Set());
   const [generatedProtocol, setGeneratedProtocol] = useState<string>('');
   const [copied, setCopied] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState<string>('guest');
 
+  const { data: patients = [], isLoading: patientsLoading } = usePatients();
+  const createAssessment = useCreateAssessment();
+
   const t = translations[language];
   const isRTL = language === 'he';
-  const selectedPatient = mockPatients.find(p => p.id === selectedPatientId);
+  const selectedPatient = patients.find(p => p.id === selectedPatientId);
 
   const toggleSymptom = useCallback((id: string) => {
     setSelectedSymptoms(prev => {
@@ -163,7 +167,7 @@ export default function FullBodyAssessment() {
     });
   }, []);
 
-  const generateProtocol = useCallback(() => {
+  const generateProtocol = useCallback(async () => {
     if (selectedSymptoms.size === 0) {
       toast.error(t.noSymptoms);
       return;
@@ -174,9 +178,7 @@ export default function FullBodyAssessment() {
     // Build protocol with patient info
     let protocol = `TCM Full Body Assessment Protocol\n`;
     if (selectedPatient) {
-      protocol += `PATIENT_ID: ${selectedPatient.name}\n`;
-    } else if (selectedPatientId !== 'guest') {
-      protocol += `PATIENT_ID: Unknown\n`;
+      protocol += `PATIENT: ${selectedPatient.full_name}\n`;
     }
     protocol += `Total Indicators: ${selected.length} / ${bodyMetrics.length}\n\n`;
     protocol += `Selected Symptoms:\n`;
@@ -203,7 +205,33 @@ export default function FullBodyAssessment() {
     protocol += `Formulas: ${allFormulas.join(', ')}\n`;
 
     setGeneratedProtocol(protocol);
-  }, [selectedSymptoms, t]);
+
+    // Save to database if patient is selected and user is logged in
+    if (selectedPatientId !== 'guest' && user) {
+      const symptomsDetails = selected.map(s => ({
+        id: s.id,
+        name: s.en,
+        category: s.category,
+        points: s.points,
+        formula: s.formula,
+      }));
+
+      const categorySummary = categories.join(', ');
+
+      await createAssessment.mutateAsync({
+        patient_id: selectedPatientId,
+        assessment_type: 'body',
+        score: selected.length,
+        summary: `Focus: ${categorySummary}`,
+        details: {
+          symptoms: symptomsDetails,
+          allPoints,
+          allFormulas,
+          protocol,
+        },
+      });
+    }
+  }, [selectedSymptoms, selectedPatient, selectedPatientId, user, createAssessment, t]);
 
   const copyToClipboard = useCallback(async () => {
     try {
@@ -285,19 +313,26 @@ export default function FullBodyAssessment() {
               <div className="flex items-center gap-4 flex-wrap">
                 <User className="h-5 w-5 text-primary" />
                 <span className="font-medium">{t.selectPatient}</span>
-                <Select value={selectedPatientId} onValueChange={setSelectedPatientId}>
-                  <SelectTrigger className="w-64">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="guest">{t.guest}</SelectItem>
-                    {mockPatients.map(patient => (
-                      <SelectItem key={patient.id} value={patient.id}>
-                        {patient.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {patientsLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Select value={selectedPatientId} onValueChange={setSelectedPatientId}>
+                    <SelectTrigger className="w-64">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="guest">{t.guest}</SelectItem>
+                      {patients.map(patient => (
+                        <SelectItem key={patient.id} value={patient.id}>
+                          {patient.full_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                {!user && selectedPatientId !== 'guest' && (
+                  <span className="text-sm text-amber-600">{t.loginRequired}</span>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -368,9 +403,16 @@ export default function FullBodyAssessment() {
               onClick={generateProtocol}
               size="lg"
               className="gap-2 bg-emerald-600 hover:bg-emerald-700"
-              disabled={selectedSymptoms.size === 0}
+              disabled={selectedSymptoms.size === 0 || createAssessment.isPending}
             >
-              ⚡ {t.generate}
+              {createAssessment.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {t.saving}
+                </>
+              ) : (
+                <>⚡ {t.generate}</>
+              )}
             </Button>
             <Button
               variant="outline"
