@@ -59,7 +59,7 @@ interface AssessmentCenterCardProps {
 export function AssessmentCenterCard({ animationDelay = 0 }: AssessmentCenterCardProps) {
   return (
     <Card 
-      className="h-full opacity-0 animate-fade-in overflow-hidden relative"
+      className="h-full opacity-0 animate-fade-in overflow-hidden relative group"
       style={{ 
         animationDelay: `${animationDelay}ms`, 
         animationFillMode: 'forwards',
@@ -68,8 +68,8 @@ export function AssessmentCenterCard({ animationDelay = 0 }: AssessmentCenterCar
         backgroundPosition: 'center'
       }}
     >
-      {/* Overlay for readability */}
-      <div className="absolute inset-0 bg-background/85 dark:bg-background/90" />
+      {/* Overlay with hover effect */}
+      <div className="absolute inset-0 bg-background/70 dark:bg-background/75 transition-all duration-300 group-hover:bg-background/50 dark:group-hover:bg-background/60" />
       
       <CardHeader className="pb-3 relative z-10">
         <div className="flex items-center gap-3">
