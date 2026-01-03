@@ -56,6 +56,7 @@ import {
 import calendarBg from '@/assets/calendar-bg.png';
 import deskBg from '@/assets/desk-bg.png';
 import brainBg from '@/assets/brain-bg.png';
+import cognitiveWellnessBg from '@/assets/cognitive_wellness.png';
 import knowledgeBg from '@/assets/knowledge-bg.png';
 import videoMeetingBg from '@/assets/video-meeting-bg.jpg';
 import retreatQuizBg from '@/assets/retreat_new.png';
@@ -611,7 +612,7 @@ export default function Dashboard() {
       icon: <Brain className="h-6 w-6 text-white" />,
       href: '/brain-assessment',
       alwaysAvailable: true,
-      backgroundImage: brainBg,
+      backgroundImage: cognitiveWellnessBg,
     },
   ];
 
