@@ -350,31 +350,154 @@ const TCM_BILINGUAL_GLOSSARY: Array<{
   { en: ['teeth marks', 'scalloped tongue'], he: ['סימני שיניים', 'לשון מגולפת'], category: 'diagnosis' },
 
   // ============================================================================
-  // COMMON FORMULAS - Expanded
+  // COMMON FORMULAS - MASSIVELY EXPANDED (100+ formulas)
   // ============================================================================
+  // Liver/Gallbladder Formulas
   { en: ['xiao yao san', 'free and easy wanderer', 'rambling powder'], he: ['שיאו יאו סאן', 'פורמולת הנודד החופשי', 'שיאויאוסאן'], pinyin: ['xiao yao san'], category: 'formula' },
-  { en: ['jia wei xiao yao san', 'augmented rambling powder', 'dan zhi xiao yao san'], he: ['ג\'יא וויי שיאו יאו סאן', 'שיאו יאו מחוזק'], pinyin: ['jia wei xiao yao san'], category: 'formula' },
-  { en: ['liu wei di huang wan', 'six ingredient pill'], he: ['ליו וויי די הואנג וואן', 'כדור שש המרכיבים', 'ליוויידיהואנגוואן'], pinyin: ['liu wei di huang wan'], category: 'formula' },
-  { en: ['bu zhong yi qi tang', 'tonify middle augment qi'], he: ['בו ג\'ונג יי צי טאנג', 'חיזוק האמצע'], pinyin: ['bu zhong yi qi tang'], category: 'formula' },
-  { en: ['gui pi tang', 'restore spleen decoction'], he: ['גווי פי טאנג', 'שיקום הטחול'], pinyin: ['gui pi tang'], category: 'formula' },
-  { en: ['si wu tang', 'four substance', 'four things'], he: ['סי וו טאנג', 'מרתח ארבע החומרים', 'סיווטאנג'], pinyin: ['si wu tang'], category: 'formula' },
-  { en: ['tian ma gou teng yin', 'gastrodia uncaria'], he: ['טיאן מא גואו טנג יין', 'טיאנמאגואוטנג'], pinyin: ['tian ma gou teng yin'], category: 'formula' },
-  { en: ['long dan xie gan tang', 'gentiana drain liver'], he: ['לונג דאן שיה גאן טאנג', 'ניקוז כבד'], pinyin: ['long dan xie gan tang'], category: 'formula' },
-  { en: ['chuan xiong cha tiao san', 'ligusticum tea blend'], he: ['צ\'ואן שיונג צ\'ה טיאו סאן', 'צואןשיונג'], pinyin: ['chuan xiong cha tiao san'], category: 'formula' },
-  { en: ['si jun zi tang', 'four gentlemen'], he: ['סי ג\'ון צי טאנג', 'ארבעת האצילים'], pinyin: ['si jun zi tang'], category: 'formula' },
-  { en: ['ba zhen tang', 'eight treasure'], he: ['בא ג\'ן טאנג', 'שמונה האוצרות'], pinyin: ['ba zhen tang'], category: 'formula' },
-  { en: ['suan zao ren tang', 'sour jujube'], he: ['סואן צאו רן טאנג', 'סואןצאורן'], pinyin: ['suan zao ren tang'], category: 'formula' },
+  { en: ['jia wei xiao yao san', 'augmented rambling powder', 'dan zhi xiao yao san'], he: ['ג\'יא וויי שיאו יאו סאן', 'שיאו יאו מחוזק', 'דאן ג\'י שיאו יאו סאן'], pinyin: ['jia wei xiao yao san'], category: 'formula' },
+  { en: ['long dan xie gan tang', 'gentiana drain liver'], he: ['לונג דאן שיה גאן טאנג', 'ניקוז כבד', 'גנציאנה לניקוי כבד'], pinyin: ['long dan xie gan tang'], category: 'formula' },
+  { en: ['tian ma gou teng yin', 'gastrodia uncaria'], he: ['טיאן מא גואו טנג יין', 'טיאנמאגואוטנג', 'גסטרודיה אונקריה'], pinyin: ['tian ma gou teng yin'], category: 'formula' },
+  { en: ['chai hu shu gan san', 'bupleurum soothe liver'], he: ['צ\'אי הו שו גאן סאן', 'בופלורום להרגעת כבד'], pinyin: ['chai hu shu gan san'], category: 'formula' },
+  { en: ['xiao chai hu tang', 'minor bupleurum'], he: ['שיאו צ\'אי הו טאנג', 'בופלורום קטן'], pinyin: ['xiao chai hu tang'], category: 'formula' },
+  { en: ['da chai hu tang', 'major bupleurum'], he: ['דא צ\'אי הו טאנג', 'בופלורום גדול'], pinyin: ['da chai hu tang'], category: 'formula' },
+  { en: ['si ni san', 'frigid extremities powder'], he: ['סי ני סאן', 'אבקת גפיים קרות'], pinyin: ['si ni san'], category: 'formula' },
+  { en: ['yi guan jian', 'linking decoction'], he: ['יי גואן ג\'יאן', 'מרתח הקישור'], pinyin: ['yi guan jian'], category: 'formula' },
+  { en: ['zhen gan xi feng tang', 'sedate liver extinguish wind'], he: ['ג\'ן גאן שי פנג טאנג', 'הרגעת כבד וכיבוי רוח'], pinyin: ['zhen gan xi feng tang'], category: 'formula' },
+  { en: ['ling jiao gou teng tang', 'antelope horn uncaria'], he: ['לינג ג\'יאו גואו טנג טאנג', 'קרן אנטילופה אונקריה'], pinyin: ['ling jiao gou teng tang'], category: 'formula' },
+
+  // Kidney Formulas  
+  { en: ['liu wei di huang wan', 'six ingredient pill', 'rehmannia six'], he: ['ליו וויי די הואנג וואן', 'כדור שש המרכיבים', 'ליוויידיהואנגוואן', 'שש רהמניה'], pinyin: ['liu wei di huang wan'], category: 'formula' },
+  { en: ['jin gui shen qi wan', 'kidney qi pill', 'golden cabinet'], he: ['ג\'ין גווי שן צי וואן', 'כדור צי כליה', 'ארון הזהב'], pinyin: ['jin gui shen qi wan'], category: 'formula' },
+  { en: ['you gui wan', 'restore right pill', 'right returning pill'], he: ['יואו גווי וואן', 'כדור החזרת ימין'], pinyin: ['you gui wan'], category: 'formula' },
+  { en: ['zuo gui wan', 'restore left pill', 'left returning pill'], he: ['צואו גווי וואן', 'כדור החזרת שמאל'], pinyin: ['zuo gui wan'], category: 'formula' },
+  { en: ['zhi bai di huang wan', 'anemarrhena phellodendron rehmannia'], he: ['ג\'י באי די הואנג וואן', 'רהמניה עם אנמרהנה'], pinyin: ['zhi bai di huang wan'], category: 'formula' },
+  { en: ['qi ju di huang wan', 'lycium chrysanthemum rehmannia'], he: ['צי ג\'ו די הואנג וואן', 'רהמניה עם גוג\'י וחרצית'], pinyin: ['qi ju di huang wan'], category: 'formula' },
+  { en: ['du huo ji sheng tang', 'du huo angelica'], he: ['דו הואו ג\'י שנג טאנג', 'דוהואו ג\'ישנג'], pinyin: ['du huo ji sheng tang'], category: 'formula' },
+  { en: ['er xian tang', 'two immortals'], he: ['ער שיאן טאנג', 'שני האלמותיים'], pinyin: ['er xian tang'], category: 'formula' },
+
+  // Spleen/Stomach Formulas
+  { en: ['si jun zi tang', 'four gentlemen'], he: ['סי ג\'ון צי טאנג', 'ארבעת האצילים', 'ארבעה ג\'נטלמנים'], pinyin: ['si jun zi tang'], category: 'formula' },
+  { en: ['liu jun zi tang', 'six gentlemen'], he: ['ליו ג\'ון צי טאנג', 'ששת האצילים'], pinyin: ['liu jun zi tang'], category: 'formula' },
+  { en: ['xiang sha liu jun zi tang', 'aucklandia amomum six gentlemen'], he: ['שיאנג שא ליו ג\'ון צי טאנג', 'ששה אצילים עם קוסטוס'], pinyin: ['xiang sha liu jun zi tang'], category: 'formula' },
+  { en: ['bu zhong yi qi tang', 'tonify middle augment qi'], he: ['בו ג\'ונג יי צי טאנג', 'חיזוק האמצע', 'הרמת צי'], pinyin: ['bu zhong yi qi tang'], category: 'formula' },
+  { en: ['gui pi tang', 'restore spleen decoction'], he: ['גווי פי טאנג', 'שיקום הטחול', 'החזרת הטחול'], pinyin: ['gui pi tang'], category: 'formula' },
+  { en: ['shen ling bai zhu san', 'ginseng poria atractylodes'], he: ['שן לינג באי ג\'ו סאן', 'ג\'ינסנג פוריה אטרקטילודס'], pinyin: ['shen ling bai zhu san'], category: 'formula' },
+  { en: ['li zhong wan', 'regulate middle pill'], he: ['לי ג\'ונג וואן', 'כדור וויסות האמצע'], pinyin: ['li zhong wan'], category: 'formula' },
+  { en: ['fu zi li zhong wan', 'aconite regulate middle'], he: ['פו צי לי ג\'ונג וואן', 'ויסות אמצע עם אקוניט'], pinyin: ['fu zi li zhong wan'], category: 'formula' },
+  { en: ['xiang sha yang wei wan', 'aucklandia stomach nourishing'], he: ['שיאנג שא יאנג וויי וואן', 'הזנת קיבה'], pinyin: ['xiang sha yang wei wan'], category: 'formula' },
+  { en: ['bao he wan', 'preserve harmony pill'], he: ['באו הה וואן', 'כדור שמירת ההרמוניה', 'עיכול'], pinyin: ['bao he wan'], category: 'formula' },
+  { en: ['ping wei san', 'calm stomach powder'], he: ['פינג וויי סאן', 'אבקת הרגעת קיבה'], pinyin: ['ping wei san'], category: 'formula' },
+  { en: ['xiang sha ping wei san', 'aucklandia calm stomach'], he: ['שיאנג שא פינג וויי סאן', 'הרגעת קיבה עם קוסטוס'], pinyin: ['xiang sha ping wei san'], category: 'formula' },
+  { en: ['sha shen mai dong tang', 'glehnia ophiopogon'], he: ['שא שן מאי דונג טאנג', 'גלהניה אופיופוגון'], pinyin: ['sha shen mai dong tang'], category: 'formula' },
+  { en: ['huang qi jian zhong tang', 'astragalus build middle'], he: ['הואנג צי ג\'יאן ג\'ונג טאנג', 'אסטרגלוס לבניית האמצע'], pinyin: ['huang qi jian zhong tang'], category: 'formula' },
+
+  // Blood Formulas
+  { en: ['si wu tang', 'four substance', 'four things'], he: ['סי וו טאנג', 'מרתח ארבע החומרים', 'סיווטאנג', 'ארבעה דברים'], pinyin: ['si wu tang'], category: 'formula' },
+  { en: ['ba zhen tang', 'eight treasure', 'eight precious'], he: ['בא ג\'ן טאנג', 'שמונה האוצרות', 'שמונה יקרים'], pinyin: ['ba zhen tang'], category: 'formula' },
+  { en: ['shi quan da bu tang', 'all inclusive great tonifying'], he: ['שי צ\'ואן דא בו טאנג', 'חיזוק גדול מושלם', 'עשר השלמות'], pinyin: ['shi quan da bu tang'], category: 'formula' },
+  { en: ['dang gui bu xue tang', 'angelica tonify blood'], he: ['דאנג גווי בו שואה טאנג', 'דאנגגווי לחיזוק דם'], pinyin: ['dang gui bu xue tang'], category: 'formula' },
+  { en: ['xue fu zhu yu tang', 'drive out stasis chest'], he: ['שואה פו ג\'ו יו טאנג', 'ניקוי דם מהחזה', 'הסרת קיפאון דם'], pinyin: ['xue fu zhu yu tang'], category: 'formula' },
+  { en: ['tao hong si wu tang', 'persica carthamus four substance'], he: ['טאו הונג סי וו טאנג', 'ארבעה דברים עם אפרסק'], pinyin: ['tao hong si wu tang'], category: 'formula' },
+  { en: ['ge xia zhu yu tang', 'drive out stasis below diaphragm'], he: ['גה שיא ג\'ו יו טאנג', 'ניקוי דם מתחת לסרעפת'], pinyin: ['ge xia zhu yu tang'], category: 'formula' },
+  { en: ['shao fu zhu yu tang', 'drive out stasis lower abdomen'], he: ['שאו פו ג\'ו יו טאנג', 'ניקוי דם מבטן תחתונה'], pinyin: ['shao fu zhu yu tang'], category: 'formula' },
+  { en: ['shen tong zhu yu tang', 'drive out stasis body pain'], he: ['שן טונג ג\'ו יו טאנג', 'ניקוי דם לכאב גוף'], pinyin: ['shen tong zhu yu tang'], category: 'formula' },
+  { en: ['tong qiao huo xue tang', 'unblock orifices invigorate blood'], he: ['טונג צ\'יאו הואו שואה טאנג', 'פתיחת נקבים והחייאת דם'], pinyin: ['tong qiao huo xue tang'], category: 'formula' },
+  { en: ['bu yang huan wu tang', 'tonify yang restore five'], he: ['בו יאנג הואן וו טאנג', 'חיזוק יאנג והחזרת חמש'], pinyin: ['bu yang huan wu tang'], category: 'formula' },
+
+  // Heart/Shen Formulas
+  { en: ['suan zao ren tang', 'sour jujube'], he: ['סואן צאו רן טאנג', 'סואןצאורן', 'תמר חמוץ'], pinyin: ['suan zao ren tang'], category: 'formula' },
   { en: ['tian wang bu xin dan', 'emperor heart'], he: ['טיאן וואנג בו שין דאן', 'חיזוק לב הקיסר'], pinyin: ['tian wang bu xin dan'], category: 'formula' },
-  { en: ['an shen ding zhi wan'], he: ['אן שן דינג ג\'י וואן', 'הרגעת הרוח'], pinyin: ['an shen ding zhi wan'], category: 'formula' },
-  { en: ['ban xia hou po tang', 'pinellia magnolia'], he: ['באן שיא הואו פו טאנג', 'באןשיאהואופו'], pinyin: ['ban xia hou po tang'], category: 'formula' },
-  { en: ['er chen tang', 'two aged'], he: ['ער צ\'ן טאנג', 'שני המיושנים'], pinyin: ['er chen tang'], category: 'formula' },
-  { en: ['xue fu zhu yu tang', 'drive out stasis chest'], he: ['שואה פו ג\'ו יו טאנג', 'ניקוי דם מהחזה'], pinyin: ['xue fu zhu yu tang'], category: 'formula' },
-  { en: ['shao yao gan cao tang', 'peony licorice'], he: ['שאו יאו גאן צאו טאנג', 'אדמונית וליקוריץ'], pinyin: ['shao yao gan cao tang'], category: 'formula' },
-  { en: ['wen dan tang', 'warm gallbladder'], he: ['וון דאן טאנג', 'חימום מרה'], pinyin: ['wen dan tang'], category: 'formula' },
-  { en: ['huang lian jie du tang', 'coptis relieve toxin'], he: ['הואנג ליאן ג\'יה דו טאנג', 'הואנגליאן'], pinyin: ['huang lian jie du tang'], category: 'formula' },
-  { en: ['yin qiao san', 'honeysuckle forsythia'], he: ['יין צ\'יאו סאן', 'יסמין פורסיתיה'], pinyin: ['yin qiao san'], category: 'formula' },
-  { en: ['ma huang tang', 'ephedra decoction'], he: ['מא הואנג טאנג', 'מאהואנג'], pinyin: ['ma huang tang'], category: 'formula' },
+  { en: ['an shen ding zhi wan', 'calm spirit stabilize will'], he: ['אן שן דינג ג\'י וואן', 'הרגעת הרוח', 'ייצוב הנפש'], pinyin: ['an shen ding zhi wan'], category: 'formula' },
+  { en: ['gan mai da zao tang', 'licorice wheat jujube'], he: ['גאן מאי דא צאו טאנג', 'ליקוריץ חיטה תמר'], pinyin: ['gan mai da zao tang'], category: 'formula' },
+  { en: ['zhu sha an shen wan', 'cinnabar calm spirit'], he: ['ג\'ו שא אן שן וואן', 'סינבר להרגעת רוח'], pinyin: ['zhu sha an shen wan'], category: 'formula' },
+  { en: ['gui zhi gan cao long gu mu li tang', 'cinnamon licorice dragon bone oyster'], he: ['גווי ג\'י גאן צאו לונג גו מו לי טאנג', 'קינמון ליקוריץ עצם דרקון'], pinyin: ['gui zhi gan cao long gu mu li tang'], category: 'formula' },
+  { en: ['sheng mai san', 'generate pulse powder'], he: ['שנג מאי סאן', 'אבקת יצירת דופק'], pinyin: ['sheng mai san'], category: 'formula' },
+
+  // Phlegm/Dampness Formulas
+  { en: ['er chen tang', 'two aged', 'two cured'], he: ['ער צ\'ן טאנג', 'שני המיושנים', 'שני המריפים'], pinyin: ['er chen tang'], category: 'formula' },
+  { en: ['wen dan tang', 'warm gallbladder'], he: ['וון דאן טאנג', 'חימום מרה', 'הדפנת מרה'], pinyin: ['wen dan tang'], category: 'formula' },
+  { en: ['ban xia hou po tang', 'pinellia magnolia'], he: ['באן שיא הואו פו טאנג', 'באןשיאהואופו', 'פינליה מגנוליה'], pinyin: ['ban xia hou po tang'], category: 'formula' },
+  { en: ['ban xia bai zhu tian ma tang', 'pinellia atractylodes gastrodia'], he: ['באן שיא באי ג\'ו טיאן מא טאנג', 'פינליה גסטרודיה'], pinyin: ['ban xia bai zhu tian ma tang'], category: 'formula' },
+  { en: ['ling gui zhu gan tang', 'poria cinnamon atractylodes licorice'], he: ['לינג גווי ג\'ו גאן טאנג', 'פוריה קינמון'], pinyin: ['ling gui zhu gan tang'], category: 'formula' },
+  { en: ['wu ling san', 'five ingredient powder with poria'], he: ['וו לינג סאן', 'אבקת חמשת המרכיבים עם פוריה'], pinyin: ['wu ling san'], category: 'formula' },
+  { en: ['zhu ling tang', 'polyporus decoction'], he: ['ג\'ו לינג טאנג', 'מרתח פוליפורוס'], pinyin: ['zhu ling tang'], category: 'formula' },
+  { en: ['qing qi hua tan wan', 'clear qi transform phlegm'], he: ['צינג צי הואה טאן וואן', 'ניקוי צי והמרת ליחה'], pinyin: ['qing qi hua tan wan'], category: 'formula' },
+  { en: ['dao tan tang', 'guide out phlegm'], he: ['דאו טאן טאנג', 'הובלת ליחה'], pinyin: ['dao tan tang'], category: 'formula' },
+  { en: ['san zi yang qin tang', 'three seed nurture parents'], he: ['סאן צי יאנג צ\'ין טאנג', 'שלושה זרעים'], pinyin: ['san zi yang qin tang'], category: 'formula' },
+
+  // Heat Clearing Formulas
+  { en: ['huang lian jie du tang', 'coptis relieve toxin'], he: ['הואנג ליאן ג\'יה דו טאנג', 'הואנגליאן', 'קופטיס נגד רעלים'], pinyin: ['huang lian jie du tang'], category: 'formula' },
+  { en: ['qing wei san', 'clear stomach powder'], he: ['צינג וויי סאן', 'ניקוי קיבה'], pinyin: ['qing wei san'], category: 'formula' },
+  { en: ['xie xin tang', 'drain epigastrium'], he: ['שיה שין טאנג', 'ניקוז אפיגסטריום'], pinyin: ['xie xin tang'], category: 'formula' },
+  { en: ['bai hu tang', 'white tiger'], he: ['באי הו טאנג', 'הנמר הלבן'], pinyin: ['bai hu tang'], category: 'formula' },
+  { en: ['zhi zi chi tang', 'gardenia soja'], he: ['ג\'י צי צ\'י טאנג', 'גרדניה סויה'], pinyin: ['zhi zi chi tang'], category: 'formula' },
+  { en: ['qing hao bie jia tang', 'artemisia turtle shell'], he: ['צינג האו ביה ג\'יא טאנג', 'ארטמיסיה צב'], pinyin: ['qing hao bie jia tang'], category: 'formula' },
+  { en: ['da qing long tang', 'major bluegreen dragon'], he: ['דא צינג לונג טאנג', 'הדרקון הכחול הגדול'], pinyin: ['da qing long tang'], category: 'formula' },
+  { en: ['xiao qing long tang', 'minor bluegreen dragon'], he: ['שיאו צינג לונג טאנג', 'הדרקון הכחול הקטן'], pinyin: ['xiao qing long tang'], category: 'formula' },
+
+  // Exterior Releasing Formulas
+  { en: ['yin qiao san', 'honeysuckle forsythia'], he: ['יין צ\'יאו סאן', 'יסמין פורסיתיה', 'לונסרה פורסיתיה'], pinyin: ['yin qiao san'], category: 'formula' },
+  { en: ['sang ju yin', 'mulberry chrysanthemum'], he: ['סאנג ג\'ו יין', 'תות חרצית'], pinyin: ['sang ju yin'], category: 'formula' },
+  { en: ['ma huang tang', 'ephedra decoction'], he: ['מא הואנג טאנג', 'מאהואנג', 'אפדרה'], pinyin: ['ma huang tang'], category: 'formula' },
   { en: ['gui zhi tang', 'cinnamon twig'], he: ['גווי ג\'י טאנג', 'ענף קינמון'], pinyin: ['gui zhi tang'], category: 'formula' },
+  { en: ['ge gen tang', 'pueraria decoction'], he: ['גה גן טאנג', 'פוארריה', 'קודזו'], pinyin: ['ge gen tang'], category: 'formula' },
+  { en: ['jing fang bai du san', 'schizonepeta saposhnikovia overcome pathogen'], he: ['ג\'ינג פאנג באי דו סאן', 'ניצחון על פתוגן'], pinyin: ['jing fang bai du san'], category: 'formula' },
+  { en: ['chuan xiong cha tiao san', 'ligusticum tea blend'], he: ['צ\'ואן שיונג צ\'ה טיאו סאן', 'צואןשיונג', 'תה ליגוסטיקום'], pinyin: ['chuan xiong cha tiao san'], category: 'formula' },
+  { en: ['cang er zi san', 'xanthium powder'], he: ['צאנג ער צי סאן', 'אבקת קסנתיום'], pinyin: ['cang er zi san'], category: 'formula' },
+
+  // Pain Formulas
+  { en: ['shao yao gan cao tang', 'peony licorice'], he: ['שאו יאו גאן צאו טאנג', 'אדמונית וליקוריץ', 'אדמונית ליקוריץ'], pinyin: ['shao yao gan cao tang'], category: 'formula' },
+  { en: ['tao ren cheng qi tang', 'persica order qi'], he: ['טאו רן צ\'נג צי טאנג', 'אפרסק לסידור צי'], pinyin: ['tao ren cheng qi tang'], category: 'formula' },
+  { en: ['dang gui si ni tang', 'angelica frigid extremities'], he: ['דאנג גווי סי ני טאנג', 'דאנגגווי לגפיים קרות'], pinyin: ['dang gui si ni tang'], category: 'formula' },
+  { en: ['juan bi tang', 'remove painful obstruction'], he: ['ג\'ואן בי טאנג', 'הסרת חסימה כואבת'], pinyin: ['juan bi tang'], category: 'formula' },
+  { en: ['qiang huo sheng shi tang', 'notopterygium overcome dampness'], he: ['צ\'יאנג הואו שנג שי טאנג', 'נוטופטריגיום נגד לחות'], pinyin: ['qiang huo sheng shi tang'], category: 'formula' },
+  { en: ['fang feng tong sheng san', 'saposhnikovia sagely unblocking'], he: ['פאנג פנג טונג שנג סאן', 'ספושניקוביה לפתיחה'], pinyin: ['fang feng tong sheng san'], category: 'formula' },
+
+  // Gynecological Formulas
+  { en: ['si wu tang', 'four substance decoction'], he: ['סי וו טאנג', 'מרתח ארבע החומרים'], pinyin: ['si wu tang'], category: 'formula' },
+  { en: ['tao hong si wu tang', 'four substance with persica carthamus'], he: ['טאו הונג סי וו טאנג', 'ארבעה חומרים עם אפרסק וחוחובה'], pinyin: ['tao hong si wu tang'], category: 'formula' },
+  { en: ['wen jing tang', 'warm menses'], he: ['וון ג\'ינג טאנג', 'חימום וסת'], pinyin: ['wen jing tang'], category: 'formula' },
+  { en: ['wu ji bai feng wan', 'black chicken white phoenix'], he: ['וו ג\'י באי פנג וואן', 'תרנגולת שחורה פניקס לבן'], pinyin: ['wu ji bai feng wan'], category: 'formula' },
+  { en: ['dang gui shao yao san', 'angelica peony'], he: ['דאנג גווי שאו יאו סאן', 'דאנגגווי אדמונית'], pinyin: ['dang gui shao yao san'], category: 'formula' },
+  { en: ['tiao jing san', 'regulate menses'], he: ['טיאו ג\'ינג סאן', 'ויסות מחזור'], pinyin: ['tiao jing san'], category: 'formula' },
+  { en: ['ai fu nuan gong wan', 'mugwort cyperus warm palace'], he: ['אי פו נואן גונג וואן', 'חימום הרחם'], pinyin: ['ai fu nuan gong wan'], category: 'formula' },
+
+  // Digestive Formulas
+  { en: ['zhi shi xiao pi wan', 'immature bitter orange reduce focal distention'], he: ['ג\'י שי שיאו פי וואן', 'הפחתת נפיחות'], pinyin: ['zhi shi xiao pi wan'], category: 'formula' },
+  { en: ['mu xiang bing lang wan', 'aucklandia betel nut'], he: ['מו שיאנג בינג לאנג וואן', 'קוסטוס אגוז בטל'], pinyin: ['mu xiang bing lang wan'], category: 'formula' },
+  { en: ['jian pi wan', 'strengthen spleen'], he: ['ג\'יאן פי וואן', 'חיזוק הטחול'], pinyin: ['jian pi wan'], category: 'formula' },
+  { en: ['xiao jian zhong tang', 'minor construct middle'], he: ['שיאו ג\'יאן ג\'ונג טאנג', 'בניית האמצע הקטנה'], pinyin: ['xiao jian zhong tang'], category: 'formula' },
+  { en: ['da jian zhong tang', 'major construct middle'], he: ['דא ג\'יאן ג\'ונג טאנג', 'בניית האמצע הגדולה'], pinyin: ['da jian zhong tang'], category: 'formula' },
+
+  // Lung Formulas
+  { en: ['zhi sou san', 'stop coughing powder'], he: ['ג\'י סואו סאן', 'עצירת שיעול'], pinyin: ['zhi sou san'], category: 'formula' },
+  { en: ['xing su san', 'apricot perilla'], he: ['שינג סו סאן', 'משמש פרילה'], pinyin: ['xing su san'], category: 'formula' },
+  { en: ['qing zao jiu fei tang', 'clear dryness rescue lung'], he: ['צינג צאו ג\'יו פיי טאנג', 'ניקוי יובש והצלת ריאה'], pinyin: ['qing zao jiu fei tang'], category: 'formula' },
+  { en: ['bai he gu jin tang', 'lily bulb metal'], he: ['באי הה גו ג\'ין טאנג', 'שושן לחיזוק מתכת'], pinyin: ['bai he gu jin tang'], category: 'formula' },
+  { en: ['bu fei tang', 'tonify lung'], he: ['בו פיי טאנג', 'חיזוק ריאה'], pinyin: ['bu fei tang'], category: 'formula' },
+  { en: ['su zi jiang qi tang', 'perilla descend qi'], he: ['סו צי ג\'יאנג צי טאנג', 'פרילה להורדת צי'], pinyin: ['su zi jiang qi tang'], category: 'formula' },
+  { en: ['ding chuan tang', 'arrest wheezing'], he: ['דינג צ\'ואן טאנג', 'עצירת אסתמה'], pinyin: ['ding chuan tang'], category: 'formula' },
+  { en: ['she gan ma huang tang', 'belamcanda ephedra'], he: ['שה גאן מא הואנג טאנג', 'בלמקנדה אפדרה'], pinyin: ['she gan ma huang tang'], category: 'formula' },
+
+  // Constipation/Purgative Formulas
+  { en: ['da cheng qi tang', 'major order qi'], he: ['דא צ\'נג צי טאנג', 'סידור צי גדול'], pinyin: ['da cheng qi tang'], category: 'formula' },
+  { en: ['xiao cheng qi tang', 'minor order qi'], he: ['שיאו צ\'נג צי טאנג', 'סידור צי קטן'], pinyin: ['xiao cheng qi tang'], category: 'formula' },
+  { en: ['ma zi ren wan', 'hemp seed pill'], he: ['מא צי רן וואן', 'כדור זרעי קנבוס'], pinyin: ['ma zi ren wan'], category: 'formula' },
+  { en: ['run chang wan', 'moisten intestines'], he: ['רון צ\'אנג וואן', 'הלחחת מעיים'], pinyin: ['run chang wan'], category: 'formula' },
+  { en: ['zeng ye tang', 'increase fluids'], he: ['צנג יה טאנג', 'הגברת נוזלים'], pinyin: ['zeng ye tang'], category: 'formula' },
+
+  // Wind Formulas
+  { en: ['xiao feng san', 'eliminate wind powder'], he: ['שיאו פנג סאן', 'הסרת רוח'], pinyin: ['xiao feng san'], category: 'formula' },
+  { en: ['fang feng tong sheng san', 'ledebouriella sagely unblocking'], he: ['פאנג פנג טונג שנג סאן', 'פאנגפנג לפתיחה'], pinyin: ['fang feng tong sheng san'], category: 'formula' },
+  { en: ['xiao huo luo dan', 'minor invigorate collaterals'], he: ['שיאו הואו לואו דאן', 'החייאת קולטרלים קטנה'], pinyin: ['xiao huo luo dan'], category: 'formula' },
+  { en: ['da huo luo dan', 'major invigorate collaterals'], he: ['דא הואו לואו דאן', 'החייאת קולטרלים גדולה'], pinyin: ['da huo luo dan'], category: 'formula' },
+  { en: ['tian ma wan', 'gastrodia pill'], he: ['טיאן מא וואן', 'כדור גסטרודיה'], pinyin: ['tian ma wan'], category: 'formula' },
+
+  // Additional Common Formulas
+  { en: ['yu ping feng san', 'jade windscreen'], he: ['יו פינג פנג סאן', 'מסך הרוח הירקני', 'מגן הרוח'], pinyin: ['yu ping feng san'], category: 'formula' },
+  { en: ['bi yuan tang', 'rhinitis decoction'], he: ['בי יואן טאנג', 'מרתח לנזלת'], pinyin: ['bi yuan tang'], category: 'formula' },
+  { en: ['er long zuo ci wan', 'left hearing pill'], he: ['ער לונג צואו צי וואן', 'כדור שמיעת שמאל'], pinyin: ['er long zuo ci wan'], category: 'formula' },
+  { en: ['ming mu di huang wan', 'brighten eyes rehmannia'], he: ['מינג מו די הואנג וואן', 'רהמניה להבהרת עיניים'], pinyin: ['ming mu di huang wan'], category: 'formula' },
   
   // ============================================================================
   // COMMON HERBS - Expanded
