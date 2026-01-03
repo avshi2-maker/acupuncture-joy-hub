@@ -253,6 +253,7 @@ export function APIUsageMeter() {
 
 // Quick prompt suggestions for TCM queries
 const QUICK_PROMPTS = [
+  { label: 'Stress & Anxiety', query: 'What are the best acupuncture points and formulas for stress and anxiety?' },
   { label: 'Liver Qi Stagnation', query: 'What are the main acupoints for Liver Qi Stagnation?' },
   { label: 'Spleen Deficiency', query: 'Explain Spleen Qi deficiency patterns and treatment' },
   { label: 'Kidney Yang', query: 'Points for tonifying Kidney Yang deficiency' },
