@@ -32,6 +32,7 @@ const AUDIO_PROMPTS = {
   inhale: 'gentle soft rising chime meditation bell ascending tone calm',
   hold: 'soft steady singing bowl gentle hum meditation calm',
   exhale: 'long descending soft wind chime release peaceful exhale tone',
+  complete: 'calming tibetan singing bowl chime magical soft rising tones meditation success peaceful',
 };
 
 export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = ({
@@ -53,7 +54,7 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
   const haptic = useHapticFeedback();
 
   // Generate and cache audio for a phase
-  const generateAudio = useCallback(async (phaseKey: 'inhale' | 'hold' | 'exhale') => {
+  const generateAudio = useCallback(async (phaseKey: 'inhale' | 'hold' | 'exhale' | 'complete') => {
     if (audioCache[phaseKey]) return audioCache[phaseKey];
     
     try {
@@ -68,7 +69,7 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
           },
           body: JSON.stringify({ 
             prompt: AUDIO_PROMPTS[phaseKey], 
-            duration: phaseKey === 'exhale' ? 3 : 2 
+            duration: phaseKey === 'exhale' ? 3 : phaseKey === 'complete' ? 4 : 2 
           }),
         }
       );
@@ -94,6 +95,7 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
         generateAudio('inhale'),
         generateAudio('hold'),
         generateAudio('exhale'),
+        generateAudio('complete'),
       ]);
     } catch (error) {
       console.error('Failed to preload audio:', error);
@@ -102,7 +104,7 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
   }, [generateAudio]);
 
   // Play audio for current phase
-  const playPhaseAudio = useCallback(async (phaseKey: 'inhale' | 'hold' | 'exhale') => {
+  const playPhaseAudio = useCallback(async (phaseKey: 'inhale' | 'hold' | 'exhale' | 'complete') => {
     if (isMuted) return;
     
     let audioUrl = audioCache[phaseKey];
@@ -112,7 +114,7 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
     
     if (audioUrl && audioRef.current) {
       audioRef.current.src = audioUrl;
-      audioRef.current.volume = 0.4;
+      audioRef.current.volume = phaseKey === 'complete' ? 0.5 : 0.4;
       audioRef.current.play().catch(e => console.log('Audio play prevented:', e));
     }
   }, [isMuted, audioCache, generateAudio]);
@@ -180,6 +182,8 @@ export const BreathingExerciseDialog: React.FC<BreathingExerciseDialogProps> = (
         if (newCount >= 3) {
           setIsRunning(false);
           setPhase('complete');
+          // Play calming Tibetan chime sound on completion
+          playPhaseAudio('complete');
           // Victory haptic pattern: celebration vibration
           if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
             try {
