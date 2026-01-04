@@ -8,7 +8,8 @@ import { SessionTimerProvider } from '@/contexts/SessionTimerContext';
 import { ThemedClockWidget } from '@/components/ui/ThemedClockWidget';
 import { HeaderActions } from './HeaderActions';
 import { FloatingHelpGuide } from '@/components/ui/FloatingHelpGuide';
-import { Building2, Menu, Leaf, Home } from 'lucide-react';
+import { Building2, Menu, Home } from 'lucide-react';
+import newLogo from '@/assets/new-logo.png';
 import { useSidebar } from '@/components/ui/sidebar';
 
 interface CRMLayoutProps {
@@ -35,8 +36,8 @@ function MobileHeader({ onHelpClick }: HeaderContentProps) {
           <span className="sr-only">Toggle sidebar</span>
         </button>
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center group-hover:bg-gold/30 transition-colors">
-            <Leaf className="h-4 w-4 text-gold" />
+          <div className="w-8 h-8 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center group-hover:bg-gold/30 transition-colors overflow-hidden">
+            <img src={newLogo} alt="CM Clinic Logo" className="w-6 h-6 object-contain" />
           </div>
           <div>
             <span className="font-display font-bold text-sm text-cream tracking-tight">CM CLINIC</span>
@@ -57,8 +58,8 @@ function DesktopHeader({ onHelpClick }: HeaderContentProps) {
     <header className="hidden md:flex h-16 items-center justify-between border-b border-gold/30 bg-gradient-to-r from-jade/90 via-jade/80 to-jade/90 backdrop-blur-sm px-6 shadow-lg">
       <div className="flex items-center gap-4">
         <Link to="/" className="flex items-center gap-3 group mr-4">
-          <div className="w-10 h-10 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center group-hover:bg-gold/30 transition-all group-hover:scale-105">
-            <Leaf className="h-5 w-5 text-gold" />
+          <div className="w-10 h-10 rounded-full bg-gold/20 border border-gold/50 flex items-center justify-center group-hover:bg-gold/30 transition-all group-hover:scale-105 overflow-hidden">
+            <img src={newLogo} alt="CM Clinic Logo" className="w-7 h-7 object-contain" />
           </div>
           <div>
             <span className="font-display font-extrabold text-lg text-cream tracking-tight">CM CLINIC</span>

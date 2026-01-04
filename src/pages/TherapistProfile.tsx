@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useTier } from '@/hooks/useTier';
 import { toast } from 'sonner';
 import { User, Stethoscope, MapPin, Award } from 'lucide-react';
-import clinicLogo from '@/assets/clinic-logo.png';
+import newLogo from '@/assets/new-logo.png';
 import { Badge } from '@/components/ui/badge';
 
 const profileSchema = z.object({
@@ -105,7 +105,7 @@ export default function TherapistProfile() {
           <Card className="shadow-elevated">
             <CardHeader className="text-center space-y-4">
               <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center overflow-hidden">
-                <img src={clinicLogo} alt="Clinic Logo" className="w-full h-full object-contain" />
+                <img src={newLogo} alt="CM Clinic Logo" className="w-full h-full object-contain" />
               </div>
               <div className="flex items-center justify-center gap-3">
                 <CardTitle className="font-display text-3xl">פרופיל מטפל</CardTitle>

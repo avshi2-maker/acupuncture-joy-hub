@@ -21,7 +21,6 @@ import {
   UserCog,
   Settings,
   Building2,
-  Brain,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -29,6 +28,7 @@ import {
   X,
   ArrowLeft,
 } from 'lucide-react';
+import newLogo from '@/assets/new-logo.png';
 import { useNavigate, Link } from 'react-router-dom';
 import { TierBadge } from '@/components/layout/TierBadge';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -94,10 +94,10 @@ export function CRMSidebar() {
           <div className="flex items-center justify-between">
             {!isCollapsed && (
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-jade flex items-center justify-center">
-                  <Building2 className="h-4 w-4 text-white" />
-                </div>
-                <span className="font-display font-semibold text-lg">CM Clinic</span>
+              <div className="w-8 h-8 rounded-lg bg-jade flex items-center justify-center overflow-hidden">
+                <img src={newLogo} alt="CM Clinic Logo" className="w-6 h-6 object-contain" />
+              </div>
+              <span className="font-display font-semibold text-lg">CM Clinic</span>
               </div>
             )}
             {isMobile ? (
