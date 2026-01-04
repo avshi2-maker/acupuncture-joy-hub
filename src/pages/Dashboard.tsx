@@ -58,7 +58,7 @@ import deskBg from '@/assets/desk-bg.png';
 import brainBg from '@/assets/brain-bg.png';
 import knowledgeBg from '@/assets/knowledge-bg.png';
 import videoMeetingBg from '@/assets/video-meeting-bg.jpg';
-import clinicLogo from '@/assets/clinic-logo.png';
+import newLogo from '@/assets/new-logo.png';
 import { PatientEducationWidget } from '@/components/education/PatientEducationWidget';
 import { PediatricInfographicCard, VagusNerveCard, VagusStimulationDialog, StressWellnessCard, AssessmentCenterCard, PediatricProtocolCard } from '@/components/clinical';
 import { UsageWidget } from '@/components/roi/UsageWidget';
@@ -620,7 +620,7 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-4 hover:opacity-90 transition-opacity" aria-label="דף הבית">
             <div className="w-10 h-10 rounded-full flex items-center justify-center animate-scale-in overflow-hidden" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
-              <img src={clinicLogo} alt="Clinic Logo" className="w-full h-full object-contain" />
+              <img src={newLogo} alt="CM Clinic Logo" className="w-full h-full object-contain" />
             </div>
             <div className="opacity-0 animate-fade-in" style={{ animationDelay: '150ms', animationFillMode: 'forwards' }}>
               <h1 className="font-display text-xl">CM Clinic</h1>

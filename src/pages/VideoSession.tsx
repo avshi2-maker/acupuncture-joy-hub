@@ -30,6 +30,7 @@ import {
   ClipboardList,
   Trash2,
   Leaf,
+  
   ArrowRight,
   Apple,
   Pill,
@@ -112,6 +113,7 @@ import { SessionBriefPanel } from '@/components/video/SessionBriefPanel';
 import { PregnancySafetyDialog, ElderlyLifestyleDialog } from '@/components/clinical';
 import { HerbalMasterWidget } from '@/components/herbal/HerbalMasterWidget';
 import { EmotionalProcessingPanel } from '@/components/session/EmotionalProcessingPanel';
+import newLogo from '@/assets/new-logo.png';
 
 import { SessionWorkflowIndicator } from '@/components/video/SessionWorkflowIndicator';
 import { SessionPhaseIndicator, useSafetyGate } from '@/components/session';
@@ -1364,8 +1366,8 @@ export default function VideoSession() {
                 className="md:hidden h-9 w-9"
               />
                 <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-jade-light rounded-full flex items-center justify-center">
-                  <Leaf className="h-4 w-4 md:h-5 md:w-5 text-jade" />
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-jade-light rounded-full flex items-center justify-center overflow-hidden">
+                  <img src={newLogo} alt="CM Clinic Logo" className="w-6 h-6 md:w-7 md:h-7 object-contain" />
                 </div>
                 <div className="hidden sm:block">
                   <h1 className="font-display text-lg md:text-xl">CM Clinic</h1>

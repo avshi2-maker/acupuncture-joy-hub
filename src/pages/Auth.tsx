@@ -15,7 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { ArrowLeft, Brain, ShieldCheck, Lock, Activity, Eye, EyeOff, Mail, MessageCircle, RefreshCw } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
-import clinicLogo from '@/assets/clinic-logo.png';
+import newLogo from '@/assets/new-logo.png';
 
 // Google Icon Component
 const GoogleIcon = () => (
@@ -267,7 +267,7 @@ export default function Auth() {
           <Card className="w-full max-w-md shadow-2xl border-0 bg-white/80 backdrop-blur-xl">
             <CardHeader className="text-center space-y-3 pb-2">
               <div className="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg">
-                <img src={clinicLogo} alt="Clinic Logo" className="w-10 h-10 object-contain" />
+                <img src={newLogo} alt="CM Clinic Logo" className="w-10 h-10 object-contain" />
               </div>
               <CardTitle className="font-display text-2xl text-slate-800">ברוכים הבאים</CardTitle>
               <CardDescription className="text-slate-500">הזדהות מאובטחת למערכת הקלינית</CardDescription>

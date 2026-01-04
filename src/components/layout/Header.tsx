@@ -7,7 +7,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WhatsAppCTA } from "@/components/ui/WhatsAppCTA";
 import { useTier } from "@/hooks/useTier";
-import clinicLogo from "@/assets/clinic-logo.png";
+import newLogo from "@/assets/new-logo.png";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -153,8 +153,8 @@ const Header = () => {
             }`}
           >
             <img
-              src={clinicLogo}
-              alt="Clinic Logo"
+              src={newLogo}
+              alt="CM Clinic Logo"
               className="w-10 h-10 object-contain"
             />
           </div>
