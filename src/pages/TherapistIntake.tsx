@@ -345,7 +345,36 @@ export default function TherapistIntake() {
       <div className="w-full max-w-2xl bg-white/92 backdrop-blur-md rounded-xl shadow-2xl p-6 md:p-10 my-4 md:my-8 space-y-6">
         <CrossPlatformBackButton fallbackPath="/dashboard" />
 
-        {/* Progress Steps */}
+        {/* Registration Flow Progress - shown when coming from Gate */}
+        {isFromGate && (
+          <div className="mb-6 p-4 bg-jade/5 rounded-lg border border-jade/20">
+            <div className="flex items-center justify-center gap-1 md:gap-2 text-sm">
+              <div className="flex items-center gap-1.5">
+                <div className="w-6 h-6 rounded-full bg-jade text-white flex items-center justify-center text-xs font-bold">✓</div>
+                <span className="text-jade font-medium hidden sm:inline">בחירת מסלול</span>
+              </div>
+              <div className="w-4 md:w-8 h-0.5 bg-jade" />
+              <div className="flex items-center gap-1.5">
+                <div className="w-6 h-6 rounded-full bg-jade text-white flex items-center justify-center text-xs font-bold">2</div>
+                <span className="text-jade font-bold hidden sm:inline">טופס קליטה</span>
+              </div>
+              <div className="w-4 md:w-8 h-0.5 bg-muted" />
+              <div className="flex items-center gap-1.5">
+                <div className="w-6 h-6 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs font-bold">3</div>
+                <span className="text-muted-foreground hidden sm:inline">
+                  {sessionStorage.getItem('selected_tier_for_intake') === 'trial' ? 'סיסמה' : 'תשלום'}
+                </span>
+              </div>
+              <div className="w-4 md:w-8 h-0.5 bg-muted" />
+              <div className="flex items-center gap-1.5">
+                <div className="w-6 h-6 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs font-bold">4</div>
+                <span className="text-muted-foreground hidden sm:inline">התחברות</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Form Progress Steps */}
         <div className="flex items-center justify-center gap-2 mb-8">
           {[1, 2, 3, 4].map((s) => (
             <div key={s} className="flex items-center">
