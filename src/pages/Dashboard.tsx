@@ -61,9 +61,9 @@ import videoMeetingBg from '@/assets/video-meeting-bg.jpg';
 import newLogo from '@/assets/new-logo.png';
 import { PatientEducationWidget } from '@/components/education/PatientEducationWidget';
 import { PediatricInfographicCard, VagusNerveCard, VagusStimulationDialog, StressWellnessCard, AssessmentCenterCard, PediatricProtocolCard } from '@/components/clinical';
-import { UsageWidget } from '@/components/roi/UsageWidget';
+import { UsageWidget, UsageCard } from '@/components/usage/UnifiedUsageMeter';
 import { HerbalMasterWidget } from '@/components/herbal/HerbalMasterWidget';
-import { TokenUsageMeter } from '@/components/dashboard/TokenUsageMeter';
+import roiWidgetBg from '@/assets/roi-widget-bg.png';
 
 
 // Phosphor-style glowing clock component (mobile - small version)
@@ -1184,8 +1184,8 @@ export default function Dashboard() {
 
         {/* Patient Education Widget + Usage Widget + Token Meter + Stress Wellness + Assessment Center */}
         <div className="mb-8 grid md:grid-cols-8 gap-4 opacity-0 animate-fade-in" style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}>
-          <UsageWidget />
-          <TokenUsageMeter />
+          <UsageWidget backgroundImage={roiWidgetBg} />
+          <UsageCard />
           <PatientEducationWidget />
           <PediatricInfographicCard animationDelay={550} />
           <PediatricProtocolCard animationDelay={575} />
