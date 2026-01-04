@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Info, HelpCircle, Code } from 'lucide-react';
@@ -7,9 +7,16 @@ interface AITrustHeaderProps {
   className?: string;
 }
 
+export interface AITrustHeaderRef {
+  startProcessing: () => void;
+  finishSuccess: (score?: number) => void;
+  finishWarning: () => void;
+  reset: () => void;
+}
+
 type SourceType = 'rag_internal' | 'llm_fallback' | 'idle';
 
-export function AITrustHeader({ className }: AITrustHeaderProps) {
+export const AITrustHeader = forwardRef<AITrustHeaderRef, AITrustHeaderProps>(({ className }, ref) => {
   const [assetsScanned, setAssetsScanned] = useState(0);
   const [processingTime, setProcessingTime] = useState(0);
   const [accuracyScore, setAccuracyScore] = useState<number | null>(null);
@@ -105,6 +112,23 @@ export function AITrustHeader({ className }: AITrustHeaderProps) {
     setAccuracyScore(null);
     setSourceType('llm_fallback');
   };
+
+  const reset = () => {
+    setStatus('ready');
+    setIsScanning(false);
+    setAssetsScanned(0);
+    setProcessingTime(0);
+    setAccuracyScore(null);
+    setSourceType('idle');
+  };
+
+  // Expose methods via ref
+  useImperativeHandle(ref, () => ({
+    startProcessing,
+    finishSuccess,
+    finishWarning,
+    reset
+  }));
 
   const getStatusText = () => {
     switch (status) {
@@ -280,6 +304,8 @@ window.dispatchEvent(new CustomEvent('tcm-query-end', {
       </div>
     </TooltipProvider>
   );
-}
+});
+
+AITrustHeader.displayName = 'AITrustHeader';
 
 export default AITrustHeader;
