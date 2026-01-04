@@ -15,6 +15,7 @@ import { AITracePanel, TraceStep, ChunkMatch, HallucinationCheck, analyzeHalluci
 import { ConfidenceMeter } from './ConfidenceMeter';
 import { QASuggestionsPanel } from './QASuggestionsPanel';
 import { SourceAuditFooter } from './SourceAuditFooter';
+import { AITrustHeader, AITrustHeaderRef } from '@/components/tcm-brain/AITrustHeader';
 
 interface Source {
   fileName: string;
@@ -99,6 +100,9 @@ export function RAGChatInterface({ className }: RAGChatInterfaceProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const { printContent } = usePrintContent();
 
+  // AI Trust Header refs
+  const trustHeaderRef = useRef<AITrustHeaderRef>(null);
+
   const handleSuggestionSelect = (question: string) => {
     setInput(question);
     // Optionally auto-send
@@ -152,6 +156,9 @@ export function RAGChatInterface({ className }: RAGChatInterfaceProps) {
       setInput('');
       setPendingQuery(query);
     }
+
+    // Start AI Trust Header processing
+    trustHeaderRef.current?.startProcessing();
 
     setIsLoading(true);
     setSearchPhase('searching-rag');
@@ -338,6 +345,13 @@ export function RAGChatInterface({ className }: RAGChatInterfaceProps) {
       setMessages(prev => [...prev, assistantMessage]);
       setSearchPhase('complete');
       
+      // Update AI Trust Header based on source type
+      if (useExternalAI || chunksFound === 0) {
+        trustHeaderRef.current?.finishWarning();
+      } else {
+        trustHeaderRef.current?.finishSuccess(hallucinationCheck.confidence);
+      }
+      
       // Show toast if hallucination warning
       if (!hallucinationCheck.passed) {
         toast.warning('Response may contain unverified claims - check trace panel');
@@ -453,6 +467,9 @@ export function RAGChatInterface({ className }: RAGChatInterfaceProps) {
         </p>
       </CardHeader>
       <CardContent className="p-0">
+        {/* AI Trust Header - Real-time API score */}
+        <AITrustHeader ref={trustHeaderRef} />
+
         {/* Q&A Suggestions Panel - Ready-made questions with distinct styling */}
         <div className="px-4 pt-2">
           <QASuggestionsPanel 
