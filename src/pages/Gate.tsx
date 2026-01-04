@@ -488,24 +488,15 @@ export default function Gate() {
           }}
         />
 
-        <div className="relative z-10 py-8 px-4">
+        <div className="relative z-10 py-4 px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-start mb-4">
               <Link 
                 to="/" 
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 backdrop-blur-sm text-slate-700 hover:bg-white transition-colors shadow-lg"
               >
                 <ArrowLeft className="h-4 w-4" />
                 חזרה לדף הבית
-              </Link>
-              
-              {/* Dev Mode Button */}
-              <Link 
-                to="/tcm-brain?devmode=true" 
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/90 backdrop-blur-sm text-white hover:bg-amber-600 transition-colors shadow-lg text-sm font-medium"
-              >
-                <FlaskConical className="h-4 w-4" />
-                Dev Mode
               </Link>
             </div>
 
@@ -538,17 +529,17 @@ export default function Gate() {
             {currentStep === 'tiers' && (
               <>
                 {/* Header with text shadow for dark backgrounds */}
-                <div className="text-center mb-10 text-white" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-                  <h1 className="font-display text-3xl md:text-4xl font-bold mb-3">
+                <div className="text-center mb-4 text-white" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+                  <h1 className="font-display text-2xl md:text-3xl font-bold mb-1">
                     ברוכים הבאים לקליניקה
                   </h1>
-                  <p className="text-lg opacity-90">
+                  <p className="text-base opacity-90">
                     בחרו את הנתיב המתאים ביותר לביקור שלכם היום
                   </p>
                 </div>
 
                 {/* Glass Cards Grid */}
-                <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-8 items-center">
+                <div className="grid md:grid-cols-3 gap-3 lg:gap-4 mb-4 items-center">
                   {isPageLoading ? (
                     // Skeleton loading state
                     <>
@@ -572,20 +563,20 @@ export default function Gate() {
                       ))}
                     </>
                   ) : (
-                    // Stunning Glass Tier Cards
+                    // Compact Glass Tier Cards
                     tiers.map((tier) => (
                       <div
                         key={tier.name}
                         className={`
                           relative flex flex-col h-full
-                          rounded-[20px] p-8 text-center
+                          rounded-[16px] p-4 md:p-5 text-center
                           transition-all duration-300
                           backdrop-blur-xl border
                           ${tier.highlighted 
-                            ? 'bg-white/[0.92] border-2 border-[#d4af37] scale-105 z-10 shadow-[0_20px_50px_rgba(212,175,55,0.25)]' 
-                            : 'bg-white/85 border-white/40 hover:bg-white/95 shadow-[0_10px_30px_rgba(0,0,0,0.2)]'
+                            ? 'bg-white/[0.92] border-2 border-[#d4af37] scale-[1.02] z-10 shadow-[0_10px_30px_rgba(212,175,55,0.25)]' 
+                            : 'bg-white/85 border-white/40 hover:bg-white/95 shadow-[0_8px_20px_rgba(0,0,0,0.2)]'
                           }
-                          hover:-translate-y-2.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]
+                          hover:-translate-y-1 hover:shadow-[0_12px_25px_rgba(0,0,0,0.3)]
                         `}
                         style={{ fontFamily: "'Heebo', sans-serif" }}
                       >
@@ -603,27 +594,27 @@ export default function Gate() {
                         )}
 
                         {/* Plan Name */}
-                        <h3 className="text-xl font-bold mb-1" style={{ color: '#2c6e49' }}>
+                        <h3 className="text-lg font-bold mb-0.5" style={{ color: '#2c6e49' }}>
                           {tier.nameHe}
                         </h3>
-                        <p className="text-sm text-gray-500 mb-5">{tier.name}</p>
+                        <p className="text-xs text-gray-500 mb-2">{tier.name}</p>
 
                         {/* Price */}
-                        <div className="mb-2">
-                          <span className="text-4xl font-extrabold" style={{ color: '#1a202c' }}>
+                        <div className="mb-1">
+                          <span className="text-2xl md:text-3xl font-extrabold" style={{ color: '#1a202c' }}>
                             {tier.price}
                           </span>
                           {tier.period && (
-                            <span className="text-base text-gray-600 mr-1">{tier.period}</span>
+                            <span className="text-sm text-gray-600 mr-1">{tier.period}</span>
                           )}
                         </div>
                         {tier.periodSub && (
-                          <p className="text-sm text-gray-500 mb-6">{tier.periodSub}</p>
+                          <p className="text-xs text-gray-500 mb-3">{tier.periodSub}</p>
                         )}
-                        {!tier.periodSub && <div className="mb-6" />}
+                        {!tier.periodSub && <div className="mb-3" />}
 
                         {/* Features List */}
-                        <ul className="space-y-3 mb-8 flex-1 text-right">
+                        <ul className="space-y-1.5 mb-4 flex-1 text-right">
                           {tier.features.map((feature, idx) => (
                             <li 
                               key={idx} 
@@ -643,7 +634,7 @@ export default function Gate() {
                         <button
                           onClick={() => handleSelectTier(tier.name)}
                           className={`
-                            w-full py-4 rounded-xl font-bold text-base
+                            w-full py-2.5 rounded-lg font-bold text-sm
                             transition-all duration-300
                             ${tier.highlighted 
                               ? 'text-white shadow-[0_4px_15px_rgba(184,150,40,0.3)] hover:brightness-110' 

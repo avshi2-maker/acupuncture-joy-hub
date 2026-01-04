@@ -151,8 +151,8 @@ export function FloatingMusicPlayer() {
     localStorage.setItem(VOLUME_KEY, volume.toString());
   }, [volume]);
 
-  // Hide on TCM Brain page and Video Session page (have their own controls)
-  if (location.pathname === '/tcm-brain' || location.pathname === '/video-session') {
+  // Hide on TCM Brain, Video Session, Gate, and Home pages
+  if (location.pathname === '/tcm-brain' || location.pathname === '/video-session' || location.pathname === '/gate' || location.pathname === '/') {
     return null;
   }
 
