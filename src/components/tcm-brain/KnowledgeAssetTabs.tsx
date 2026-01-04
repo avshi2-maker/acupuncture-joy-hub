@@ -290,6 +290,39 @@ export const KNOWLEDGE_ASSETS: KnowledgeAsset[] = [
     category: 'specialties'
   },
   { 
+    id: 'trauma-qa', 
+    name: 'Trauma Q&A', 
+    nameHe: 'טראומה - שאלות',
+    icon: Shield, 
+    color: 'text-purple-500', 
+    bgColor: 'bg-purple-50 dark:bg-purple-950/30', 
+    borderColor: 'border-purple-300 dark:border-purple-700',
+    file: 'tcm-trauma-qa.csv',
+    category: 'specialties'
+  },
+  { 
+    id: 'fear-qa', 
+    name: 'Fear Q&A', 
+    nameHe: 'פחד - שאלות',
+    icon: Eye, 
+    color: 'text-slate-500', 
+    bgColor: 'bg-slate-50 dark:bg-slate-950/30', 
+    borderColor: 'border-slate-300 dark:border-slate-700',
+    file: 'tcm-fear-qa.csv',
+    category: 'specialties'
+  },
+  { 
+    id: 'anger-qa', 
+    name: 'Anger Q&A', 
+    nameHe: 'כעס - שאלות',
+    icon: Zap, 
+    color: 'text-red-500', 
+    bgColor: 'bg-red-50 dark:bg-red-950/30', 
+    borderColor: 'border-red-300 dark:border-red-700',
+    file: 'tcm-anger-qa.csv',
+    category: 'specialties'
+  },
+  { 
     id: 'energy-channels', 
     name: 'Energy Channels', 
     nameHe: 'ערוצי אנרגיה',
