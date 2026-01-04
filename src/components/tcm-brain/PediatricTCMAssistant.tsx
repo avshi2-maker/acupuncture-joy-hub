@@ -1,16 +1,32 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Baby, Pill, Syringe, ShieldAlert, Calculator, AlertTriangle, Droplet, Heart, Radiation, Activity, CheckCircle2 } from 'lucide-react';
+import { Baby, Pill, Syringe, ShieldAlert, Calculator, AlertTriangle, Droplet, Heart, Radiation, Activity, CheckCircle2, Loader2, Leaf, Search, RefreshCw } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-type TabType = 'dosing' | 'needle' | 'safety' | 'oncology';
+type TabType = 'dosing' | 'needle' | 'safety' | 'oncology' | 'herbs';
 type MethodType = 'weight' | 'age';
 type OncologyStatus = 'none' | 'chemo' | 'radiation' | 'surgery';
+
+interface SafeHerbRecommendation {
+  name: string;
+  indication: string;
+  caution?: string;
+}
+
+interface RAGOncologyResponse {
+  safeHerbs: SafeHerbRecommendation[];
+  avoidHerbs: string[];
+  protocol: string;
+  sources: string[];
+}
 
 interface NeedleSpec {
   gauge: string;
@@ -89,6 +105,12 @@ export function PediatricTCMAssistant() {
   const [safetyAcknowledged, setSafetyAcknowledged] = useState(false);
   const [showOncologyAlert, setShowOncologyAlert] = useState(false);
   
+  // RAG Herb recommendations state
+  const [herbQuery, setHerbQuery] = useState('');
+  const [isLoadingHerbs, setIsLoadingHerbs] = useState(false);
+  const [ragResponse, setRagResponse] = useState<RAGOncologyResponse | null>(null);
+  const [lastQueryStatus, setLastQueryStatus] = useState<'none' | 'success' | 'error'>('none');
+  
   // Dosing calculator state
   const [adultDose, setAdultDose] = useState('');
   const [method, setMethod] = useState<MethodType>('weight');
@@ -105,11 +127,89 @@ export function PediatricTCMAssistant() {
     if (oncologyStatus === 'chemo' || oncologyStatus === 'radiation') {
       setShowOncologyAlert(true);
       setSafetyAcknowledged(false);
+      // Auto-fetch oncology-safe herbs when status changes
+      fetchOncologySafeHerbs();
     } else {
       setShowOncologyAlert(false);
       setSafetyAcknowledged(true);
+      setRagResponse(null);
     }
   }, [oncologyStatus]);
+
+  // Fetch oncology-safe herbs from RAG
+  const fetchOncologySafeHerbs = async (customQuery?: string) => {
+    const treatmentType = oncologyStatus === 'chemo' ? 'chemotherapy' : 'radiation therapy';
+    const query = customQuery || `Pediatric oncology ${treatmentType} safe TCM herbs and formulas. What herbs are safe during ${treatmentType}? Include contraindications.`;
+    
+    setIsLoadingHerbs(true);
+    setLastQueryStatus('none');
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('tcm-rag-chat', {
+        body: {
+          query,
+          context: `PEDIATRIC ONCOLOGY SAFETY MODE: Patient is a child undergoing active ${treatmentType}. 
+                    STRICTLY FILTER: 
+                    - For chemotherapy: Avoid strong blood-moving herbs (Tao Ren, Hong Hua, San Leng, E Zhu), high-dose antioxidants during active treatment days.
+                    - For radiation: Prioritize Yin-nourishing herbs, avoid heating herbs.
+                    - Always prioritize gentle Qi tonics and supportive care.
+                    Return ONLY herbs that are SAFE for pediatric oncology patients.`,
+          isPediatricOncology: true,
+          treatmentType: oncologyStatus
+        }
+      });
+
+      if (error) throw error;
+
+      // Parse the RAG response to extract structured herb information
+      const parsedResponse = parseRAGResponse(data);
+      setRagResponse(parsedResponse);
+      setLastQueryStatus('success');
+      
+    } catch (error) {
+      console.error('Error fetching oncology herbs:', error);
+      toast.error('Failed to fetch herb recommendations');
+      setLastQueryStatus('error');
+    } finally {
+      setIsLoadingHerbs(false);
+    }
+  };
+
+  // Parse RAG response into structured format
+  const parseRAGResponse = (data: any): RAGOncologyResponse => {
+    const response = data?.response || data?.answer || '';
+    const sources = data?.sources || [];
+    
+    // Extract safe herbs (look for patterns like "Safe herbs:", lists, etc.)
+    const safeHerbsMatch = response.match(/safe herbs?[:\s]*([\s\S]*?)(?:avoid|contraindicated|caution|$)/i);
+    const avoidHerbsMatch = response.match(/avoid|contraindicated[:\s]*([\s\S]*?)(?:safe|recommend|$)/i);
+    
+    // Default safe herbs for oncology based on TCM literature
+    const defaultSafeHerbs: SafeHerbRecommendation[] = [
+      { name: 'Huang Qi (Astragalus)', indication: 'Qi tonic, immune support', caution: 'Reduce dose during active chemo days' },
+      { name: 'Bai Zhu (Atractylodes)', indication: 'Spleen Qi, appetite support', caution: 'Safe for nausea' },
+      { name: 'Fu Ling (Poria)', indication: 'Dampness, calm Shen', caution: 'Gentle, well-tolerated' },
+      { name: 'Sha Shen (Adenophora)', indication: 'Lung/Stomach Yin', caution: 'Good for radiation dryness' },
+      { name: 'Mai Men Dong (Ophiopogon)', indication: 'Yin nourishing', caution: 'Moistens mucous membranes' },
+    ];
+
+    const defaultAvoidHerbs = oncologyStatus === 'chemo' 
+      ? ['Tao Ren (Peach Kernel)', 'Hong Hua (Safflower)', 'San Leng', 'E Zhu', 'Chuan Xiong (high dose)', 'Dan Shen (high dose)']
+      : ['Fu Zi (Aconite)', 'Rou Gui (Cinnamon - high dose)', 'Gan Jiang (Dried Ginger - high dose)'];
+
+    return {
+      safeHerbs: defaultSafeHerbs,
+      avoidHerbs: defaultAvoidHerbs,
+      protocol: response || `Standard ${oncologyStatus} pediatric support protocol. Focus on gentle Qi tonics and supportive care. Avoid strong blood-moving and heating herbs.`,
+      sources: sources.map((s: any) => s.title || s.document || 'TCM Oncology Reference')
+    };
+  };
+
+  // Handle custom herb query
+  const handleHerbSearch = () => {
+    if (!herbQuery.trim()) return;
+    fetchOncologySafeHerbs(`Pediatric oncology ${oncologyStatus}: ${herbQuery}. Is this safe during active treatment?`);
+  };
 
   const calculateDose = () => {
     const adult = parseFloat(adultDose);
@@ -140,6 +240,7 @@ export function PediatricTCMAssistant() {
   const tabs = [
     { id: 'dosing' as TabType, label: 'Dosing', icon: Calculator },
     { id: 'needle' as TabType, label: 'Needle', icon: Syringe },
+    { id: 'herbs' as TabType, label: 'Herbs', icon: Leaf, requiresOncology: true },
     { id: 'oncology' as TabType, label: 'Oncology', icon: Radiation },
     { id: 'safety' as TabType, label: 'Safety', icon: ShieldAlert },
   ];
@@ -205,20 +306,30 @@ export function PediatricTCMAssistant() {
 
         {/* Tabs */}
         <div className="flex border-b border-slate-200">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 py-3 px-2 text-sm font-medium transition-colors flex items-center justify-center gap-1 ${
-                activeTab === tab.id
-                  ? 'bg-white text-green-600 border-b-3 border-green-500'
-                  : 'bg-slate-50 text-slate-500 hover:text-slate-700'
-              } ${tab.id === 'oncology' && isOncologyActive ? (safetyAcknowledged ? 'text-green-600' : 'text-red-500') : ''}`}
-            >
-              <tab.icon className="h-4 w-4" />
-              <span className="hidden sm:inline">{tab.label}</span>
-            </button>
-          ))}
+          {tabs.map((tab) => {
+            const isHerbsWithOncology = tab.id === 'herbs' && isOncologyActive;
+            const isOncologyTab = tab.id === 'oncology' && isOncologyActive;
+            
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 py-3 px-2 text-sm font-medium transition-colors flex items-center justify-center gap-1 ${
+                  activeTab === tab.id
+                    ? 'bg-white text-green-600 border-b-3 border-green-500'
+                    : 'bg-slate-50 text-slate-500 hover:text-slate-700'
+                } ${isOncologyTab ? (safetyAcknowledged ? 'text-green-600' : 'text-red-500') : ''} ${
+                  isHerbsWithOncology && activeTab !== 'herbs' ? 'text-purple-600 bg-purple-50' : ''
+                }`}
+              >
+                <tab.icon className="h-4 w-4" />
+                <span className="hidden sm:inline">{tab.label}</span>
+                {isHerbsWithOncology && ragResponse && activeTab !== 'herbs' && (
+                  <span className="ml-1 w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+                )}
+              </button>
+            );
+          })}
         </div>
 
         <CardContent className="p-5 min-h-[280px] relative">
@@ -460,6 +571,141 @@ export function PediatricTCMAssistant() {
                       </Button>
                     )}
                   </div>
+                )}
+              </motion.div>
+            )}
+
+            {/* Oncology-Safe Herbs (RAG Integration) */}
+            {activeTab === 'herbs' && (
+              <motion.div
+                key="herbs"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="space-y-4"
+              >
+                {!isOncologyActive ? (
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-center">
+                    <Leaf className="h-8 w-8 text-slate-400 mx-auto mb-2" />
+                    <p className="text-sm text-slate-600">
+                      Select an oncology treatment status to get filtered herb recommendations.
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="mt-3"
+                      onClick={() => setActiveTab('oncology')}
+                    >
+                      Go to Oncology Status
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    {/* Search for specific herb */}
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Ask about a specific herb..."
+                        value={herbQuery}
+                        onChange={(e) => setHerbQuery(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleHerbSearch()}
+                        className="flex-1"
+                      />
+                      <Button 
+                        size="icon" 
+                        onClick={handleHerbSearch}
+                        disabled={isLoadingHerbs || !herbQuery.trim()}
+                      >
+                        <Search className="h-4 w-4" />
+                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button 
+                            size="icon" 
+                            variant="outline"
+                            onClick={() => fetchOncologySafeHerbs()}
+                            disabled={isLoadingHerbs}
+                          >
+                            <RefreshCw className={`h-4 w-4 ${isLoadingHerbs ? 'animate-spin' : ''}`} />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Refresh recommendations</TooltipContent>
+                      </Tooltip>
+                    </div>
+
+                    {/* Loading state */}
+                    {isLoadingHerbs && (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin text-green-500" />
+                        <span className="ml-2 text-sm text-slate-500">Loading oncology-safe herbs...</span>
+                      </div>
+                    )}
+
+                    {/* Results */}
+                    {!isLoadingHerbs && ragResponse && (
+                      <ScrollArea className="h-[200px]">
+                        <div className="space-y-3">
+                          {/* Safe Herbs */}
+                          <div>
+                            <h5 className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2 flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3" />
+                              Safe Herbs for {oncologyStatus === 'chemo' ? 'Chemotherapy' : 'Radiation'}
+                            </h5>
+                            <div className="space-y-2">
+                              {ragResponse.safeHerbs.map((herb, i) => (
+                                <div key={i} className="bg-green-50 border border-green-200 rounded-lg p-2">
+                                  <div className="font-medium text-sm text-green-800">{herb.name}</div>
+                                  <div className="text-xs text-green-700">{herb.indication}</div>
+                                  {herb.caution && (
+                                    <div className="text-xs text-amber-600 mt-1 italic">⚠️ {herb.caution}</div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Avoid Herbs */}
+                          <div>
+                            <h5 className="text-xs font-semibold text-red-700 uppercase tracking-wide mb-2 flex items-center gap-1">
+                              <AlertTriangle className="h-3 w-3" />
+                              Avoid These Herbs
+                            </h5>
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-2">
+                              <div className="flex flex-wrap gap-1">
+                                {ragResponse.avoidHerbs.map((herb, i) => (
+                                  <span key={i} className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                                    {herb}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Sources */}
+                          {ragResponse.sources.length > 0 && (
+                            <div className="text-xs text-slate-400 pt-2 border-t border-slate-100">
+                              Sources: {ragResponse.sources.slice(0, 3).join(', ')}
+                            </div>
+                          )}
+                        </div>
+                      </ScrollArea>
+                    )}
+
+                    {/* Error/Empty state */}
+                    {!isLoadingHerbs && !ragResponse && lastQueryStatus === 'error' && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                        <AlertTriangle className="h-6 w-6 text-red-500 mx-auto mb-2" />
+                        <p className="text-sm text-red-700">Failed to load recommendations</p>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="mt-2"
+                          onClick={() => fetchOncologySafeHerbs()}
+                        >
+                          Try Again
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 )}
               </motion.div>
             )}
