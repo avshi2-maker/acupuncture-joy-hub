@@ -637,6 +637,97 @@ function getLanguageFilePatterns(lang: DetectedLanguage): string[] {
   }
 }
 
+// ============================================================================
+// CROSS-LINGUAL RAG: 3-STEP TRANSLATION LAYER
+// ============================================================================
+
+/**
+ * Step 1: Translate query to English for database search
+ * This is the "Bridge" - converts Hebrew/Russian queries to English keywords
+ * that match our English-only knowledge base
+ */
+async function translateQueryToEnglish(
+  query: string, 
+  sourceLanguage: DetectedLanguage
+): Promise<{ englishQuery: string; wasTranslated: boolean }> {
+  // If already English, return as-is
+  if (sourceLanguage === 'english') {
+    return { englishQuery: query, wasTranslated: false };
+  }
+  
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  if (!LOVABLE_API_KEY) {
+    console.warn('LOVABLE_API_KEY not configured, skipping translation');
+    return { englishQuery: query, wasTranslated: false };
+  }
+  
+  try {
+    console.log(`=== STEP 1: TRANSLATING ${sourceLanguage.toUpperCase()} QUERY TO ENGLISH ===`);
+    console.log('Original query:', query);
+    
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash-lite',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a medical translator specializing in Traditional Chinese Medicine (TCM). 
+Translate the user's query to English for searching a medical database.
+- Extract key medical/TCM terms and translate them accurately
+- Preserve TCM terminology (e.g., "Liver Qi Stagnation", "Wei Qi", "Shen")
+- Include both the direct translation and relevant TCM keywords
+- Output ONLY the English translation, nothing else
+- Keep it concise - focus on searchable keywords`
+          },
+          { role: 'user', content: query }
+        ],
+        temperature: 0,
+        max_tokens: 200
+      }),
+    });
+    
+    if (!response.ok) {
+      console.error('Translation API error:', response.status);
+      return { englishQuery: query, wasTranslated: false };
+    }
+    
+    const data = await response.json();
+    const englishQuery = data.choices?.[0]?.message?.content?.trim() || query;
+    
+    console.log('Translated to English:', englishQuery);
+    
+    return { englishQuery, wasTranslated: true };
+  } catch (error) {
+    console.error('Translation error:', error);
+    return { englishQuery: query, wasTranslated: false };
+  }
+}
+
+/**
+ * Get the response language instruction for the AI
+ * Step 3 of the cross-lingual RAG pattern
+ */
+function getResponseLanguageInstruction(language: DetectedLanguage | string): string {
+  const langMap: Record<string, string> = {
+    'hebrew': 'Hebrew (עברית)',
+    'he': 'Hebrew (עברית)',
+    'english': 'English',
+    'en': 'English',
+    'russian': 'Russian (Русский)',
+    'ru': 'Russian (Русский)',
+    'chinese': 'Chinese (中文)',
+    'zh': 'Chinese (中文)',
+    'mixed': 'the same language as the user query'
+  };
+  
+  return langMap[language] || 'the same language as the user query';
+}
+
 function uniq<T>(arr: T[]): T[] {
   return [...new Set(arr)];
 }
@@ -1215,7 +1306,7 @@ serve(async (req) => {
     const searchQuery = query || messages?.[messages.length - 1]?.content || '';
 
     // ========================================================================
-    // PHASE 1.5: LANGUAGE DETECTION & PREFERENCE
+    // CROSS-LINGUAL RAG - STEP 1: LANGUAGE DETECTION
     // ========================================================================
     const detectedLanguage = detectLanguage(searchQuery);
     
@@ -1227,17 +1318,31 @@ serve(async (req) => {
       'chinese': 'zh',
       'mixed': 'en' // Default to English for mixed
     };
-    const preferredLanguage = language || languageMap[detectedLanguage] || 'en';
+    const userLanguage = language || languageMap[detectedLanguage] || 'en';
     
-    // Still use bilingual glossary for search term expansion (helps find content)
-    const bilingualExpansions = expandWithBilingualGlossary(searchQuery, detectedLanguage);
-    
-    console.log('=== LANGUAGE-BASED RAG SEARCH ===');
+    console.log('=== CROSS-LINGUAL RAG - 3-STEP TRANSLATION LAYER ===');
+    console.log('Original query:', searchQuery);
     console.log('Detected language:', detectedLanguage);
-    console.log('Preferred language for chunks:', preferredLanguage);
-    console.log('Bilingual expansions for search:', bilingualExpansions.slice(0, 10).join(', '));
+    console.log('User response language:', userLanguage);
 
-    const { webQuery: searchTerms, keywords: keywordTerms } = buildWebSearchQuery(searchQuery);
+    // ========================================================================
+    // CROSS-LINGUAL RAG - STEP 1: TRANSLATE QUERY TO ENGLISH (THE "BRIDGE")
+    // ========================================================================
+    // This translates Hebrew/Russian queries to English keywords that match our English CSVs
+    const { englishQuery, wasTranslated } = await translateQueryToEnglish(searchQuery, detectedLanguage);
+    
+    // Use English query for ALL searches (our knowledge base is in English)
+    const searchQueryForDB = englishQuery;
+    
+    // Still use bilingual glossary for additional term expansion
+    const bilingualExpansions = expandWithBilingualGlossary(englishQuery, 'english');
+    
+    console.log('=== CROSS-LINGUAL RAG - STEP 2: SEARCH ENGLISH KNOWLEDGE BASE ===');
+    console.log('Query was translated:', wasTranslated);
+    console.log('English query for search:', searchQueryForDB);
+    console.log('Bilingual expansions:', bilingualExpansions.slice(0, 10).join(', '));
+
+    const { webQuery: searchTerms, keywords: keywordTerms } = buildWebSearchQuery(searchQueryForDB);
     
     // Combine original keywords with bilingual expansions for broader search
     const expandedKeywords = [...new Set([...keywordTerms, ...bilingualExpansions])].slice(0, 20);
@@ -1248,25 +1353,33 @@ serve(async (req) => {
       : searchTerms;
 
     const ageGroupContext = ageGroup ? getAgeGroupSystemPrompt(ageGroup) : '';
+    
+    // Determine response language instruction for Step 3
+    const responseLanguageInstruction = getResponseLanguageInstruction(userLanguage);
 
     console.log('=== 4-PILLAR HOLISTIC RAG SEARCH START ===');
-    console.log('Query:', searchQuery);
+    console.log('English Query for DB:', searchQueryForDB);
     console.log('Websearch query:', searchTerms);
     console.log('Expanded search terms:', expandedSearchTerms);
     console.log('Keyword terms:', keywordTerms.slice(0, 8).join(', '));
     console.log('Expanded keywords:', expandedKeywords.slice(0, 10).join(', '));
     console.log('Age group:', ageGroup || 'not specified');
     console.log('Using external AI:', useExternalAI || false);
+    console.log('Response language:', responseLanguageInstruction);
 
     // ========================================================================
-    // PHASE 2: HYBRID SEARCH WITH CONFIDENCE THRESHOLD (0.80)
+    // CROSS-LINGUAL RAG - STEP 2: SEARCH ENGLISH KNOWLEDGE BASE
     // ========================================================================
+    
+    // CRITICAL: Always search in ENGLISH since our knowledge base is English-only
+    // The query has been translated to English in Step 1
+    const searchLanguage = 'en'; // Force English search for cross-lingual RAG
     
     // First, perform hybrid search for overall confidence assessment
     const hybridSearchResult = await performHybridSearch(
       supabaseClient,
-      searchQuery,
-      preferredLanguage,
+      searchQueryForDB, // Use the English-translated query
+      searchLanguage,   // Always search English knowledge base
       30
     );
     
@@ -1356,15 +1469,15 @@ serve(async (req) => {
       clinicalTrialsResult
     ] = await Promise.all([
       // PILLAR 1: Clinical - Points, needles, techniques
-      // Filter by preferred language for native content
+      // CROSS-LINGUAL RAG: Search ENGLISH content only (knowledge base is English)
       supabaseClient
         .from('knowledge_chunks')
         .select(`
           id, content, question, answer, chunk_index, metadata, language,
           document:knowledge_documents(id, file_name, original_name, category)
         `)
-        .eq('language', preferredLanguage)
-        .or('content.ilike.%acupuncture%,content.ilike.%point%,content.ilike.%needle%,content.ilike.%BL%,content.ilike.%GB%,content.ilike.%ST%,content.ilike.%SP%,content.ilike.%LI%,content.ilike.%KI%,content.ilike.%LR%,content.ilike.%moxa%,content.ilike.%cupping%,content.ilike.%דיקור%,content.ilike.%נקודה%,content.ilike.%מחט%')
+        .eq('language', searchLanguage)
+        .or('content.ilike.%acupuncture%,content.ilike.%point%,content.ilike.%needle%,content.ilike.%BL%,content.ilike.%GB%,content.ilike.%ST%,content.ilike.%SP%,content.ilike.%LI%,content.ilike.%KI%,content.ilike.%LR%,content.ilike.%moxa%,content.ilike.%cupping%')
         .limit(50),
 
       // PILLAR 2: Pharmacopeia - Herbs, formulas, dosages
@@ -1374,33 +1487,33 @@ serve(async (req) => {
           id, content, question, answer, chunk_index, metadata, language,
           document:knowledge_documents(id, file_name, original_name, category)
         `)
-        .eq('language', preferredLanguage)
-        .or('content.ilike.%herb%,content.ilike.%formula%,content.ilike.%tang%,content.ilike.%wan%,content.ilike.%san%,content.ilike.%dosage%,content.ilike.%צמח%,content.ilike.%פורמולה%,content.ilike.%מינון%')
+        .eq('language', searchLanguage)
+        .or('content.ilike.%herb%,content.ilike.%formula%,content.ilike.%tang%,content.ilike.%wan%,content.ilike.%san%,content.ilike.%dosage%')
         .limit(50),
 
-      // PILLAR 3: Nutrition - Filter by language
+      // PILLAR 3: Nutrition - Search ENGLISH content
       supabaseClient
         .from('knowledge_chunks')
         .select(`
           id, content, question, answer, chunk_index, metadata, language,
           document:knowledge_documents(id, file_name, original_name, category)
         `)
-        .eq('language', preferredLanguage)
-        .or('content.ilike.%diet%,content.ilike.%food%,content.ilike.%eat%,content.ilike.%nutrition%,content.ilike.%תזונה%,content.ilike.%אוכל%,content.ilike.%דיאטה%,content.ilike.%מזון%')
+        .eq('language', searchLanguage)
+        .or('content.ilike.%diet%,content.ilike.%food%,content.ilike.%eat%,content.ilike.%nutrition%')
         .limit(50),
 
-      // PILLAR 4: Lifestyle/Sport - Filter by language
+      // PILLAR 4: Lifestyle/Sport - Search ENGLISH content
       supabaseClient
         .from('knowledge_chunks')
         .select(`
           id, content, question, answer, chunk_index, metadata, language,
           document:knowledge_documents(id, file_name, original_name, category)
         `)
-        .eq('language', preferredLanguage)
-        .or('content.ilike.%exercise%,content.ilike.%stretch%,content.ilike.%sleep%,content.ilike.%stress%,content.ilike.%yoga%,content.ilike.%תרגיל%,content.ilike.%שינה%,content.ilike.%מתיחה%,content.ilike.%יוגה%')
+        .eq('language', searchLanguage)
+        .or('content.ilike.%exercise%,content.ilike.%stretch%,content.ilike.%sleep%,content.ilike.%stress%,content.ilike.%yoga%')
         .limit(50),
 
-      // Age-specific knowledge (also filtered by language)
+      // Age-specific knowledge (also search ENGLISH content)
       ageGroup && ageFilePatterns.length > 0
         ? supabaseClient
             .from('knowledge_chunks')
@@ -1408,7 +1521,7 @@ serve(async (req) => {
               id, content, question, answer, chunk_index, metadata, language,
               document:knowledge_documents!inner(id, file_name, original_name, category)
             `)
-            .eq('language', preferredLanguage)
+            .eq('language', searchLanguage)
             .or(ageFilePatterns.map(p => `file_name.ilike.%${p}%`).join(','), { referencedTable: 'document' })
             .limit(10)
         : Promise.resolve({ data: [], error: null }),
@@ -1468,9 +1581,10 @@ serve(async (req) => {
     const cafStudies = cafStudiesResult.data || [];
     const clinicalTrials = clinicalTrialsResult.data || [];
 
-    console.log('=== PILLAR RESULTS (LANGUAGE-FILTERED) ===');
-    console.log(`🌐 Query language: ${detectedLanguage}`);
-    console.log(`📚 Preferred content language: ${preferredLanguage}`);
+    console.log('=== PILLAR RESULTS (CROSS-LINGUAL RAG) ===');
+    console.log(`🌐 User query language: ${detectedLanguage}`);
+    console.log(`🔄 Query translated to English: ${wasTranslated ? 'Yes' : 'No'}`);
+    console.log(`📚 Search language: ${searchLanguage} (always English for cross-lingual RAG)`);
     console.log(`📍 Clinical chunks: ${clinicalChunks.length} (from ${(clinicalResult.data || []).length} candidates)`);
     console.log(`🌿 Pharmacopeia chunks: ${pharmacopeiaChunks.length} (from ${(pharmacopeiaResult.data || []).length} candidates)`);
     console.log(`🍎 Nutrition chunks: ${nutritionChunks.length} (from ${(nutritionResult.data || []).length} candidates)`);
@@ -1489,12 +1603,12 @@ serve(async (req) => {
 
     const totalPillarChunks = clinicalChunks.length + pharmacopeiaChunks.length + nutritionChunks.length + lifestyleChunks.length;
 
-    // Enhanced fallback search - first try same language, then fallback to English
+    // Enhanced fallback search - always search English since we use cross-lingual RAG
     let fallbackChunks: any[] = [];
     const fallbackWords = expandedKeywords.filter((w: string) => w.length > 1).slice(0, 12);
     
     if (totalPillarChunks < 8 && fallbackWords.length > 0) {
-      console.log(`Running fallback search for language: ${preferredLanguage}`);
+      console.log(`Running fallback search in English (cross-lingual RAG)`);
       
       const ilikeConditions = fallbackWords.flatMap((w: string) => [
         `content.ilike.%${w.replace(/'/g, "''")}%`,
@@ -1502,32 +1616,16 @@ serve(async (req) => {
         `answer.ilike.%${w.replace(/'/g, "''")}%`
       ]).join(',');
       
-      // Try preferred language first
+      // Always search English content for cross-lingual RAG
       let { data: fallbackData } = await supabaseClient
         .from('knowledge_chunks')
         .select(`
           id, content, question, answer, chunk_index, metadata, language,
           document:knowledge_documents(id, file_name, original_name, category)
         `)
-        .eq('language', preferredLanguage)
+        .eq('language', searchLanguage)
         .or(ilikeConditions)
         .limit(50);
-      
-      // If not enough results and not already English, fallback to English
-      if ((!fallbackData || fallbackData.length < 5) && preferredLanguage !== 'en') {
-        console.log(`Not enough ${preferredLanguage} content, falling back to English`);
-        const { data: englishFallback } = await supabaseClient
-          .from('knowledge_chunks')
-          .select(`
-            id, content, question, answer, chunk_index, metadata, language,
-            document:knowledge_documents(id, file_name, original_name, category)
-          `)
-          .eq('language', 'en')
-          .or(ilikeConditions)
-          .limit(50);
-        
-        fallbackData = [...(fallbackData || []), ...(englishFallback || [])];
-      }
       
       if (fallbackData) {
         // Rank fallback chunks by relevance before distributing
@@ -1681,14 +1779,33 @@ ${trial.sapir_notes ? `Dr. Sapir Notes: ${trial.sapir_notes}` : ''}
     const ageContextPrefix = ageGroupContext ? `\n\n=== PATIENT AGE GROUP CONTEXT ===\n${ageGroupContext}\n=== END AGE CONTEXT ===\n` : '';
     const patientContextPrefix = patientContext ? `\n\n=== PATIENT INFORMATION ===\n${patientContext}\n=== END PATIENT INFO ===\n` : '';
     
+    // ========================================================================
+    // CROSS-LINGUAL RAG - STEP 3: SYNTHESIZE RESPONSE IN USER'S LANGUAGE
+    // ========================================================================
+    // Add explicit language instruction for the response
+    const languageInstruction = `\n\n=== RESPONSE LANGUAGE INSTRUCTION ===
+CRITICAL: You MUST respond in ${responseLanguageInstruction}.
+The user's original query was in ${detectedLanguage === 'hebrew' ? 'Hebrew' : detectedLanguage === 'chinese' ? 'Chinese' : 'English'}.
+${wasTranslated ? `The query was translated to English for searching: "${englishQuery}"` : ''}
+Generate your response ENTIRELY in ${responseLanguageInstruction}, including:
+- Section headers
+- Clinical terminology (with English/Pinyin terms where helpful)
+- Patient instructions
+- All explanatory text
+=== END LANGUAGE INSTRUCTION ===\n`;
+    
     if (useExternalAI) {
-      systemMessage = EXTERNAL_AI_SYSTEM_PROMPT + ageContextPrefix + patientContextPrefix;
+      systemMessage = EXTERNAL_AI_SYSTEM_PROMPT + languageInstruction + ageContextPrefix + patientContextPrefix;
       console.log('Using external AI mode - no RAG context');
     } else if (sources.length > 0 || cafStudies.length > 0 || clinicalTrials.length > 0) {
-      systemMessage = `${TCM_RAG_SYSTEM_PROMPT}${ageContextPrefix}${patientContextPrefix}\n\n=== 4-PILLAR KNOWLEDGE BASE CONTEXT ===\n${structuredContext}\n\n=== END CONTEXT ===`;
+      systemMessage = `${TCM_RAG_SYSTEM_PROMPT}${languageInstruction}${ageContextPrefix}${patientContextPrefix}\n\n=== 4-PILLAR KNOWLEDGE BASE CONTEXT ===\n${structuredContext}\n\n=== END CONTEXT ===`;
     } else {
-      systemMessage = `${TCM_RAG_SYSTEM_PROMPT}${ageContextPrefix}${patientContextPrefix}\n\nNOTE: No relevant entries found in the knowledge base for this query. State this clearly for each pillar.`;
+      systemMessage = `${TCM_RAG_SYSTEM_PROMPT}${languageInstruction}${ageContextPrefix}${patientContextPrefix}\n\nNOTE: No relevant entries found in the knowledge base for this query. State this clearly for each pillar.`;
     }
+
+    console.log('=== CROSS-LINGUAL RAG - STEP 3: GENERATING RESPONSE ===');
+    console.log('Response language:', responseLanguageInstruction);
+    console.log('Was translated:', wasTranslated);
 
     const chatMessages = [
       { role: 'system', content: systemMessage },
@@ -1736,12 +1853,22 @@ ${trial.sapir_notes ? `Dr. Sapir Notes: ${trial.sapir_notes}` : ''}
         figureReferences: hybridSearchResult.extractedPoints.figureReferences,
         totalPointsFound: hybridSearchResult.extractedPoints.allPoints.length
       },
-      // LANGUAGE DETECTION METADATA
+      // CROSS-LINGUAL RAG METADATA
+      crossLingualRAG: {
+        originalLanguage: detectedLanguage,
+        userLanguage: userLanguage,
+        searchLanguage: searchLanguage,
+        queryWasTranslated: wasTranslated,
+        originalQuery: searchQuery,
+        translatedQuery: wasTranslated ? englishQuery : null,
+        responseLanguage: responseLanguageInstruction
+      },
+      // LANGUAGE DETECTION METADATA (legacy, kept for compatibility)
       languageDetection: {
         detectedLanguage,
         bilingualTermsExpanded: bilingualExpansions.length,
         bilingualTermsUsed: bilingualExpansions.slice(0, 10),
-        crossLanguageSearch: bilingualExpansions.length > 0
+        crossLanguageSearch: true // Always true with cross-lingual RAG
       },
       pillarBreakdown: {
         clinical: clinicalChunks.length,
