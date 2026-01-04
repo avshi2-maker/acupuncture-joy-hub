@@ -346,15 +346,6 @@ export function EmotionalProcessingPanel({
                 >
                   5 Element Theory
                 </Button>
-                <Button 
-                  variant="default" 
-                  size="sm"
-                  className="bg-emerald-600 hover:bg-emerald-700"
-                  onClick={() => window.open('/knowledge/TCM_Grief_Treatment_Complete_Resource.html', '_blank')}
-                >
-                  <BookOpen className="w-4 h-4 ml-2" />
-                  מדריך פרוטוקול אבל
-                </Button>
               </div>
             </div>
           </ScrollArea>
