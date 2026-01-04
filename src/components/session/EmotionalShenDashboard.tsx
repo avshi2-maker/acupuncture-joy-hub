@@ -8,18 +8,29 @@ import {
   Brain,
   Wind,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+type DashboardLanguage = 'en' | 'he' | 'ru';
 
 interface EmotionalShenDashboardProps {
   isOpen: boolean;
   onClose: () => void;
   initialEmotion?: 'grief' | 'anger' | 'fear' | 'trauma';
-  onAskQuestion?: (question: string) => void;
+  onAskQuestion?: (question: string, language?: DashboardLanguage) => void;
+  initialLanguage?: DashboardLanguage;
 }
 
 // Clinical data from verified TCM CSV files
@@ -202,23 +213,75 @@ const SHEN_EMOTIONS_DATA = {
   }
 };
 
+// Language configuration
+const LANGUAGE_CONFIG: Record<DashboardLanguage, {
+  label: string;
+  flag: string;
+  direction: 'ltr' | 'rtl';
+  emotionalBalance: string;
+  subtitle: string;
+  askAI: string;
+  points: string;
+  formula: string;
+}> = {
+  en: {
+    label: 'English',
+    flag: '🇬🇧',
+    direction: 'ltr',
+    emotionalBalance: 'Emotional Balance',
+    subtitle: 'Integrative Shen & Trauma Support',
+    askAI: 'Ask AI for more details',
+    points: 'Acupuncture Points',
+    formula: 'Herbal Formula'
+  },
+  he: {
+    label: 'עברית',
+    flag: '🇮🇱',
+    direction: 'rtl',
+    emotionalBalance: 'איזון רגשי',
+    subtitle: 'תמיכה משולבת בשן וטראומה',
+    askAI: 'שאל את ה-AI לפרטים נוספים',
+    points: 'נקודות דיקור',
+    formula: 'פורמולת צמחים'
+  },
+  ru: {
+    label: 'Русский',
+    flag: '🇷🇺',
+    direction: 'ltr',
+    emotionalBalance: 'Эмоциональный баланс',
+    subtitle: 'Интегративная поддержка Шэнь и травм',
+    askAI: 'Спросить ИИ подробнее',
+    points: 'Точки акупунктуры',
+    formula: 'Травяная формула'
+  }
+};
+
 export function EmotionalShenDashboard({ 
   isOpen, 
   onClose, 
   initialEmotion = 'grief',
-  onAskQuestion 
+  onAskQuestion,
+  initialLanguage = 'en'
 }: EmotionalShenDashboardProps) {
   const [activeEmotion, setActiveEmotion] = useState<'grief' | 'anger' | 'fear' | 'trauma'>(initialEmotion);
+  const [language, setLanguage] = useState<DashboardLanguage>(initialLanguage);
   const currentEmotion = SHEN_EMOTIONS_DATA[activeEmotion];
+  const langConfig = LANGUAGE_CONFIG[language];
 
   if (!isOpen) return null;
 
   const tabs = [
-    { id: 'grief' as const, label: 'Grief', labelHe: 'אבל', sublabel: 'Lung' },
-    { id: 'anger' as const, label: 'Anger', labelHe: 'כעס', sublabel: 'Liver' },
-    { id: 'fear' as const, label: 'Fear', labelHe: 'פחד', sublabel: 'Kidney' },
-    { id: 'trauma' as const, label: 'Trauma', labelHe: 'טראומה', sublabel: 'Heart' },
+    { id: 'grief' as const, label: 'Grief', labelHe: 'אבל', labelRu: 'Горе', sublabel: 'Lung' },
+    { id: 'anger' as const, label: 'Anger', labelHe: 'כעס', labelRu: 'Гнев', sublabel: 'Liver' },
+    { id: 'fear' as const, label: 'Fear', labelHe: 'פחד', labelRu: 'Страх', sublabel: 'Kidney' },
+    { id: 'trauma' as const, label: 'Trauma', labelHe: 'טראומה', labelRu: 'Травма', sublabel: 'Heart' },
   ];
+
+  const getTabLabel = (tab: typeof tabs[0]) => {
+    if (language === 'he') return tab.labelHe;
+    if (language === 'ru') return tab.labelRu;
+    return tab.label;
+  };
 
   return (
     <AnimatePresence>
@@ -236,25 +299,49 @@ export function EmotionalShenDashboard({
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className="bg-card rounded-2xl shadow-elevated max-w-2xl w-full max-h-[90vh] overflow-hidden border border-border"
           onClick={e => e.stopPropagation()}
+          dir={langConfig.direction}
         >
-          {/* Header with gradient */}
-          <div className="relative h-36 bg-gradient-to-br from-purple-600/90 via-purple-700/80 to-purple-900/90 p-5 flex flex-col justify-end">
+          {/* Header with gradient and language switcher */}
+          <div className="relative h-40 bg-gradient-to-br from-purple-600/90 via-purple-700/80 to-purple-900/90 p-5 flex flex-col justify-between">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiLz48cGF0aCBkPSJNMjAgMjBjNS41MjMgMCAxMC00LjQ3NyAxMC0xMFMyNS41MjMgMCAyMCAwIDEwIDQuNDc3IDEwIDEwczQuNDc3IDEwIDEwIDEwem0wIDIwYzUuNTIzIDAgMTAtNC40NzcgMTAtMTBzLTQuNDc3LTEwLTEwLTEwLTEwIDQuNDc3LTEwIDEwIDQuNDc3IDEwIDEwIDEweiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIuMDUiLz48L2c+PC9zdmc+')] opacity-30" />
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={onClose}
-              className="absolute top-3 left-3 text-white/80 hover:text-white hover:bg-white/10"
-            >
-              <X className="w-5 h-5" />
-            </Button>
+            
+            {/* Top row: Close button and Language Switcher */}
+            <div className="relative z-10 flex justify-between items-start">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={onClose}
+                className="text-white/80 hover:text-white hover:bg-white/10"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+              
+              {/* Language Switcher */}
+              <Select value={language} onValueChange={(val) => setLanguage(val as DashboardLanguage)}>
+                <SelectTrigger className="w-auto min-w-[120px] bg-white/10 border-white/20 text-white backdrop-blur-sm hover:bg-white/20">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4" />
+                    <SelectValue>
+                      {LANGUAGE_CONFIG[language].flag} {LANGUAGE_CONFIG[language].label}
+                    </SelectValue>
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">🇬🇧 English</SelectItem>
+                  <SelectItem value="he">🇮🇱 עברית</SelectItem>
+                  <SelectItem value="ru">🇷🇺 Русский</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Title */}
             <div className="relative z-10">
               <h2 className="text-xl font-display font-bold text-white flex items-center gap-2">
                 <span className="text-2xl">☯️</span>
-                איזון רגשי (Emotional Balance)
+                {langConfig.emotionalBalance}
               </h2>
               <p className="text-sm text-white/80 mt-1">
-                Integrative Shen & Trauma Support (Updated CSV)
+                {langConfig.subtitle}
               </p>
             </div>
           </div>
@@ -271,17 +358,17 @@ export function EmotionalShenDashboard({
                     : 'border-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
-                <span className="text-sm">{tab.label}</span>
+                <span className="text-sm">{getTabLabel(tab)}</span>
                 <span className="text-xs text-muted-foreground block">({tab.sublabel})</span>
               </button>
             ))}
           </div>
 
           {/* Content */}
-          <ScrollArea className="h-[calc(90vh-220px)]">
+          <ScrollArea className="h-[calc(90vh-240px)]">
             <AnimatePresence mode="wait">
               <motion.div
-                key={activeEmotion}
+                key={`${activeEmotion}-${language}`}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
@@ -292,16 +379,20 @@ export function EmotionalShenDashboard({
                 {currentEmotion.qaItems.map((item, idx) => (
                   <Card key={idx} className={`${currentEmotion.bgClass} border ${currentEmotion.borderClass}`}>
                     <CardContent className="p-5">
-                      {/* Question */}
+                      {/* Question - show in selected language */}
                       <div className={`font-semibold ${currentEmotion.colorClass} mb-3 flex items-start gap-2`}>
                         <span className="text-lg">❓</span>
                         <div>
-                          <span className="block">{item.question}</span>
-                          <span className="text-xs text-muted-foreground font-normal">{item.questionHe}</span>
+                          <span className="block">
+                            {language === 'he' ? item.questionHe : item.question}
+                          </span>
+                          {language !== 'he' && (
+                            <span className="text-xs text-muted-foreground font-normal">{item.questionHe}</span>
+                          )}
                         </div>
                       </div>
                       
-                      {/* Answer */}
+                      {/* Answer - always in English (from knowledge base) */}
                       <p className="text-sm text-foreground/80 leading-relaxed mb-4">
                         {item.answer}
                       </p>
@@ -310,28 +401,31 @@ export function EmotionalShenDashboard({
                       <div className="grid grid-cols-2 gap-3">
                         <div className="bg-card p-3 rounded-lg border border-border">
                           <span className="text-xs text-muted-foreground font-semibold uppercase block mb-1">
-                            Acupuncture Points
+                            {langConfig.points}
                           </span>
                           <span className="font-semibold text-sm text-foreground">{item.points}</span>
                         </div>
                         <div className="bg-card p-3 rounded-lg border border-border">
                           <span className="text-xs text-muted-foreground font-semibold uppercase block mb-1">
-                            Herbal Formula
+                            {langConfig.formula}
                           </span>
                           <span className="font-semibold text-sm text-foreground">{item.formula}</span>
                         </div>
                       </div>
 
-                      {/* Ask AI Button */}
+                      {/* Ask AI Button - passes language for cross-lingual response */}
                       {onAskQuestion && (
                         <Button 
                           variant="ghost" 
                           size="sm" 
                           className="mt-3 text-jade hover:text-jade hover:bg-jade/10 p-0 h-auto"
-                          onClick={() => onAskQuestion(item.question)}
+                          onClick={() => onAskQuestion(
+                            language === 'he' ? item.questionHe : item.question,
+                            language
+                          )}
                         >
                           <Sparkles className="w-3 h-3 mr-1" />
-                          Ask AI for more details
+                          {langConfig.askAI}
                           <ChevronRight className="w-3 h-3 ml-1" />
                         </Button>
                       )}
