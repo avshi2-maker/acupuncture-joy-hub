@@ -613,19 +613,6 @@ export default function Gate() {
                 {/* Quick Test Access for Daily Testing */}
                 <div className="text-center space-y-3">
                   <div className="flex items-center justify-center gap-4 flex-wrap">
-                    {/* Dev Test Password Button */}
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {
-                        form.setValue('password', DEV_TEST_PASSWORD);
-                        setCurrentStep('password');
-                        toast.info('סיסמת בדיקה הוזנה - לחצו "כניסה"');
-                      }}
-                      className="border-amber-400/50 text-amber-200 hover:bg-amber-500/20 backdrop-blur-sm"
-                    >
-                      <Sparkles className="h-4 w-4 ml-2" />
-                      Dev Test Login
-                    </Button>
                     <Button 
                       variant="outline" 
                       onClick={() => {
