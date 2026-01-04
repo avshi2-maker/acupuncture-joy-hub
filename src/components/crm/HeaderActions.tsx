@@ -16,7 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { AccessibilityPanel } from '@/components/ui/AccessibilityPanel';
-import { HeaderUsageBadge } from './HeaderUsageBadge';
+import { UsageBadge } from '@/components/usage/UnifiedUsageMeter';
 
 function getDeviceInfo() {
   const ua = navigator.userAgent;
@@ -188,7 +188,7 @@ export function HeaderActions({ onHelpClick }: HeaderActionsProps) {
   return (
     <div className="flex items-center gap-1">
       {/* Usage Badge - shows remaining tokens */}
-      <HeaderUsageBadge />
+      <UsageBadge />
 
       {/* Home Button */}
       <Button 
