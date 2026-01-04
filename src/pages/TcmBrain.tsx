@@ -36,6 +36,7 @@ import {
   Wind
 } from 'lucide-react';
 import { APIUsageMeter } from '@/components/tcm-brain/APIUsageMeter';
+import { AITrustHeader } from '@/components/tcm-brain/AITrustHeader';
 import { useTcmBrainState } from '@/hooks/useTcmBrainState';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { DiagnosticsTab } from '@/components/tcm-brain/DiagnosticsTab';
@@ -387,15 +388,8 @@ export default function TcmBrain() {
           </div>
         </header>
 
-        {/* API Usage Meter Bar */}
-        <div className="border-b bg-card/30 backdrop-blur-sm py-1.5 px-3 overflow-x-auto">
-          <div className="container mx-auto flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="font-medium text-foreground text-[10px]">AI Status:</span>
-            </div>
-            <APIUsageMeter />
-          </div>
-        </div>
+        {/* AI Trust Header - Real-time API Score Dashboard */}
+        <AITrustHeader />
 
         {/* Session Phase Indicator - Unified with VideoSession */}
         <div className="px-3 md:px-6 pt-3 pb-2 border-b bg-gradient-to-r from-jade/5 via-transparent to-jade/5">
