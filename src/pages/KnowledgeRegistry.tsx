@@ -522,13 +522,6 @@ const BUILTIN_ASSETS = [
     defaultCategory: 'clinical_protocols',
     defaultLanguage: 'en',
   },
-  {
-    id: 'tcm-herbal-formulas-comprehensive',
-    label: '🌿 TCM Herbal Formulas Comprehensive (91 Formulas + Acupoints)',
-    path: '/knowledge-assets/TCM_Herbal_Formulas_Comprehensive.csv',
-    defaultCategory: 'tcm_theory',
-    defaultLanguage: 'en',
-  },
 ] as const;
 
 type QueueItemStatus = 'pending' | 'importing' | 'done' | 'error';
