@@ -595,7 +595,7 @@ export default function Gate() {
                     ברוכים הבאים לקליניקה
                   </h1>
                   <p className="text-base opacity-90">
-                    בחרו את הנתיב המתאים ביותר לביקור שלכם היום
+                    בחרו מנוי חודשי מתאים לקליניקה
                   </p>
                 </div>
 
