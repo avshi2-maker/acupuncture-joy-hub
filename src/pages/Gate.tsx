@@ -19,7 +19,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { BackToTopButton } from '@/components/ui/BackToTopButton';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Checkbox } from '@/components/ui/checkbox';
-import { FloatingROIButton } from '@/components/gate/FloatingROIButton';
 import gateBg from '@/assets/gate-background.png';
 import tokenSimulatorBg from '@/assets/token-simulator-bg.png';
 import { VideoShowcaseCards } from '@/components/gate/VideoShowcaseCards';
@@ -1275,9 +1274,6 @@ export default function Gate() {
         
         {/* Back to Top Button */}
         <BackToTopButton threshold={600} />
-        
-        {/* Floating ROI Calculator Button */}
-        <FloatingROIButton scrollThreshold={400} />
         
         {/* Sticky Mobile Footer */}
         <StickyTierFooter
