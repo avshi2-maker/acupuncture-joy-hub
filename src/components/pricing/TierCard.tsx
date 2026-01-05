@@ -45,27 +45,27 @@ export function TierCard({
 }: TierCardProps) {
   return (
     <Card className={cn(
-      'relative flex flex-col transition-all duration-500 hover:shadow-elevated',
+      'relative flex flex-col overflow-visible transition-all duration-500 hover:shadow-elevated',
       highlighted && 'border-gold shadow-gold scale-105 z-10',
       bestValue && 'border-emerald-500 shadow-emerald-500/20',
       isRecommended && 'ring-4 ring-gold/50 animate-pulse shadow-lg shadow-gold/30'
     )}>
       {bestValue && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20">
           <span className="bg-emerald-500 text-white px-4 py-1 rounded-full text-sm font-medium">
             הכי משתלם
           </span>
         </div>
       )}
       {highlighted && !bestValue && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20">
           <span className="bg-gold text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
             הכי פופולרי
           </span>
         </div>
       )}
       
-      <CardHeader className="text-center pb-2">
+      <CardHeader className={cn('text-center pb-2', (bestValue || highlighted) && 'pt-10')}>
         <CardTitle className="font-display text-2xl">{nameHe}</CardTitle>
         <CardDescription className="text-sm">{name}</CardDescription>
         <div className="mt-4">
