@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -44,8 +44,13 @@ export default function TherapistROICalculator() {
   const months = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'];
   const cumulativeIncome = months.map((_, i) => netIncome * (i + 1));
 
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const handleSelectTier = () => {
-    navigate("/gate", { state: { selectedTier } });
+    navigate("/gate", { state: { selectedTier }, replace: true });
   };
 
   return (
