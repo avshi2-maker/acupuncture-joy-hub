@@ -62,6 +62,7 @@ import newLogo from '@/assets/new-logo.png';
 import { PatientEducationWidget } from '@/components/education/PatientEducationWidget';
 import { PediatricInfographicCard, VagusNerveCard, VagusStimulationDialog, StressWellnessCard, AssessmentCenterCard, PediatricProtocolCard } from '@/components/clinical';
 import { UsageWidget, UsageCard } from '@/components/usage/UnifiedUsageMeter';
+import { DashboardTokenCalculator } from '@/components/usage/DashboardTokenCalculator';
 import { ClinicWalletCard } from '@/components/wallet/ClinicWalletCard';
 import { HerbalMasterWidget } from '@/components/herbal/HerbalMasterWidget';
 import roiWidgetBg from '@/assets/roi-widget-bg.png';
@@ -1183,10 +1184,13 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {/* Clinic Wallet + Patient Education Widget + Usage Widget + Stress Wellness + Assessment Center */}
-        <div className="mb-8 grid md:grid-cols-8 gap-4 opacity-0 animate-fade-in" style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}>
+        {/* Clinic Wallet + Token Calculator + Usage Widget + Widgets */}
+        <div className="mb-8 grid md:grid-cols-9 gap-4 opacity-0 animate-fade-in" style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}>
           <div className="md:col-span-2">
             <ClinicWalletCard />
+          </div>
+          <div className="md:col-span-2">
+            <DashboardTokenCalculator />
           </div>
           <UsageWidget backgroundImage={roiWidgetBg} />
           <PatientEducationWidget />
