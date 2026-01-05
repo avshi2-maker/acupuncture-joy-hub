@@ -7,7 +7,6 @@ import {
   Smartphone,
   X,
   Play as PlayIcon,
-  BookOpen,
   ChevronLeft,
   ChevronRight,
   Home,
@@ -418,16 +417,6 @@ const Index = () => {
               </span>
             </button>
 
-            {/* CM Digital Encyclopedia Button */}
-            <Link
-              to="/encyclopedia"
-              className="flex items-center gap-2 bg-gradient-to-r from-gold to-gold/80 hover:from-gold/90 hover:to-gold/70 text-foreground px-4 py-2 sm:px-6 sm:py-3 rounded-full sm:rounded-lg transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] font-medium max-w-full min-w-0"
-            >
-              <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-              <span className="text-xs sm:text-sm truncate max-w-[220px]">
-                {t("encyclopediaCta")}
-              </span>
-            </Link>
 
             {/* Install App Button with touch-friendly help */}
             {showInstallBanner && (
