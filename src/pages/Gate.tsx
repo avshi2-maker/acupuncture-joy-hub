@@ -22,6 +22,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import gateBg from '@/assets/gate-background.png';
 import tokenSimulatorBg from '@/assets/token-simulator-bg.png';
 import { VideoShowcaseCards } from '@/components/gate/VideoShowcaseCards';
+import { MobileTierCarousel } from '@/components/gate/MobileTierCarousel';
+import { StickyTierFooter } from '@/components/gate/StickyTierFooter';
 import { TokenCalculator } from '@/components/pricing/TokenCalculator';
 import { FeatureComparisonTable } from '@/components/pricing/FeatureComparisonTable';
 
@@ -232,6 +234,8 @@ export default function Gate() {
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [recommendedPlan, setRecommendedPlan] = useState<string | null>(null);
+  const [showStickyFooter, setShowStickyFooter] = useState(false);
+  const tierSectionRef = useRef<HTMLDivElement>(null);
   
   // Biometric authentication
   const { isAvailable: isBiometricAvailable, isEnabled: isBiometricEnabled, authenticate, enableBiometric, isAuthenticating } = useBiometricAuth();
@@ -276,6 +280,31 @@ export default function Gate() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Sticky footer visibility - show when tier section is not visible
+  useEffect(() => {
+    if (currentStep !== 'tiers') {
+      setShowStickyFooter(false);
+      return;
+    }
+    
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Show sticky footer when tier section is NOT in view
+        setShowStickyFooter(!entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    if (tierSectionRef.current) {
+      observer.observe(tierSectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [currentStep]);
+
+  const scrollToTierSection = () => {
+    tierSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
   const form = useForm<GateForm>({
     resolver: zodResolver(gateSchema),
     defaultValues: {
@@ -559,8 +588,23 @@ export default function Gate() {
                   </p>
                 </div>
 
-                {/* Glass Cards Grid - Mobile optimized */}
-                <div id="tier-selection" className="grid overflow-visible grid-cols-1 md:grid-cols-3 gap-4 md:gap-3 lg:gap-4 mb-4 pt-10 md:pt-14 items-stretch scroll-mt-24 px-1 md:px-0">
+                {/* Mobile Swipeable Carousel */}
+                <div ref={tierSectionRef} className="pt-6 md:pt-0">
+                  <MobileTierCarousel
+                    tiers={tiers}
+                    recommendedPlan={recommendedPlan}
+                    onSelectTier={handleSelectTier}
+                    onCalculatorClick={() => {
+                      document.getElementById('token-calculator')?.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'center'
+                      });
+                    }}
+                  />
+                </div>
+
+                {/* Desktop Grid - Hidden on mobile */}
+                <div id="tier-selection" className="hidden md:grid overflow-visible md:grid-cols-3 gap-4 md:gap-3 lg:gap-4 mb-4 pt-10 md:pt-14 items-stretch scroll-mt-24 px-1 md:px-0">
                   {isPageLoading ? (
                     // Skeleton loading state
                     <>
@@ -1217,6 +1261,15 @@ export default function Gate() {
         
         {/* Back to Top Button */}
         <BackToTopButton threshold={600} />
+        
+        {/* Sticky Mobile Footer */}
+        <StickyTierFooter
+          tiers={tiers}
+          selectedTier={selectedTier || recommendedPlan}
+          onSelectTier={handleSelectTier}
+          onScrollToTiers={scrollToTierSection}
+          isVisible={showStickyFooter && currentStep === 'tiers'}
+        />
       </div>
     </>
   );
