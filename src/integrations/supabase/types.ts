@@ -468,6 +468,48 @@ export type Database = {
         }
         Relationships: []
       }
+      clinical_navigator_subjects: {
+        Row: {
+          category: string
+          color: string | null
+          created_at: string
+          icon_name: string | null
+          id: string
+          is_active: boolean
+          questions: Json
+          sort_order: number
+          subject_name: string
+          subject_name_he: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          color?: string | null
+          created_at?: string
+          icon_name?: string | null
+          id?: string
+          is_active?: boolean
+          questions?: Json
+          sort_order?: number
+          subject_name: string
+          subject_name_he?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          color?: string | null
+          created_at?: string
+          icon_name?: string | null
+          id?: string
+          is_active?: boolean
+          questions?: Json
+          sort_order?: number
+          subject_name?: string
+          subject_name_he?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       clinical_trials: {
         Row: {
           citation: string | null
