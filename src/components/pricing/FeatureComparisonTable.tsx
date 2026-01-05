@@ -1,5 +1,8 @@
-import { Check, X, Minus, Crown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Check, X, Minus, Crown, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const FEATURE_CATEGORIES = [
   {
@@ -97,8 +100,45 @@ function FeatureIcon({ included }: { included: boolean | 'partial' }) {
 }
 
 export function FeatureComparisonTable() {
+  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>(() => 
+    FEATURE_CATEGORIES.reduce((acc, cat) => ({ ...acc, [cat.category]: true }), {})
+  );
+  const [showStickyCTA, setShowStickyCTA] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // Toggle category open/close
+  const toggleCategory = (category: string) => {
+    setOpenCategories(prev => ({ ...prev, [category]: !prev[category] }));
+  };
+
+  // Track scroll position for sticky CTA on mobile
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!sectionRef.current) return;
+      const rect = sectionRef.current.getBoundingClientRect();
+      const isInView = rect.top < window.innerHeight && rect.bottom > 100;
+      setShowStickyCTA(isInView && window.innerWidth < 768);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+    handleScroll();
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
+
+  const scrollToTiers = () => {
+    document.getElementById('tier-selection')?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'center'
+    });
+  };
+
   return (
-    <section className="mt-8 space-y-6">
+    <section ref={sectionRef} className="mt-8 space-y-6">
       <div className="text-center">
         <h2 className="font-display text-2xl md:text-3xl mb-3">השוואת תוכניות מלאה</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -106,8 +146,8 @@ export function FeatureComparisonTable() {
         </p>
       </div>
 
-      {/* Mobile: Card-based layout */}
-      <div className="md:hidden space-y-4">
+      {/* Mobile: Card-based layout with collapsible categories */}
+      <div className="md:hidden space-y-4 pb-20">
         {TIERS.map((tier) => (
           <div 
             key={tier.name}
@@ -136,29 +176,67 @@ export function FeatureComparisonTable() {
             </div>
             <div className="text-xs text-muted-foreground mb-3">~{tier.tokens} טוקנים</div>
             
-            {FEATURE_CATEGORIES.map((category, catIdx) => (
-              <div key={catIdx} className="mb-3">
-                <div className="text-xs font-semibold text-muted-foreground mb-1.5 border-b border-border/30 pb-1">
-                  {category.category}
-                </div>
-                <div className="space-y-1">
-                  {category.features.map((feature, featIdx) => {
-                    const included = tier.name === 'Trial' ? feature.trial : 
-                                    tier.name === 'Standard' ? feature.standard : feature.premium;
-                    return (
-                      <div key={featIdx} className="flex items-center gap-2 text-sm">
-                        <FeatureIcon included={included} />
-                        <span className={cn(!included && "text-muted-foreground/60")}>
-                          {feature.name}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+            {FEATURE_CATEGORIES.map((category, catIdx) => {
+              const isOpen = openCategories[category.category];
+              const includedCount = category.features.filter(f => 
+                tier.name === 'Trial' ? f.trial : 
+                tier.name === 'Standard' ? f.standard : f.premium
+              ).length;
+              
+              return (
+                <Collapsible 
+                  key={catIdx} 
+                  open={isOpen}
+                  onOpenChange={() => toggleCategory(category.category)}
+                  className="mb-2"
+                >
+                  <CollapsibleTrigger className="flex items-center justify-between w-full text-xs font-semibold text-muted-foreground py-2 border-b border-border/30 hover:text-foreground transition-colors">
+                    <span className="flex items-center gap-2">
+                      {category.category}
+                      <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full">
+                        {includedCount}/{category.features.length}
+                      </span>
+                    </span>
+                    {isOpen ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pt-2 space-y-1">
+                    {category.features.map((feature, featIdx) => {
+                      const included = tier.name === 'Trial' ? feature.trial : 
+                                      tier.name === 'Standard' ? feature.standard : feature.premium;
+                      return (
+                        <div key={featIdx} className="flex items-center gap-2 text-sm">
+                          <FeatureIcon included={included} />
+                          <span className={cn(!included && "text-muted-foreground/60")}>
+                            {feature.name}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </CollapsibleContent>
+                </Collapsible>
+              );
+            })}
           </div>
         ))}
+      </div>
+
+      {/* Sticky CTA for mobile */}
+      <div 
+        className={cn(
+          "fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-lg border-t border-border shadow-lg z-50 md:hidden transition-transform duration-300",
+          showStickyCTA ? "translate-y-0" : "translate-y-full"
+        )}
+      >
+        <Button 
+          onClick={scrollToTiers}
+          className="w-full bg-gradient-to-r from-gold to-gold-dark hover:brightness-110 text-white font-bold py-3"
+        >
+          בחר תוכנית עכשיו
+        </Button>
       </div>
 
       {/* Desktop: Table layout */}
