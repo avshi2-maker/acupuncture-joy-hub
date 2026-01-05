@@ -13,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useTier } from '@/hooks/useTier';
 import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 import { toast } from 'sonner';
-import { ArrowLeft, ArrowRight, CheckCircle, ChevronDown, CreditCard, Eye, EyeOff, Fingerprint, HelpCircle, Leaf, Loader2, Lock, Mail, MessageCircle, Upload } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calculator, CheckCircle, ChevronDown, CreditCard, Eye, EyeOff, Fingerprint, HelpCircle, Leaf, Loader2, Lock, Mail, MessageCircle, Upload } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 import { BackToTopButton } from '@/components/ui/BackToTopButton';
@@ -213,6 +213,17 @@ function TokenCalculatorSection({ onPlanRecommended }: TokenCalculatorSectionPro
             <TokenCalculator onPlanRecommended={scrollToTier} />
           </div>
         </motion.div>
+        
+        {/* ROI Calculator Link */}
+        <div className="mt-6 text-center">
+          <Link 
+            to="/therapist-roi"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+          >
+            <Calculator className="h-4 w-4" />
+            מחשבון פוטנציאל הכנסה למטפלים
+          </Link>
+        </div>
       </motion.div>
     </>
   );
