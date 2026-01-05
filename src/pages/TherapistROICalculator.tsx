@@ -11,8 +11,8 @@ import { ArrowLeft, Calculator, TrendingUp, Calendar, CalendarDays } from "lucid
 import roiBgImage from "@/assets/roi-therapist-bg.png";
 
 const TIERS = [
-  { id: "standard", name: "מסלול רגיל", value: 149, label: "Standard", color: "hsl(var(--primary))" },
-  { id: "premium", name: "מסלול פרימיום", value: 249, label: "Premium", color: "hsl(var(--gold))" },
+  { id: "standard", name: "מסלול סטנדרט", value: 40, label: "Standard", color: "hsl(var(--primary))", vatNotice: "+18% מע״מ" },
+  { id: "premium", name: "מסלול פרימיום כולל וידאו", value: 50, label: "Premium", color: "hsl(var(--gold))", vatNotice: "+18% מע״מ" },
 ];
 
 export default function TherapistROICalculator() {
@@ -22,7 +22,7 @@ export default function TherapistROICalculator() {
   const [expenses, setExpenses] = useState(2500);
   const [selectedTier, setSelectedTier] = useState("standard");
 
-  const tierCost = TIERS.find(t => t.id === selectedTier)?.value || 149;
+  const tierCost = TIERS.find(t => t.id === selectedTier)?.value || 40;
   const grossIncome = price * sessions;
   const netIncome = grossIncome - expenses - tierCost;
 
@@ -172,11 +172,14 @@ export default function TherapistROICalculator() {
                       />
                       <Label
                         htmlFor={tier.id}
-                        className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10 cursor-pointer transition-all touch-manipulation min-h-[80px]"
+                        className="flex flex-col items-center justify-center rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10 cursor-pointer transition-all touch-manipulation min-h-[100px]"
                       >
-                        <span className="font-semibold text-sm">{tier.name}</span>
+                        <span className="font-semibold text-sm text-center">{tier.name}</span>
                         <span className="text-xs text-muted-foreground mt-1">
                           ₪{tier.value}/חודש
+                        </span>
+                        <span className="text-[10px] text-amber-600 mt-0.5">
+                          {tier.vatNotice}
                         </span>
                       </Label>
                     </div>

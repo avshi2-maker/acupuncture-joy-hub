@@ -34,9 +34,9 @@ export function FloatingROIButton({ scrollThreshold = 300 }: FloatingROIButtonPr
           <Link
             to="/therapist-roi"
             className="group flex flex-col items-center gap-1 bg-gradient-to-b from-gold to-gold/90 text-white px-3 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-            style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+            style={{ writingMode: 'vertical-lr', textOrientation: 'mixed', transform: 'rotate(180deg)' }}
           >
-            <Calculator className="h-5 w-5 rotate-90" />
+            <Calculator className="h-5 w-5" style={{ transform: 'rotate(180deg)' }} />
             <span className="text-xs font-medium">מחשבון הכנסה</span>
           </Link>
         </motion.div>
