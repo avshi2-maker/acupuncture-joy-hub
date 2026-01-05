@@ -590,13 +590,24 @@ export default function Gate() {
                 <VideoShowcaseCards />
 
                 {/* Header */}
-                <div className="text-center mb-6 text-white" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+                <div className="text-center mb-4 text-white" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
                   <h1 className="font-display text-2xl md:text-3xl font-bold mb-1">
                     ברוכים הבאים לקליניקה
                   </h1>
                   <p className="text-base opacity-90">
                     בחרו את הנתיב המתאים ביותר לביקור שלכם היום
                   </p>
+                </div>
+
+                {/* ROI Calculator Button */}
+                <div className="flex justify-center mb-4">
+                  <Link
+                    to="/therapist-roi"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-gold to-amber-500 text-white font-medium shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+                  >
+                    <Calculator className="h-4 w-4" />
+                    מחשבון ROI למטפלים
+                  </Link>
                 </div>
 
                 {/* Mobile Swipeable Carousel */}
@@ -615,7 +626,7 @@ export default function Gate() {
                 </div>
 
                 {/* Desktop Grid - Hidden on mobile */}
-                <div id="tier-selection" className="hidden md:grid overflow-visible md:grid-cols-3 gap-4 md:gap-3 lg:gap-4 mb-4 pt-10 md:pt-14 items-stretch scroll-mt-24 px-1 md:px-0">
+                <div id="tier-selection" className="hidden md:grid overflow-visible md:grid-cols-3 gap-3 lg:gap-4 mb-4 pt-6 md:pt-8 items-stretch scroll-mt-24 max-w-4xl mx-auto">
                   {isPageLoading ? (
                     // Skeleton loading state
                     <>
@@ -661,62 +672,62 @@ export default function Gate() {
                         <div
                           className={`
                             relative flex flex-col h-full
-                            rounded-[20px] md:rounded-[16px] 
-                            px-5 pb-5 md:px-5 md:pb-5 
-                            ${tier.highlighted ? 'pt-14 md:pt-14' : 'pt-6 md:pt-11'} 
+                            rounded-xl
+                            px-4 pb-4
+                            ${tier.highlighted ? 'pt-10' : 'pt-5'} 
                             text-center
-                            transition-all duration-500
+                            transition-all duration-300
                             backdrop-blur-xl border
                             ${tier.highlighted 
-                              ? 'bg-amber-50/70 border-2 border-[#d4af37] md:scale-[1.02] z-10 shadow-[0_10px_30px_rgba(212,175,55,0.25)]' 
-                              : 'bg-amber-50/60 border-amber-200/40 hover:bg-amber-50/80 shadow-[0_8px_20px_rgba(0,0,0,0.15)]'
+                              ? 'bg-white/85 border border-gold/50 shadow-md' 
+                              : 'bg-white/75 border-slate-200/50 hover:bg-white/90 shadow-sm hover:shadow-md'
                             }
                             ${isRecommended 
-                              ? 'ring-4 ring-amber-400/70 shadow-[0_0_30px_rgba(212,175,55,0.4)]' 
+                              ? 'ring-2 ring-gold/60' 
                               : ''
                             }
-                            md:hover:-translate-y-1 hover:shadow-[0_12px_25px_rgba(0,0,0,0.2)]
+                            hover:-translate-y-0.5
                           `}
                           style={{ fontFamily: "'Heebo', sans-serif" }}
                         >
                           {/* Plan Name */}
-                          <h3 className="text-lg font-bold mb-0.5" style={{ color: '#2c6e49' }}>
+                          <h3 className="text-base font-semibold mb-0.5 text-jade-dark">
                             {tier.nameHe}
                           </h3>
-                          <p className="text-xs text-gray-500 mb-2">{tier.name}</p>
+                          <p className="text-[11px] text-muted-foreground mb-1.5">{tier.name}</p>
 
                         {/* Price */}
                         <div className="mb-1">
-                          <span className="text-2xl md:text-3xl font-extrabold" style={{ color: '#1a202c' }}>
+                          <span className="text-xl font-bold text-foreground">
                             {tier.price}
                           </span>
                           {tier.period && (
-                            <span className="text-sm text-gray-600 mr-1">{tier.period}</span>
+                            <span className="text-xs text-muted-foreground mr-1">{tier.period}</span>
                           )}
                         </div>
                         {tier.periodSub && (
-                          <p className="text-xs text-gray-500 mb-2">{tier.periodSub}</p>
+                          <p className="text-[10px] text-muted-foreground mb-1.5">{tier.periodSub}</p>
                         )}
 
                         {/* Limits */}
-                        <div className="flex items-center justify-center gap-2 mb-3">
-                          <span className="text-xs font-semibold bg-jade/10 text-jade-dark rounded-full px-3 py-1">
+                        <div className="flex items-center justify-center gap-1.5 mb-2 flex-wrap">
+                          <span className="text-[10px] font-medium bg-jade/10 text-jade-dark rounded-full px-2 py-0.5">
                             {tier.queriesLimit}
                           </span>
-                          <span className="text-xs font-semibold bg-gold/10 text-gold-dark rounded-full px-3 py-1">
+                          <span className="text-[10px] font-medium bg-gold/10 text-gold-dark rounded-full px-2 py-0.5">
                             {tier.tokensInfo}
                           </span>
                         </div>
 
                         {/* Features List */}
-                        <ul className="space-y-1.5 mb-4 flex-1 text-right">
+                        <ul className="space-y-1 mb-3 flex-1 text-right">
                           {tier.features.map((feature, idx) => (
                             <li 
                               key={idx} 
-                              className={`flex items-center text-sm ${feature.included ? 'text-gray-700' : 'text-gray-400 line-through'}`}
+                              className={`flex items-center text-xs ${feature.included ? 'text-foreground/80' : 'text-muted-foreground/50 line-through'}`}
                             >
                               <span 
-                                className={`ml-2.5 font-bold w-5 text-center ${feature.included ? 'text-[#2c6e49]' : 'text-gray-300'}`}
+                                className={`ml-2 font-bold w-4 text-center text-[10px] ${feature.included ? 'text-jade' : 'text-muted-foreground/30'}`}
                               >
                                 {feature.included ? '✓' : '✕'}
                               </span>
@@ -725,19 +736,17 @@ export default function Gate() {
                           ))}
                         </ul>
 
-                        {/* CTA Button - Enhanced touch target for mobile */}
+                        {/* CTA Button */}
                         <button
                           onClick={() => handleSelectTier(tier.name)}
                           className={`
-                            w-full py-3.5 md:py-2.5 rounded-xl md:rounded-lg font-bold text-base md:text-sm
-                            transition-all duration-300 min-h-[48px] md:min-h-0
-                            active:scale-[0.98] touch-manipulation
+                            w-full py-2 rounded-lg font-medium text-sm
+                            transition-all duration-200
                             ${tier.highlighted 
-                              ? 'text-white shadow-[0_4px_15px_rgba(184,150,40,0.3)] hover:brightness-110' 
-                              : 'bg-transparent border-2 border-[#2c6e49] text-[#2c6e49] hover:bg-[#2c6e49] hover:text-white'
+                              ? 'bg-gold text-white hover:bg-gold/90' 
+                              : 'bg-transparent border border-jade text-jade hover:bg-jade hover:text-white'
                             }
                           `}
-                          style={tier.highlighted ? { background: 'linear-gradient(135deg, #d4af37, #b89628)' } : {}}
                         >
                           {tier.name === 'Trial' ? 'התחל ניסיון' : 'בחר חבילה'}
                         </button>
