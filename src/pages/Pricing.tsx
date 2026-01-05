@@ -8,7 +8,8 @@ import { TokenCalculator } from '@/components/pricing/TokenCalculator';
 import { FeatureComparisonTable } from '@/components/pricing/FeatureComparisonTable';
 import { TrustIndicators } from '@/components/pricing/TrustIndicators';
 import { BillingToggle } from '@/components/pricing/BillingToggle';
-import { ArrowLeft, HelpCircle, Sparkles, CreditCard, MessageCircle } from 'lucide-react';
+import { ArrowLeft, HelpCircle, Sparkles, CreditCard, MessageCircle, Calculator } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import newLogo from '@/assets/new-logo.png';
 import { Link } from 'react-router-dom';
 import { WhatsAppWithTemplates } from '@/components/ui/WhatsAppTemplates';
@@ -241,6 +242,19 @@ export default function Pricing() {
 
           {/* Trust Indicators */}
           <TrustIndicators />
+
+          {/* ROI Calculator Link */}
+          <div className="mt-8 text-center">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => navigate('/therapist-roi')}
+              className="gap-2"
+            >
+              <Calculator className="h-5 w-5" />
+              מחשבון פוטנציאל הכנסה למטפלים
+            </Button>
+          </div>
 
           {/* Token Calculator Section */}
           <TokenCalculator />

@@ -9,8 +9,8 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, Calculator, TrendingUp } from "lucide-react";
 
 const TIERS = [
-  { id: "standard", name: "מסלול רגיל", value: 149, label: "Standard" },
-  { id: "premium", name: "מסלול פרימיום", value: 249, label: "Premium" },
+  { id: "standard", name: "מסלול רגיל", value: 149, label: "Standard", color: "hsl(var(--primary))" },
+  { id: "premium", name: "מסלול פרימיום", value: 249, label: "Premium", color: "hsl(var(--gold))" },
 ];
 
 export default function TherapistROICalculator() {
@@ -23,6 +23,12 @@ export default function TherapistROICalculator() {
   const tierCost = TIERS.find(t => t.id === selectedTier)?.value || 149;
   const grossIncome = price * sessions;
   const netIncome = grossIncome - expenses - tierCost;
+
+  // Calculate breakdown percentages for the chart
+  const total = grossIncome;
+  const expensesPct = total > 0 ? (expenses / total) * 100 : 0;
+  const tierPct = total > 0 ? (tierCost / total) * 100 : 0;
+  const netPct = total > 0 ? Math.max(0, (netIncome / total) * 100) : 0;
 
   const handleSelectTier = () => {
     navigate("/gate", { state: { selectedTier } });
@@ -160,6 +166,72 @@ export default function TherapistROICalculator() {
                     </div>
                   ))}
                 </RadioGroup>
+              </div>
+
+              {/* Income Breakdown Chart */}
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">פירוט הכנסות</Label>
+                
+                {/* Stacked Bar Chart */}
+                <div className="h-8 rounded-full overflow-hidden flex bg-muted/30">
+                  {netPct > 0 && (
+                    <div 
+                      className="bg-primary transition-all duration-300 flex items-center justify-center"
+                      style={{ width: `${netPct}%` }}
+                    >
+                      {netPct > 15 && (
+                        <span className="text-xs font-medium text-primary-foreground">
+                          {netPct.toFixed(0)}%
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  <div 
+                    className="bg-destructive/70 transition-all duration-300 flex items-center justify-center"
+                    style={{ width: `${expensesPct}%` }}
+                  >
+                    {expensesPct > 10 && (
+                      <span className="text-xs font-medium text-destructive-foreground">
+                        {expensesPct.toFixed(0)}%
+                      </span>
+                    )}
+                  </div>
+                  <div 
+                    className="bg-amber-500 transition-all duration-300 flex items-center justify-center"
+                    style={{ width: `${tierPct}%` }}
+                  >
+                    {tierPct > 5 && (
+                      <span className="text-xs font-medium text-white">
+                        {tierPct.toFixed(0)}%
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Legend with values */}
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-primary/10 rounded-lg p-3">
+                    <div className="w-3 h-3 rounded-full bg-primary mx-auto mb-1" />
+                    <div className="text-xs text-muted-foreground">הכנסה נטו</div>
+                    <div className="text-sm font-bold text-primary">₪{netIncome.toLocaleString()}</div>
+                  </div>
+                  <div className="bg-destructive/10 rounded-lg p-3">
+                    <div className="w-3 h-3 rounded-full bg-destructive/70 mx-auto mb-1" />
+                    <div className="text-xs text-muted-foreground">הוצאות</div>
+                    <div className="text-sm font-bold text-destructive">₪{expenses.toLocaleString()}</div>
+                  </div>
+                  <div className="bg-amber-500/10 rounded-lg p-3">
+                    <div className="w-3 h-3 rounded-full bg-amber-500 mx-auto mb-1" />
+                    <div className="text-xs text-muted-foreground">מסלול</div>
+                    <div className="text-sm font-bold text-amber-600">₪{tierCost}</div>
+                  </div>
+                </div>
+
+                {/* Gross income summary */}
+                <div className="flex justify-between items-center pt-2 border-t border-border">
+                  <span className="text-sm text-muted-foreground">הכנסה ברוטו (לפני הוצאות):</span>
+                  <span className="text-sm font-semibold">₪{grossIncome.toLocaleString()}</span>
+                </div>
               </div>
 
               {/* Result Box */}
