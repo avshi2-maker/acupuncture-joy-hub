@@ -232,51 +232,61 @@ export function TokenCalculator({ onPlanRecommended }: TokenCalculatorProps) {
           <div className="flex items-center gap-2 mb-3">
             <span className="text-sm text-muted-foreground">השוואה לתוכניות:</span>
           </div>
-          <div className="relative h-8 bg-background/50 rounded-full overflow-hidden" dir="ltr">
-            {/* Premium: 600K - bold green (75% width) */}
-            <div
+          <div className="relative flex rounded-xl overflow-hidden border border-border/30" dir="rtl">
+            {/* Trial: 50K - light green */}
+            <button
+              onClick={() => {
+                const tierSection = document.getElementById('tier-selection');
+                tierSection?.scrollIntoView({ behavior: 'smooth' });
+              }}
               className={cn(
-                "absolute top-0 h-full flex items-center justify-center text-xs font-semibold transition-opacity",
+                "flex-[1] py-4 px-3 flex flex-col items-center justify-center transition-all hover:opacity-90 cursor-pointer",
+                "bg-emerald-100/80",
+                recommendedPlan === 'Trial' ? "ring-2 ring-primary ring-inset" : ""
+              )}
+            >
+              <span className="text-teal-700 font-bold text-sm">ניסיון</span>
+              <span className="text-teal-600 font-semibold text-base mt-1">חינם <span className="text-xs font-normal">7 ימים</span></span>
+              <span className="text-teal-600/70 text-xs mt-0.5">~50K טוקנים</span>
+            </button>
+            {/* Standard: 150K - yellow/amber */}
+            <button
+              onClick={() => {
+                const tierSection = document.getElementById('tier-selection');
+                tierSection?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className={cn(
+                "flex-[2] py-4 px-3 flex flex-col items-center justify-center transition-all hover:opacity-90 cursor-pointer",
+                "bg-amber-100/80",
+                recommendedPlan === 'Standard' ? "ring-2 ring-primary ring-inset" : ""
+              )}
+            >
+              <span className="text-amber-700 font-bold text-sm">סטנדרט</span>
+              <span className="text-amber-600 font-semibold text-base mt-1">₪40 <span className="text-xs font-normal">/חודש</span></span>
+              <span className="text-amber-600/70 text-xs mt-0.5">~150K טוקנים</span>
+            </button>
+            {/* Premium: 600K - bold teal/green */}
+            <button
+              onClick={() => {
+                const tierSection = document.getElementById('tier-selection');
+                tierSection?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className={cn(
+                "flex-[4] py-4 px-3 flex flex-col items-center justify-center transition-all hover:opacity-90 cursor-pointer",
                 "bg-teal-600",
-                recommendedPlan === 'Premium' ? "opacity-100" : "opacity-60"
+                recommendedPlan === 'Premium' ? "ring-2 ring-gold ring-inset" : ""
               )}
-              style={{ left: '0%', width: '75%' }}
             >
-              <span className="text-white drop-shadow-sm">פרימיום</span>
-            </div>
-            {/* Standard: 150K - yellow (16.67% width) */}
-            <div
-              className={cn(
-                "absolute top-0 h-full flex items-center justify-center text-xs font-medium transition-opacity",
-                "bg-amber-200",
-                recommendedPlan === 'Standard' ? "opacity-100" : "opacity-60"
-              )}
-              style={{ left: '75%', width: '16.67%' }}
-            >
-              <span className="text-amber-800 drop-shadow-sm">סטנדרט</span>
-            </div>
-            {/* Trial: 50K - light green (8.33% width) */}
-            <div
-              className={cn(
-                "absolute top-0 h-full flex items-center justify-center text-xs font-medium transition-opacity",
-                "bg-emerald-300",
-                recommendedPlan === 'Trial' ? "opacity-100" : "opacity-60"
-              )}
-              style={{ left: '91.67%', width: '8.33%' }}
-            >
-              <span className="text-emerald-800 drop-shadow-sm">ניסיון</span>
-            </div>
-            {/* Usage indicator */}
-            <div 
-              className="absolute top-0 h-full w-1 bg-foreground z-10 transition-all duration-300"
-              style={{ left: `${Math.min(((600000 - estimatedTokens) / 600000) * 100, 100)}%` }}
-            />
+              <span className="text-white font-bold text-sm">פרימיום</span>
+              <span className="text-white font-semibold text-base mt-1">₪50 <span className="text-xs font-normal">/חודש</span></span>
+              <span className="text-white/80 text-xs mt-0.5">~600K טוקנים</span>
+            </button>
           </div>
-          <div className="flex justify-between mt-2 text-xs text-muted-foreground" dir="ltr">
-            <span>600K</span>
-            <span>150K</span>
-            <span>50K</span>
+          <div className="flex justify-between mt-2 text-xs text-muted-foreground px-1" dir="rtl">
             <span>0</span>
+            <span>50K</span>
+            <span>150K</span>
+            <span>600K</span>
           </div>
         </div>
       </div>
