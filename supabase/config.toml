@@ -110,3 +110,9 @@ verify_jwt = false
 
 [functions.send-usage-alert]
 verify_jwt = false
+
+[functions.voice-autofill-questions]
+verify_jwt = false
+
+[functions.clinical-deep-search]
+verify_jwt = true

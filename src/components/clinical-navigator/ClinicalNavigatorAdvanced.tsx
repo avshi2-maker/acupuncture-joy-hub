@@ -37,6 +37,9 @@ import {
   ProtocolRecord,
   getComparisonColoredPoints 
 } from './ProtocolCompare';
+import { VoiceDictationOverlay } from './VoiceDictationOverlay';
+import { ProtocolPDFExport } from './ProtocolPDFExport';
+import { SaveToPatientDialog } from './SaveToPatientDialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 
@@ -128,6 +131,11 @@ export function ClinicalNavigatorAdvanced({
   // Handle answer change
   const handleAnswerChange = useCallback((questionId: string, value: any) => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
+  }, []);
+
+  // Handle voice auto-fill
+  const handleVoiceAutoFill = useCallback((autoFilledAnswers: Record<string, any>) => {
+    setAnswers(prev => ({ ...prev, ...autoFilledAnswers }));
   }, []);
   // Calculate progress
   const progress = useMemo(() => {
@@ -619,6 +627,14 @@ export function ClinicalNavigatorAdvanced({
             )}
           </Button>
         </div>
+
+        {/* Voice Dictation Overlay */}
+        <VoiceDictationOverlay
+          moduleId={selectedModule.id}
+          questions={selectedModule.questions}
+          onAutoFill={handleVoiceAutoFill}
+          language={language === 'he' ? 'he' : 'en'}
+        />
       </div>
     );
   };
@@ -661,7 +677,37 @@ export function ClinicalNavigatorAdvanced({
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Save to Patient button */}
+            {selectedModule && (
+              <SaveToPatientDialog
+                moduleId={selectedModule.id}
+                moduleName={selectedModule.module_name}
+                diagnosis={report.primaryDiagnosis || ''}
+                acupuncturePoints={report.acupunctureProtocol?.points || []}
+                herbalFormula={report.herbalPrescription?.formula}
+                herbalIngredients={report.herbalPrescription?.ingredients}
+                nutritionAdvice={report.nutritionAdvice}
+                lifestyleAdvice={report.lifestyleMindset}
+                answers={answers}
+                language={language === 'he' ? 'he' : 'en'}
+              />
+            )}
+            
+            {/* PDF Export button */}
+            {selectedModule && (
+              <ProtocolPDFExport
+                moduleName={selectedModule.module_name}
+                diagnosis={report.primaryDiagnosis || ''}
+                acupuncturePoints={report.acupunctureProtocol?.points || []}
+                herbalFormula={report.herbalPrescription?.formula}
+                herbalIngredients={report.herbalPrescription?.ingredients}
+                nutritionAdvice={report.nutritionAdvice}
+                lifestyleAdvice={report.lifestyleMindset}
+                language={language === 'he' ? 'he' : 'en'}
+              />
+            )}
+            
             {/* Save for Compare button */}
             <Button
               variant="outline"
