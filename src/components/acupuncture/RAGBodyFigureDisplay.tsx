@@ -14,6 +14,8 @@ import { MapPin, Sparkles, ChevronRight, ImageIcon, Zap } from 'lucide-react';
 import { FigureMapping } from '@/data/point-figure-mapping';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { GenderFilter, AgeGroupFilter } from '@/data/point-figure-mapping';
+
 interface RAGBodyFigureDisplayProps {
   /** AI response text containing point references */
   aiResponseText?: string;
@@ -37,6 +39,10 @@ interface RAGBodyFigureDisplayProps {
   enableNarration?: boolean;
   /** Language for labels */
   language?: 'en' | 'he';
+  /** Patient gender for gender-aware figure selection */
+  patientGender?: GenderFilter;
+  /** Patient age group for age-aware figure selection */
+  patientAgeGroup?: AgeGroupFilter;
   className?: string;
 }
 
@@ -57,13 +63,16 @@ export function RAGBodyFigureDisplay({
   autoStartTour = false,
   enableNarration = true,
   language = 'en',
+  patientGender = null,
+  patientAgeGroup = null,
   className = ''
 }: RAGBodyFigureDisplayProps) {
   const { 
     extractPointsFromText, 
     getFiguresForPoints, 
-    getHighlightedPointsForFigure 
-  } = usePointFigureMapping();
+    getHighlightedPointsForFigure,
+    getDemographicFigure
+  } = usePointFigureMapping({ gender: patientGender, ageGroup: patientAgeGroup });
 
   const [selectedPoints, setSelectedPoints] = useState<string[]>([]);
   const [activeFigureIndex, setActiveFigureIndex] = useState(0);
@@ -259,6 +268,8 @@ export function RAGBodyFigureDisplay({
           selectedPoints={selectedPoints}
           onPointSelect={handlePointSelect}
           showAllPoints={false}
+          patientGender={patientGender}
+          patientAgeGroup={patientAgeGroup}
           compact
         />
         {matchingFigures.length > 1 && (
@@ -304,6 +315,16 @@ export function RAGBodyFigureDisplay({
               <MapPin className="h-4 w-4 text-jade" />
               {language === 'he' ? 'אזורי גוף מומלצי AI' : 'AI Suggested Body Regions'}
               <Badge className="bg-jade">{extractedPoints.length} {language === 'he' ? 'נקודות' : 'points'}</Badge>
+              {patientGender && (
+                <Badge variant="outline" className={patientGender === 'female' ? 'border-pink-500 text-pink-600' : 'border-blue-500 text-blue-600'}>
+                  {patientGender === 'female' ? '♀' : '♂'}
+                </Badge>
+              )}
+              {patientAgeGroup && patientAgeGroup !== 'adult' && (
+                <Badge variant="outline" className={patientAgeGroup === 'pediatric' ? 'border-amber-500 text-amber-600' : 'border-slate-500 text-slate-600'}>
+                  {patientAgeGroup === 'pediatric' ? '👶' : '👴'}
+                </Badge>
+              )}
             </CardTitle>
             {allowSelection && selectedPoints.length > 0 && (
               <Button
@@ -327,6 +348,8 @@ export function RAGBodyFigureDisplay({
                 selectedPoints={selectedPoints}
                 onPointSelect={handlePointSelect}
                 showAllPoints={false}
+                patientGender={patientGender}
+                patientAgeGroup={patientAgeGroup}
               />
             </div>
           ) : (
@@ -363,6 +386,8 @@ export function RAGBodyFigureDisplay({
                     selectedPoints={selectedPoints}
                     onPointSelect={handlePointSelect}
                     showAllPoints={false}
+                    patientGender={patientGender}
+                    patientAgeGroup={patientAgeGroup}
                   />
                 </TabsContent>
               ))}
