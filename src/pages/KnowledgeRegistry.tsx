@@ -420,6 +420,13 @@ const BUILTIN_ASSETS = [
     defaultLanguage: 'en',
   },
   {
+    id: 'tcm-renovada-skin-renewal',
+    label: '✨ TCM Renovada Skin Renewal (100 Q&A - Anti-Aging + Cosmetic Acupuncture)',
+    path: '/knowledge-assets/TCM_Renovada_Skin_Renewal_100QA_CLEANED.csv',
+    defaultCategory: 'dermatology',
+    defaultLanguage: 'en',
+  },
+  {
     id: 'comprehensive-caf-studies',
     label: '🏎️ CAF Master Studies (50 Clinical Frameworks - "Ferrari" Engine)',
     path: '/knowledge-assets/comprehensive_caf_studies.csv',
