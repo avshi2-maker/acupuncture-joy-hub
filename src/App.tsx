@@ -74,6 +74,7 @@ import TherapistROICalculator from "./pages/TherapistROICalculator";
 import SimulationCalculators from "./pages/SimulationCalculators";
 import ClinicalNavigator from "./pages/ClinicalNavigator";
 import HealthCompass from "./pages/HealthCompass";
+import PatientQuestionnaire from "./pages/PatientQuestionnaire";
 
 const queryClient = new QueryClient();
 
@@ -159,6 +160,7 @@ const App = () => (
                       <Route path="/simulation-calculators" element={<SimulationCalculators />} />
                       <Route path="/clinical-navigator" element={<RequireTier><ClinicalNavigator /></RequireTier>} />
                       <Route path="/health-compass" element={<HealthCompass />} />
+                      <Route path="/patient-questionnaire" element={<PatientQuestionnaire />} />
 
                       <Route path="*" element={<NotFound />} />
                     </Routes>
