@@ -151,8 +151,8 @@ export function FloatingMusicPlayer() {
     localStorage.setItem(VOLUME_KEY, volume.toString());
   }, [volume]);
 
-  // Hide on TCM Brain, Video Session, Gate, Home, Therapist Register, and Therapist Intake pages
-  if (location.pathname === '/tcm-brain' || location.pathname === '/video-session' || location.pathname === '/gate' || location.pathname === '/' || location.pathname === '/therapist-register' || location.pathname === '/therapist-intake') {
+  // Hide on TCM Brain, Video Session, Gate, Home, Therapist Register, Therapist Intake, and Clinical Navigator pages
+  if (location.pathname === '/tcm-brain' || location.pathname === '/video-session' || location.pathname === '/gate' || location.pathname === '/' || location.pathname === '/therapist-register' || location.pathname === '/therapist-intake' || location.pathname === '/clinical-navigator') {
     return null;
   }
 

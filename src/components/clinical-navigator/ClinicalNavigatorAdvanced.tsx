@@ -44,23 +44,21 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 import clinicalNavigatorBg from '@/assets/clinical-navigator-bg.jpg';
 
-// Category icons mapping
+// Category icons mapping (5 categories)
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   diagnostic: <Stethoscope className="h-4 w-4" />,
   constitutional: <Brain className="h-4 w-4" />,
-  herbal: <Leaf className="h-4 w-4" />,
   specialty: <Heart className="h-4 w-4" />,
-  lifestyle: <Apple className="h-4 w-4" />,
+  wellness: <Leaf className="h-4 w-4" />,
   'age-specific': <Users className="h-4 w-4" />,
 };
 
-// Category colors
+// Category colors (5 categories)
 const CATEGORY_COLORS: Record<string, string> = {
   diagnostic: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
   constitutional: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
-  herbal: 'bg-green-500/10 text-green-600 border-green-500/20',
   specialty: 'bg-rose-500/10 text-rose-600 border-rose-500/20',
-  lifestyle: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+  wellness: 'bg-green-500/10 text-green-600 border-green-500/20',
   'age-specific': 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20',
 };
 
@@ -1246,8 +1244,8 @@ export function ClinicalNavigatorAdvanced({
         backgroundAttachment: 'fixed',
       }}
     >
-      {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />
+      {/* Semi-transparent overlay for readability */}
+      <div className="absolute inset-0 bg-background/70" />
       
       {/* Content container */}
       <div className="relative z-10 p-6">
