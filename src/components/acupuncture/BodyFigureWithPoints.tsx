@@ -7,7 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { InteractivePointMarker } from './InteractivePointMarker';
 import { MapPin, ZoomIn, ZoomOut, Info, Search, X, Bug } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { getPointsForFigure, normalizePointCode } from '@/data/point-figure-mapping';
+import { getPointsForFigure, normalizePointCode, GenderFilter, AgeGroupFilter, getDemographicAwareFigure } from '@/data/point-figure-mapping';
 import { usePointCoordinates } from '@/hooks/usePointCoordinates';
 
 // Import all body figure images
@@ -111,6 +111,10 @@ interface BodyFigureWithPointsProps {
   compact?: boolean;
   className?: string;
   showSearch?: boolean;
+  /** Patient gender for gender-aware figure selection */
+  patientGender?: GenderFilter;
+  /** Patient age group for age-aware figure selection */
+  patientAgeGroup?: AgeGroupFilter;
 }
 
 export function BodyFigureWithPoints({
@@ -122,24 +126,35 @@ export function BodyFigureWithPoints({
   showAllPoints = true,
   compact = false,
   className = '',
-  showSearch = false
+  showSearch = false,
+  patientGender = null,
+  patientAgeGroup = null
 }: BodyFigureWithPointsProps) {
+  // Get demographic-aware figure filename
+  const actualFilename = getDemographicAwareFigure(filename, patientGender, patientAgeGroup);
+  
   const [zoom, setZoom] = useState(1);
   const [acuPoints, setAcuPoints] = useState<AcuPoint[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<string[]>([]);
   
-  // Load precise coordinates from CSV
+  // Load precise coordinates from CSV - use original filename for mapping, actual for display
   const { getCoordinatesForFigure, getPointCoordinate, isLoading: coordsLoading } = usePointCoordinates();
 
-  // Get the points that should be shown on this figure from mapping
-  const figurePointCodes = useMemo(() => getPointsForFigure(filename), [filename]);
+  // Get the points that should be shown on this figure from mapping - use both original and actual
+  const figurePointCodes = useMemo(() => {
+    const originalPoints = getPointsForFigure(filename);
+    const actualPoints = getPointsForFigure(actualFilename);
+    return [...new Set([...originalPoints, ...actualPoints])];
+  }, [filename, actualFilename]);
   
-  // Get precise coordinates for this figure from CSV
+  // Get precise coordinates for this figure from CSV - try both filenames
   const figureCoordinates = useMemo(() => {
+    const actualCoords = getCoordinatesForFigure(actualFilename);
+    if (actualCoords.length > 0) return actualCoords;
     return getCoordinatesForFigure(filename);
-  }, [filename, getCoordinatesForFigure]);
+  }, [filename, actualFilename, getCoordinatesForFigure]);
 
   // Fetch point details from database
   useEffect(() => {
@@ -217,11 +232,17 @@ export function BodyFigureWithPoints({
   const [debugMode, setDebugMode] = useState(false);
   
   // Get point position - prefer CSV coordinates, fallback to grid
+  // Try actual filename first, then original filename
   // Clamp coordinates to ensure points stay within the visible body figure (5-95%)
   const clampCoordinate = (value: number): number => Math.max(5, Math.min(95, value));
   
   const getPointPosition = (pointCode: string): { x: number; y: number; isFallback: boolean } | null => {
-    const coord = getPointCoordinate(filename, pointCode);
+    // Try actual (demographic-aware) filename first
+    let coord = getPointCoordinate(actualFilename, pointCode);
+    // Fall back to original filename
+    if (!coord && actualFilename !== filename) {
+      coord = getPointCoordinate(filename, pointCode);
+    }
     if (coord) {
       return { 
         x: clampCoordinate(coord.x_percent), 
@@ -267,13 +288,20 @@ export function BodyFigureWithPoints({
   };
 
   const getFigureName = (file: string) => {
-    return file
+    let name = file
       .replace('.png', '')
       .replace(/_/g, ' ')
       .replace(/\b\w/g, l => l.toUpperCase());
+    
+    // Add demographic indicator if different from original
+    if (actualFilename !== filename) {
+      if (patientGender === 'female') name += ' (Female)';
+      if (patientAgeGroup === 'pediatric') name += ' (Child)';
+    }
+    return name;
   };
 
-  const imageSrc = imageMap[filename];
+  const imageSrc = imageMap[actualFilename] || imageMap[filename];
   if (!imageSrc) {
     return (
       <Card className={className}>

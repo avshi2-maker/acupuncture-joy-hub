@@ -1317,6 +1317,8 @@ export function ClinicalNavigatorAdvanced({
               autoStartTour={true}
               enableNarration={true}
               language={language === 'he' ? 'he' : 'en'}
+              patientGender={patientInfo.gender === 'male' ? 'male' : patientInfo.gender === 'female' ? 'female' : null}
+              patientAgeGroup={patientInfo.age ? (parseInt(patientInfo.age) < 12 ? 'pediatric' : parseInt(patientInfo.age) >= 65 ? 'elderly' : 'adult') : null}
               className="sticky top-4"
             />
             
