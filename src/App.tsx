@@ -84,6 +84,7 @@ import NourishingLifeQuestionnaire from "./pages/NourishingLifeQuestionnaire";
 import MentalClarityQuestionnaire from "./pages/MentalClarityQuestionnaire";
 import PainRehabilitationQuestionnaire from "./pages/PainRehabilitationQuestionnaire";
 import ImmuneShieldQuestionnaire from "./pages/ImmuneShieldQuestionnaire";
+import ZangFuSyndromesQuestionnaire from "./pages/ZangFuSyndromesQuestionnaire";
 import QuestionnaireHub from "./pages/QuestionnaireHub";
 const queryClient = new QueryClient();
 
@@ -179,6 +180,7 @@ const App = () => (
                       <Route path="/mental-clarity" element={<MentalClarityQuestionnaire />} />
                       <Route path="/pain-rehabilitation" element={<PainRehabilitationQuestionnaire />} />
                       <Route path="/immune-shield" element={<ImmuneShieldQuestionnaire />} />
+                      <Route path="/zang-fu-syndromes" element={<ZangFuSyndromesQuestionnaire />} />
                       <Route path="/questionnaire-hub" element={<QuestionnaireHub />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
