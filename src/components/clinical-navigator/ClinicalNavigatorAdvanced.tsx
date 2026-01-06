@@ -746,22 +746,24 @@ export function ClinicalNavigatorAdvanced({
         </ScrollArea>
 
         {/* Action Buttons */}
-        <div className="flex justify-between items-center gap-4">
+        <div className="sticky bottom-0 -mx-4 mt-4 border-t bg-background/80 backdrop-blur-sm p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="text-sm text-muted-foreground">
-            {answeredQuestions.length} / {selectedModule.questions.length} {language === 'he' ? 'שאלות נענו' : 'questions answered'}
+            {answeredQuestions.length} / {selectedModule.questions.length}{' '}
+            {language === 'he' ? 'שאלות נענו' : 'questions answered'}
+            {progress < 20 && (
+              <span className="ml-2">
+                {language === 'he' ? '(ענה על עוד שאלות כדי להפעיל חיפוש)' : '(Answer more to enable search)'}
+              </span>
+            )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 justify-end">
             {answeredQuestions.length > 0 && (
-              <Button 
-                variant="outline"
-                onClick={handleShowSummary}
-                className="gap-2"
-              >
+              <Button variant="outline" onClick={handleShowSummary} className="gap-2">
                 <FileText className="h-4 w-4" />
                 {language === 'he' ? 'סיכום תשובות' : 'View Summary'}
               </Button>
             )}
-            <Button 
+            <Button
               onClick={handleSubmit}
               disabled={isLoading || progress < 20}
               className="bg-jade hover:bg-jade/90 gap-2"
@@ -1100,7 +1102,13 @@ export function ClinicalNavigatorAdvanced({
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm whitespace-pre-wrap">{report.primaryDiagnosis}</p>
+                    {report.primaryDiagnosis?.trim() ? (
+                      <p className="text-sm whitespace-pre-wrap">{report.primaryDiagnosis}</p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {language === 'he' ? 'לא התקבלה אבחנה מהמערכת' : 'No diagnosis returned from the analysis'}
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -1118,30 +1126,38 @@ export function ClinicalNavigatorAdvanced({
                       <Label className="text-muted-foreground">
                         {language === 'he' ? 'נקודות' : 'Points'}
                       </Label>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {report.acupunctureProtocol.points.map((point) => (
-                          <Badge 
-                            key={point}
-                            className={`cursor-pointer transition-all ${
-                              celebratedPoints.has(point) 
-                                ? 'bg-jade text-white' 
-                                : 'bg-jade/20 text-jade hover:bg-jade hover:text-white'
-                            }`}
-                            onClick={() => handlePointClick(point)}
-                          >
-                            [PT:{point}]
-                          </Badge>
-                        ))}
-                      </div>
+
+                      {report.acupunctureProtocol.points.length > 0 ? (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {report.acupunctureProtocol.points.map((point) => (
+                            <Badge
+                              key={point}
+                              className={`cursor-pointer transition-all ${
+                                celebratedPoints.has(point)
+                                  ? 'bg-jade text-white'
+                                  : 'bg-jade/20 text-jade hover:bg-jade hover:text-white'
+                              }`}
+                              onClick={() => handlePointClick(point)}
+                            >
+                              [PT:{point}]
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground mt-2">
+                          {language === 'he' ? 'לא הוחזרו נקודות דיקור לבעיה זו' : 'No acupuncture points were returned for this case'}
+                        </p>
+                      )}
                     </div>
-                    {report.acupunctureProtocol.technique && (
+
+                    {report.acupunctureProtocol.technique?.trim() ? (
                       <div>
                         <Label className="text-muted-foreground">
                           {language === 'he' ? 'טכניקה' : 'Technique'}
                         </Label>
                         <p className="text-sm mt-1">{report.acupunctureProtocol.technique}</p>
                       </div>
-                    )}
+                    ) : null}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -1155,15 +1171,16 @@ export function ClinicalNavigatorAdvanced({
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {report.herbalPrescription.formula && (
+                    {report.herbalPrescription.formula?.trim() ? (
                       <div>
                         <Label className="text-muted-foreground">
                           {language === 'he' ? 'נוסחה' : 'Formula'}
                         </Label>
                         <p className="text-sm mt-1 font-medium">{report.herbalPrescription.formula}</p>
                       </div>
-                    )}
-                    {report.herbalPrescription.ingredients.length > 0 && (
+                    ) : null}
+
+                    {report.herbalPrescription.ingredients.length > 0 ? (
                       <div>
                         <Label className="text-muted-foreground">
                           {language === 'he' ? 'רכיבים' : 'Ingredients'}
@@ -1174,7 +1191,13 @@ export function ClinicalNavigatorAdvanced({
                           ))}
                         </ul>
                       </div>
-                    )}
+                    ) : null}
+
+                    {!report.herbalPrescription.formula?.trim() && report.herbalPrescription.ingredients.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        {language === 'he' ? 'לא הוחזר מרשם צמחי לבעיה זו' : 'No herbal prescription was returned for this case'}
+                      </p>
+                    ) : null}
                   </CardContent>
                 </Card>
               </TabsContent>
