@@ -182,6 +182,17 @@ const questionnaires: QuestionnaireInfo[] = [
     questionCount: 20
   },
   {
+    id: 'pulse_tongue_diagnosis',
+    titleHe: 'אבחון דופק ולשון',
+    titleEn: 'Pulse & Tongue Diagnosis',
+    descriptionHe: 'שאלון אבחון חזותי ומישושי - דופק ולשון',
+    descriptionEn: 'Visual & tactile diagnosis questionnaire for pulse and tongue',
+    icon: <Eye className="h-6 w-6" />,
+    path: '/pulse-tongue-diagnosis',
+    category: 'special',
+    questionCount: 20
+  },
+  {
     id: 'brain',
     titleHe: 'הערכת בריאות המוח',
     titleEn: 'Brain Health Assessment',
