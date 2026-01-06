@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { APIUsageMeter } from '@/components/tcm-brain/APIUsageMeter';
 import { AITrustHeader } from '@/components/tcm-brain/AITrustHeader';
+import { TcmTurboDashboard, TurboDashboardStatus } from '@/components/tcm/TcmTurboDashboard';
 import { useTcmBrainState } from '@/hooks/useTcmBrainState';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { DiagnosticsTab } from '@/components/tcm-brain/DiagnosticsTab';
@@ -74,8 +75,19 @@ export default function TcmBrain() {
     handleAddVoiceNote, handleDeleteVoiceNote, activeTemplate, handleApplyTemplate,
     questionsAsked, highlightedPoints, patientSessions, setChainedWorkflow,
     openGmailWithSession, openWhatsAppWithSession, externalFallbackQuery,
-    dismissExternalFallback, runExternalAIFallback,
+    dismissExternalFallback, runExternalAIFallback, lastRagStats, isStreaming,
   } = useTcmBrainState();
+
+  // Turbo Dashboard status derived from RAG stats
+  const turboDashboardStatus: TurboDashboardStatus = useMemo(() => {
+    if (isLoading || isStreaming) return 'scanning';
+    if (!lastRagStats || lastRagStats.chunksFound === 0) {
+      if (messages.length <= 1) return 'standby';
+      return lastRagStats?.isExternal ? 'external' : 'fail';
+    }
+    if (lastRagStats.isExternal) return 'external';
+    return lastRagStats.chunksFound > 0 ? 'locked' : 'fail';
+  }, [isLoading, isStreaming, lastRagStats, messages.length]);
 
   const { currentPhase, setPhase, clearManualPhase, isManualOverride } = useSessionPhase(sessionSeconds);
   const { lastSaveTime, isSaving, saveNow, loadSavedSession, clearSavedSession } = useAutoSave(
@@ -217,6 +229,22 @@ export default function TcmBrain() {
 
         {/* AI TRUST HEADER */}
         <AITrustHeader />
+
+        {/* TCM TURBO DASHBOARD - True Digital Indicator */}
+        <div className="px-4 py-2 border-b bg-gradient-to-r from-slate-900/5 to-transparent shrink-0">
+          <TcmTurboDashboard 
+            status={turboDashboardStatus}
+            isProcessing={isLoading || isStreaming}
+            meta={{
+              chunksFound: lastRagStats?.chunksFound || 0,
+              documentsSearched: lastRagStats?.documentsSearched || 0,
+              isExternal: lastRagStats?.isExternal,
+              scorePercent: lastRagStats?.chunksFound ? Math.min(100, lastRagStats.chunksFound * 20) : 0,
+              auditLogId: lastRagStats?.auditLogId,
+            }}
+            variant="standard"
+          />
+        </div>
 
         {/* --- MAIN SPLIT-SCREEN LAYOUT --- */}
         <main className="flex-1 overflow-hidden">

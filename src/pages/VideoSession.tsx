@@ -100,12 +100,12 @@ import { AISessionSuggestions } from '@/components/video/AISessionSuggestions';
 import { MiniInspirationCarousel } from '@/components/video/MiniInspirationCarousel';
 import { 
   VideoSessionAPIMeter, 
-  VideoSessionEngineIndicator,
   useVideoSessionAudio,
   playSessionSound,
   triggerSessionHaptic,
   addVideoSessionUsage
 } from '@/components/video/VideoSessionEnhancements';
+import { TcmTurboDashboard, TurboDashboardStatus } from '@/components/tcm/TcmTurboDashboard';
 import { VideoSessionHeaderBoxes } from '@/components/video/VideoSessionHeaderBoxes';
 import { InlineMusicPlayer } from '@/components/video/InlineMusicPlayer';
 import { TcmBrainPanel } from '@/components/video/TcmBrainPanel';
@@ -1564,14 +1564,18 @@ export default function VideoSession() {
           </div>
         </header>
 
-        {/* API Usage Meter Bar */}
-        <div className="border-b bg-card/30 backdrop-blur-sm py-1.5 px-3 overflow-x-auto hidden md:block">
+        {/* TCM TURBO DASHBOARD - True Digital Indicator */}
+        <div className="border-b bg-card/30 backdrop-blur-sm py-2 px-3 hidden md:block">
           <div className="container mx-auto flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="font-medium text-foreground text-[10px]">AI Status:</span>
               <VideoSessionAPIMeter />
             </div>
-            <VideoSessionEngineIndicator isLoading={aiQueryLoading} />
+            <TcmTurboDashboard 
+              status={aiQueryLoading ? 'scanning' : 'standby'}
+              isProcessing={aiQueryLoading}
+              variant="compact"
+            />
           </div>
         </div>
 
