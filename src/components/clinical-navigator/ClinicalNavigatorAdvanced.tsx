@@ -86,9 +86,11 @@ export function ClinicalNavigatorAdvanced({
     chiefComplaint: '',
   });
   const [showResults, setShowResults] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const [celebratedPoints, setCelebratedPoints] = useState<Set<string>>(new Set());
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activePointForCelebration, setActivePointForCelebration] = useState<string | null>(null);
+  const [activeCategoryTab, setActiveCategoryTab] = useState<string>('all');
   
   // Protocol comparison state
   const [savedProtocols, setSavedProtocols] = useState<ProtocolRecord[]>([]);
@@ -229,13 +231,28 @@ export function ClinicalNavigatorAdvanced({
   const handleBack = useCallback(() => {
     if (showResults) {
       setShowResults(false);
+    } else if (showSummary) {
+      setShowSummary(false);
     } else if (selectedModule) {
       setSelectedModule(null);
       setAnswers({});
     } else {
       setSelectedCategory(null);
     }
-  }, [showResults, selectedModule]);
+  }, [showResults, showSummary, selectedModule]);
+
+  // Get answered questions for summary
+  const answeredQuestions = useMemo(() => {
+    if (!selectedModule) return [];
+    return selectedModule.questions.filter(q => 
+      answers[q.id] !== undefined && answers[q.id] !== ''
+    );
+  }, [selectedModule, answers]);
+
+  // Handle show summary
+  const handleShowSummary = useCallback(() => {
+    setShowSummary(true);
+  }, []);
 
   // Render the Master Dropdown for all 36 modules
   const renderMasterDropdown = () => (
@@ -287,72 +304,111 @@ export function ClinicalNavigatorAdvanced({
     </Popover>
   );
 
-  // Render category selection
-  const renderCategorySelection = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold mb-2">
-          {language === 'he' ? 'בחר קטגוריה קלינית' : 'Clinical Navigator'}
-        </h2>
-        <p className="text-muted-foreground">
-          {language === 'he' 
-            ? '36 שאלונים מקצועיים עם חיפוש עמוק חוצה-מודולים'
-            : '36 professional questionnaires with cross-module Deep Search'}
-        </p>
-      </div>
+  // Render category selection with tabs
+  const renderCategorySelection = () => {
+    // Get modules for current tab
+    const getFilteredModules = () => {
+      if (activeCategoryTab === 'all') {
+        return CLINICAL_QUESTIONNAIRES;
+      }
+      return modulesByCategory[activeCategoryTab] || [];
+    };
 
-      {/* Master Dropdown - Quick Access to All 36 Modules */}
-      <div className="flex justify-center mb-6">
-        {renderMasterDropdown()}
-      </div>
+    const filteredModules = getFilteredModules();
 
-      <div className="text-center text-sm text-muted-foreground mb-4">
-        — or browse by category —
-      </div>
+    return (
+      <div className="space-y-6">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold mb-2">
+            {language === 'he' ? 'נווט קליני' : 'Clinical Navigator'}
+          </h2>
+          <p className="text-muted-foreground">
+            {language === 'he' 
+              ? '36 שאלונים מקצועיים עם חיפוש עמוק חוצה-מודולים'
+              : '36 professional questionnaires with cross-module Deep Search'}
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Object.entries(MODULE_CATEGORIES).map(([key, category]) => {
-          const modules = modulesByCategory[key] || [];
-          return (
-            <motion.div
-              key={key}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.2 }}
+        {/* Master Dropdown - Quick Access */}
+        <div className="flex justify-center mb-4">
+          {renderMasterDropdown()}
+        </div>
+
+        {/* Category Tabs */}
+        <Tabs value={activeCategoryTab} onValueChange={setActiveCategoryTab} className="w-full">
+          <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
+            <TabsTrigger 
+              value="all" 
+              className="flex items-center gap-1.5 data-[state=active]:bg-jade data-[state=active]:text-white"
             >
-              <Card 
-                className={`cursor-pointer transition-all hover:shadow-lg border-2 ${CATEGORY_COLORS[key]} hover:border-jade`}
-                onClick={() => setSelectedCategory(key)}
-              >
-                <CardHeader className="pb-2">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${CATEGORY_COLORS[key]}`}>
-                      {CATEGORY_ICONS[key]}
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">
-                        {language === 'he' ? category.he : category.en}
-                      </CardTitle>
-                      <CardDescription>
-                        {modules.length} {language === 'he' ? 'שאלונים' : 'questionnaires'}
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {modules.slice(0, 3).map(m => language === 'he' ? m.module_name_he : m.module_name).join(', ')}
-                    {modules.length > 3 && '...'}
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
+              <List className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{language === 'he' ? 'הכל' : 'All'}</span>
+              <Badge variant="secondary" className="text-[10px] px-1.5">{CLINICAL_QUESTIONNAIRES.length}</Badge>
+            </TabsTrigger>
+            {Object.entries(MODULE_CATEGORIES).map(([key, category]) => {
+              const count = (modulesByCategory[key] || []).length;
+              return (
+                <TabsTrigger 
+                  key={key} 
+                  value={key}
+                  className={cn(
+                    "flex items-center gap-1.5 data-[state=active]:bg-jade data-[state=active]:text-white",
+                    count === 0 && "opacity-50"
+                  )}
+                  disabled={count === 0}
+                >
+                  {CATEGORY_ICONS[key]}
+                  <span className="hidden md:inline">{language === 'he' ? category.he : category.en}</span>
+                  <Badge variant="secondary" className="text-[10px] px-1.5">{count}</Badge>
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+
+          <TabsContent value={activeCategoryTab} className="mt-4">
+            <ScrollArea className="h-[500px] pr-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {filteredModules.map((module, index) => (
+                  <motion.div
+                    key={module.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.02 }}
+                    whileHover={{ scale: 1.01 }}
+                  >
+                    <Card 
+                      className={cn(
+                        "cursor-pointer transition-all hover:shadow-md border-l-4",
+                        CATEGORY_COLORS[module.category],
+                        "hover:border-jade"
+                      )}
+                      onClick={() => handleSelectModule(module)}
+                    >
+                      <CardHeader className="py-3 px-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <Badge variant="outline" className="shrink-0 text-xs px-1.5">
+                              {module.id}
+                            </Badge>
+                            <CardTitle className="text-sm font-medium truncate">
+                              {language === 'he' ? module.module_name_he : module.module_name}
+                            </CardTitle>
+                          </div>
+                          <Badge className={cn("shrink-0 text-[10px]", CATEGORY_COLORS[module.category])}>
+                            {module.questions.length}Q
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+        </Tabs>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Render module selection
   const renderModuleSelection = () => {
@@ -609,8 +665,210 @@ export function ClinicalNavigatorAdvanced({
           </Accordion>
         </ScrollArea>
 
-        {/* Submit Button */}
-        <div className="flex justify-end">
+        {/* Action Buttons */}
+        <div className="flex justify-between items-center gap-4">
+          <div className="text-sm text-muted-foreground">
+            {answeredQuestions.length} / {selectedModule.questions.length} {language === 'he' ? 'שאלות נענו' : 'questions answered'}
+          </div>
+          <div className="flex gap-2">
+            {answeredQuestions.length > 0 && (
+              <Button 
+                variant="outline"
+                onClick={handleShowSummary}
+                className="gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                {language === 'he' ? 'סיכום תשובות' : 'View Summary'}
+              </Button>
+            )}
+            <Button 
+              onClick={handleSubmit}
+              disabled={isLoading || progress < 20}
+              className="bg-jade hover:bg-jade/90 gap-2"
+              size="lg"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {language === 'he' ? 'מנתח...' : 'Analyzing...'}
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  {language === 'he' ? 'הפעל חיפוש עמוק' : 'Run Deep Search'}
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* Voice Dictation Overlay */}
+        <VoiceDictationOverlay
+          moduleId={selectedModule.id}
+          questions={selectedModule.questions}
+          onAutoFill={handleVoiceAutoFill}
+          language={language === 'he' ? 'he' : 'en'}
+        />
+      </div>
+    );
+  };
+
+  // Render answers summary view
+  const renderSummary = () => {
+    if (!selectedModule) return null;
+
+    const yesAnswers = answeredQuestions.filter(q => answers[q.id] === 'yes');
+    const noAnswers = answeredQuestions.filter(q => answers[q.id] === 'no');
+    const unanswered = selectedModule.questions.filter(q => 
+      answers[q.id] === undefined || answers[q.id] === ''
+    );
+
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={handleBack}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              {language === 'he' ? 'חזור לשאלון' : 'Back to Questions'}
+            </Button>
+            <div>
+              <h2 className="text-xl font-bold">
+                {language === 'he' ? 'סיכום תשובות' : 'Answers Summary'}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {language === 'he' ? selectedModule.module_name_he : selectedModule.module_name}
+              </p>
+            </div>
+          </div>
+          <Badge className="bg-jade">
+            {answeredQuestions.length} / {selectedModule.questions.length} {language === 'he' ? 'נענו' : 'answered'}
+          </Badge>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Yes Answers */}
+          <Card className="border-jade/30 bg-jade/5">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2 text-jade">
+                <CheckCircle2 className="h-5 w-5" />
+                {language === 'he' ? 'תשובות "כן"' : 'Yes Answers'} ({yesAnswers.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[250px]">
+                {yesAnswers.length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">
+                    {language === 'he' ? 'אין תשובות "כן"' : 'No "Yes" answers'}
+                  </p>
+                ) : (
+                  <ul className="space-y-2">
+                    {yesAnswers.map((q, idx) => (
+                      <li key={q.id} className="text-sm flex gap-2">
+                        <span className="text-jade font-medium shrink-0">{idx + 1}.</span>
+                        <span>{language === 'he' ? q.question_he : q.question_en}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </ScrollArea>
+            </CardContent>
+          </Card>
+
+          {/* No Answers */}
+          <Card className="border-muted bg-muted/20">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2 text-muted-foreground">
+                <AlertTriangle className="h-5 w-5" />
+                {language === 'he' ? 'תשובות "לא"' : 'No Answers'} ({noAnswers.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[250px]">
+                {noAnswers.length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">
+                    {language === 'he' ? 'אין תשובות "לא"' : 'No "No" answers'}
+                  </p>
+                ) : (
+                  <ul className="space-y-2">
+                    {noAnswers.map((q, idx) => (
+                      <li key={q.id} className="text-sm flex gap-2 text-muted-foreground">
+                        <span className="font-medium shrink-0">{idx + 1}.</span>
+                        <span>{language === 'he' ? q.question_he : q.question_en}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Unanswered Questions */}
+        {unanswered.length > 0 && (
+          <Card className="border-amber-500/30 bg-amber-500/5">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2 text-amber-600">
+                <AlertTriangle className="h-5 w-5" />
+                {language === 'he' ? 'שאלות שלא נענו' : 'Unanswered Questions'} ({unanswered.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {unanswered.slice(0, 10).map((q) => (
+                  <Badge key={q.id} variant="outline" className="text-amber-600 border-amber-500/30">
+                    Q{selectedModule.questions.indexOf(q) + 1}
+                  </Badge>
+                ))}
+                {unanswered.length > 10 && (
+                  <Badge variant="outline" className="text-amber-600 border-amber-500/30">
+                    +{unanswered.length - 10} {language === 'he' ? 'עוד' : 'more'}
+                  </Badge>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Patient Info Summary */}
+        {(patientInfo.age || patientInfo.gender || patientInfo.chiefComplaint) && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <User className="h-5 w-5" />
+                {language === 'he' ? 'פרטי מטופל' : 'Patient Information'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-4 text-sm">
+                {patientInfo.age && (
+                  <div>
+                    <span className="text-muted-foreground">{language === 'he' ? 'גיל:' : 'Age:'}</span>{' '}
+                    <span className="font-medium">{patientInfo.age}</span>
+                  </div>
+                )}
+                {patientInfo.gender && (
+                  <div>
+                    <span className="text-muted-foreground">{language === 'he' ? 'מין:' : 'Gender:'}</span>{' '}
+                    <span className="font-medium">{patientInfo.gender}</span>
+                  </div>
+                )}
+                {patientInfo.chiefComplaint && (
+                  <div>
+                    <span className="text-muted-foreground">{language === 'he' ? 'תלונה:' : 'Complaint:'}</span>{' '}
+                    <span className="font-medium">{patientInfo.chiefComplaint}</span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Actions */}
+        <div className="flex justify-between">
+          <Button variant="outline" onClick={() => setShowSummary(false)}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {language === 'he' ? 'ערוך תשובות' : 'Edit Answers'}
+          </Button>
           <Button 
             onClick={handleSubmit}
             disabled={isLoading || progress < 20}
@@ -630,14 +888,6 @@ export function ClinicalNavigatorAdvanced({
             )}
           </Button>
         </div>
-
-        {/* Voice Dictation Overlay */}
-        <VoiceDictationOverlay
-          moduleId={selectedModule.id}
-          questions={selectedModule.questions}
-          onAutoFill={handleVoiceAutoFill}
-          language={language === 'he' ? 'he' : 'en'}
-        />
       </div>
     );
   };
@@ -978,6 +1228,15 @@ export function ClinicalNavigatorAdvanced({
             exit={{ opacity: 0, x: -20 }}
           >
             {renderResults()}
+          </motion.div>
+        ) : showSummary && selectedModule ? (
+          <motion.div
+            key="summary"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+          >
+            {renderSummary()}
           </motion.div>
         ) : selectedModule ? (
           <motion.div
