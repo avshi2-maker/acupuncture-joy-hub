@@ -441,6 +441,13 @@ const BUILTIN_ASSETS = [
     defaultLanguage: 'en',
   },
   {
+    id: 'trauma-corrected-supplementary',
+    label: '🩹 Trauma Supplementary (47 Q&A - Facial, Joint, Tendon Injuries + Herbs)',
+    path: '/knowledge-assets/trauma_corrected.csv',
+    defaultCategory: 'pain_ortho',
+    defaultLanguage: 'en',
+  },
+  {
     id: 'tcm-teenage-mental-health-qa',
     label: 'TCM Teenage Mental Health Q&A (13-18 years)',
     path: '/knowledge-assets/tcm-teenage-mental-health-qa.csv',
