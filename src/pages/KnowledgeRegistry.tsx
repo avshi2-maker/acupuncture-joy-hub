@@ -568,6 +568,13 @@ const BUILTIN_ASSETS = [
     defaultLanguage: 'en',
   },
   {
+    id: 'tcm-stress-biofeedback-qa',
+    label: '🧘 TCM Stress & Biofeedback Q&A (75 Q&A + Acupoints + Pharmacopeia)',
+    path: '/knowledge-assets/tcm_stress_biofeedback_75qa.csv',
+    defaultCategory: 'anxiety_mental',
+    defaultLanguage: 'en',
+  },
+  {
     id: 'tcm-trauma-qa',
     label: '🛡️ TCM Trauma Q&A (22 Q&A - Kidney-Heart, Zhi, Po, Formulas)',
     path: '/knowledge-assets/tcm-trauma-qa.csv',
