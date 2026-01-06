@@ -173,6 +173,17 @@ export const KNOWLEDGE_ASSETS: KnowledgeAsset[] = [
     file: 'TCM_Oncology_Comprehensive_All_Ages.csv',
     category: 'treatment'
   },
+  { 
+    id: 'pediatric-safety', 
+    name: 'Pediatric Safety', 
+    nameHe: 'בטיחות ילדים',
+    icon: Baby, 
+    color: 'text-cyan-600', 
+    bgColor: 'bg-cyan-50 dark:bg-cyan-950/30', 
+    borderColor: 'border-cyan-300 dark:border-cyan-700',
+    file: 'Pediatric_Acupuncture_Points_Safety_Guide.csv',
+    category: 'treatment'
+  },
 
   // Specialties Category
   { 
@@ -777,6 +788,7 @@ export function detectActiveAssets(text: string): string[] {
     'acupuncture-points': ['acupuncture point', 'acupoint', 'LI4', 'ST36', 'SP6', 'LV3'],
     'herbal-formulas': ['herbal formula', 'chinese formula', 'tcm formula', 'decoction', 'tang', 'wan', 'san', 'yin', 'pharmacopeia'],
     'tcm-oncology': ['oncology', 'cancer', 'tumor', 'chemotherapy', 'chemo', 'radiation', 'bone marrow', 'neuropathy', 'leukemia', 'lymphoma', 'carcinoma'],
+    'pediatric-safety': ['pediatric', 'child', 'children', 'infant', 'baby', 'toddler', 'safety', 'needling depth', 'contraindication', 'age recommendation'],
   };
 
   for (const [assetId, terms] of Object.entries(keywords)) {
