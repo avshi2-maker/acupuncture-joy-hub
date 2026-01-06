@@ -758,11 +758,36 @@ const MODULE_CATEGORY_MAP: Record<number, keyof typeof MODULE_CATEGORIES> = {
 };
 
 export const MODULE_CATEGORIES = {
-  diagnostic: { en: 'Diagnostic Methods', he: 'שיטות אבחון' },
-  constitutional: { en: 'Constitutional Assessment', he: 'אבחנת מבנה גוף ונפש' },
-  specialty: { en: 'Clinical Specialties', he: 'התמחויות קליניות' },
-  wellness: { en: 'Herbal & Lifestyle', he: 'צמחים ואורח חיים' },
-  'age-specific': { en: 'Age-Specific Care', he: 'טיפול לפי גיל' },
+  diagnostic: { 
+    en: 'Diagnostic Methods', 
+    he: 'שיטות אבחון',
+    tooltipEn: 'Pulse diagnosis, tongue analysis, pattern identification, and TCM assessment techniques',
+    tooltipHe: 'אבחון דופק, ניתוח לשון, זיהוי דפוסים וטכניקות הערכה ברפואה סינית'
+  },
+  constitutional: { 
+    en: 'Constitutional Assessment', 
+    he: 'אבחנת מבנה גוף ונפש',
+    tooltipEn: 'Body constitution types, Five Element analysis, and mind-body pattern evaluation',
+    tooltipHe: 'סוגי מבנה גוף, ניתוח חמשת היסודות והערכת דפוסי גוף-נפש'
+  },
+  specialty: { 
+    en: 'Clinical Specialties', 
+    he: 'התמחויות קליניות',
+    tooltipEn: 'Pain management, dermatology, respiratory, digestive, and neurological conditions',
+    tooltipHe: 'טיפול בכאב, עור, נשימה, עיכול ומצבים נוירולוגיים'
+  },
+  wellness: { 
+    en: 'Herbal & Lifestyle', 
+    he: 'צמחים ואורח חיים',
+    tooltipEn: 'Herbal formulas, dietary therapy, Qi Gong, and lifestyle recommendations',
+    tooltipHe: 'פורמולות צמחים, תזונה טיפולית, צ\'י גונג והמלצות לאורח חיים'
+  },
+  'age-specific': { 
+    en: 'Age-Specific Care', 
+    he: 'טיפול לפי גיל',
+    tooltipEn: 'Pediatric care, women\'s health, fertility, pregnancy, and geriatric assessment',
+    tooltipHe: 'טיפול בילדים, בריאות האישה, פוריות, הריון והערכה גריאטרית'
+  },
 } as const;
 
 export interface QuestionnaireModule {

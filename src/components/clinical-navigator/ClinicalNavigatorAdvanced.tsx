@@ -14,6 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   Brain, Heart, Stethoscope, Leaf, Apple, Activity,
@@ -402,48 +403,61 @@ export function ClinicalNavigatorAdvanced({
         </div>
 
         {/* 5 Category Boxes Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {Object.entries(MODULE_CATEGORIES).map(([key, category], index) => {
-            const count = (modulesByCategory[key] || []).length;
-            return (
-              <motion.div
-                key={key}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.03, y: -4 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Card 
-                  className={cn(
-                    "cursor-pointer transition-all duration-300 border-2 bg-gradient-to-br backdrop-blur-sm",
-                    "hover:shadow-xl hover:shadow-primary/10",
-                    CATEGORY_BOX_STYLES[key],
-                    "min-h-[180px] flex flex-col justify-center"
-                  )}
-                  onClick={() => setSelectedCategory(key)}
-                >
-                  <CardHeader className="text-center pb-2">
-                    <div className="mx-auto mb-3 p-3 rounded-full bg-background/50 backdrop-blur-sm">
-                      {CATEGORY_ICONS[key]}
-                    </div>
-                    <CardTitle className="text-lg font-bold">
-                      {language === 'he' ? category.he : category.en}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center pt-0">
-                    <Badge 
-                      variant="secondary" 
-                      className="text-sm px-3 py-1 font-bold bg-background/60"
+        <TooltipProvider delayDuration={300}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            {Object.entries(MODULE_CATEGORIES).map(([key, category], index) => {
+              const count = (modulesByCategory[key] || []).length;
+              const tooltip = language === 'he' ? category.tooltipHe : category.tooltipEn;
+              return (
+                <Tooltip key={key}>
+                  <TooltipTrigger asChild>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ scale: 1.03, y: -4 }}
+                      whileTap={{ scale: 0.98 }}
                     >
-                      {count} {language === 'he' ? 'שאלונים' : 'Modules'}
-                    </Badge>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </div>
+                      <Card 
+                        className={cn(
+                          "cursor-pointer transition-all duration-300 border-2 bg-gradient-to-br backdrop-blur-sm",
+                          "hover:shadow-xl hover:shadow-primary/10",
+                          CATEGORY_BOX_STYLES[key],
+                          "min-h-[180px] flex flex-col justify-center"
+                        )}
+                        onClick={() => setSelectedCategory(key)}
+                      >
+                        <CardHeader className="text-center pb-2">
+                          <div className="mx-auto mb-3 p-3 rounded-full bg-background/50 backdrop-blur-sm">
+                            {CATEGORY_ICONS[key]}
+                          </div>
+                          <CardTitle className="text-lg font-bold">
+                            {language === 'he' ? category.he : category.en}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="text-center pt-0">
+                          <Badge 
+                            variant="secondary" 
+                            className="text-sm px-3 py-1 font-bold bg-background/60"
+                          >
+                            {count} {language === 'he' ? 'שאלונים' : 'Modules'}
+                          </Badge>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </TooltipTrigger>
+                  <TooltipContent 
+                    side="bottom" 
+                    className="max-w-[280px] text-center p-3"
+                    dir={language === 'he' ? 'rtl' : 'ltr'}
+                  >
+                    <p className="text-sm">{tooltip}</p>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+          </div>
+        </TooltipProvider>
 
         {/* Quick Search Bar */}
         <div className="flex justify-center mt-8">
