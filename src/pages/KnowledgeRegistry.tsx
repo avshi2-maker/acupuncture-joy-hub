@@ -427,6 +427,13 @@ const BUILTIN_ASSETS = [
     defaultLanguage: 'en',
   },
   {
+    id: 'tcm-mindset-mental-100qa',
+    label: '🧠 TCM Mindset & Mental (100 Q&A - Focus, Memory, Cognition + Points + Formulas)',
+    path: '/knowledge-assets/TCM_Mindset_Mental_100_QA_Complete.csv',
+    defaultCategory: 'anxiety_mental',
+    defaultLanguage: 'en',
+  },
+  {
     id: 'tcm-teenage-mental-health-qa',
     label: 'TCM Teenage Mental Health Q&A (13-18 years)',
     path: '/knowledge-assets/tcm-teenage-mental-health-qa.csv',
