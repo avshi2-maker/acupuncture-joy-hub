@@ -4,8 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import type { Json } from '@/integrations/supabase/types';
 
-export type AssessmentType = 'brain' | 'body' | 'retreat' | 'health_compass';
-export type AssessmentStatus = 'saved' | 'sent' | 'pending';
+export type AssessmentType = 'brain' | 'body' | 'retreat' | 'health_compass' | 'patient_questionnaire';
+export type AssessmentStatus = 'saved' | 'sent' | 'pending' | 'completed';
 
 export interface PatientAssessment {
   id: string;
@@ -57,14 +57,15 @@ export function useLatestAssessments(patientId?: string) {
   return useQuery({
     queryKey: ['latest-assessments', patientId, user?.id],
     queryFn: async () => {
-      if (!user?.id || !patientId) return { brain: null, body: null, retreat: null, health_compass: null };
+      if (!user?.id || !patientId) return { brain: null, body: null, retreat: null, health_compass: null, patient_questionnaire: null };
 
-      const types: AssessmentType[] = ['brain', 'body', 'retreat', 'health_compass'];
+      const types: AssessmentType[] = ['brain', 'body', 'retreat', 'health_compass', 'patient_questionnaire'];
       const results: Record<AssessmentType, PatientAssessment | null> = {
         brain: null,
         body: null,
         retreat: null,
         health_compass: null,
+        patient_questionnaire: null,
       };
 
       for (const type of types) {
