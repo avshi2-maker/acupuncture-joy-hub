@@ -733,8 +733,33 @@ export interface QuestionItem {
   options?: string[];
 }
 
+// Module category assignments based on subject matter
+const MODULE_CATEGORY_MAP: Record<number, keyof typeof MODULE_CATEGORIES> = {
+  // Diagnostic (Pattern identification, Pulse, Tongue)
+  2: 'diagnostic', 4: 'diagnostic', 5: 'diagnostic', 36: 'diagnostic',
+  // Constitutional (Shen, Yin Yang, Five Elements)
+  1: 'constitutional', 3: 'constitutional', 6: 'constitutional', 7: 'constitutional',
+  // Specialty (Pain, Cardiology, Neurology, etc.)
+  8: 'specialty', 9: 'specialty', 10: 'specialty', 11: 'specialty', 
+  12: 'specialty', 13: 'specialty', 14: 'specialty', 15: 'specialty',
+  16: 'specialty', 17: 'specialty', 18: 'specialty', 19: 'specialty',
+  20: 'specialty', 21: 'specialty', 22: 'specialty',
+  // Herbal (Formulas, Materia Medica)
+  23: 'herbal', 24: 'herbal', 25: 'herbal', 26: 'herbal',
+  // Lifestyle (Diet, Exercise, Mental Health)
+  27: 'lifestyle', 28: 'lifestyle', 29: 'lifestyle', 30: 'lifestyle',
+  // Age-specific (Pediatrics, Geriatrics, Women's Health)
+  31: 'age-specific', 32: 'age-specific', 33: 'age-specific', 
+  34: 'age-specific', 35: 'age-specific',
+};
+
 export const MODULE_CATEGORIES = {
-  diagnostic: { en: 'Clinical Modules', he: 'מודולים קליניים' },
+  diagnostic: { en: 'Diagnostic Methods', he: 'שיטות אבחון' },
+  constitutional: { en: 'Constitutional Assessment', he: 'הערכת מבנה' },
+  specialty: { en: 'Clinical Specialties', he: 'התמחויות קליניות' },
+  herbal: { en: 'Herbal Medicine', he: 'רפואת צמחים' },
+  lifestyle: { en: 'Lifestyle & Nutrition', he: 'אורח חיים ותזונה' },
+  'age-specific': { en: 'Age-Specific Care', he: 'טיפול לפי גיל' },
 } as const;
 
 export interface QuestionnaireModule {
@@ -751,17 +776,19 @@ export const CLINICAL_QUESTIONNAIRES: QuestionnaireModule[] = Object.entries(cli
     const numericId = Number(id);
     const name = module?.name ?? `Module ${id}`;
     const rawQuestions = module?.questions ?? [];
+    const category = MODULE_CATEGORY_MAP[numericId] || 'diagnostic';
 
+    // All Hebrew questions are Yes/No format
     const questions: QuestionItem[] = rawQuestions.map((q: string, idx: number) => ({
       id: `m${numericId}-q${idx + 1}`,
-      type: 'open' as const,
+      type: 'yesno' as QuestionType,
       question_en: q,
       question_he: q,
     }));
 
     return {
       id: numericId,
-      category: 'diagnostic' as const,
+      category,
       module_name: name,
       module_name_he: name,
       linked_knowledge_base: 'clinical-navigator',
