@@ -26,7 +26,8 @@ import {
   ArrowLeft,
   ExternalLink,
   Download,
-  Eye
+  Eye,
+  Stethoscope
 } from 'lucide-react';
 import { usePatientAssessments, AssessmentType } from '@/hooks/usePatientAssessments';
 import { usePatients } from '@/hooks/usePatients';
@@ -168,6 +169,17 @@ const questionnaires: QuestionnaireInfo[] = [
     path: '/immune-shield',
     category: 'physical',
     questionCount: 15
+  },
+  {
+    id: 'zang_fu_syndromes',
+    titleHe: 'תסמונות זאנג-פו',
+    titleEn: 'Zang Fu Syndromes',
+    descriptionHe: 'שאלון אבחון ופתולוגיה של תסמונות האיברים',
+    descriptionEn: 'Diagnosis & pathology questionnaire for organ syndromes',
+    icon: <Stethoscope className="h-6 w-6" />,
+    path: '/zang-fu-syndromes',
+    category: 'special',
+    questionCount: 20
   },
   {
     id: 'brain',
