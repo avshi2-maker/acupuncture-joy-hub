@@ -68,6 +68,7 @@ import { HerbalMasterWidget } from '@/components/herbal/HerbalMasterWidget';
 import roiWidgetBg from '@/assets/roi-widget-bg.png';
 import { TongueGalleryCard } from '@/components/dashboard/TongueGalleryCard';
 import { PulseGalleryCard } from '@/components/dashboard/PulseGalleryCard';
+import { CombinedDiagnosisCard } from '@/components/dashboard/CombinedDiagnosisCard';
 
 
 // Phosphor-style glowing clock component (mobile - small version)
@@ -1202,6 +1203,7 @@ export default function Dashboard() {
           <AssessmentCenterCard animationDelay={650} />
           <TongueGalleryCard animationDelay={700} />
           <PulseGalleryCard animationDelay={750} />
+          <CombinedDiagnosisCard animationDelay={800} />
         </div>
 
         {/* Herbal Master Widget - Encyclopedia, Safety & Quiz */}
