@@ -6,8 +6,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BodyFigureWithPoints } from './BodyFigureWithPoints';
 import { SequentialPointTourController } from './SequentialPointTourController';
+import { NarrationControls } from './NarrationControls';
 import { usePointFigureMapping } from '@/hooks/usePointFigureMapping';
 import { useSequentialPointTour } from '@/hooks/useSequentialPointTour';
+import { useTourNarration } from '@/hooks/useTourNarration';
 import { MapPin, Sparkles, ChevronRight, ImageIcon, Zap } from 'lucide-react';
 import { FigureMapping } from '@/data/point-figure-mapping';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -31,6 +33,8 @@ interface RAGBodyFigureDisplayProps {
   enableTour?: boolean;
   /** Auto-start tour when points are loaded */
   autoStartTour?: boolean;
+  /** Enable audio narration during tour */
+  enableNarration?: boolean;
   /** Language for labels */
   language?: 'en' | 'he';
   className?: string;
@@ -39,7 +43,7 @@ interface RAGBodyFigureDisplayProps {
 /**
  * RAG-aware body figure display component
  * Automatically shows the correct body figures based on AI response or point codes
- * With 3D-like celebration animations when points are highlighted
+ * With 3D-like celebration animations and audio narration
  */
 export function RAGBodyFigureDisplay({
   aiResponseText = '',
@@ -51,6 +55,7 @@ export function RAGBodyFigureDisplay({
   celebratingPoint = null,
   enableTour = true,
   autoStartTour = false,
+  enableNarration = true,
   language = 'en',
   className = ''
 }: RAGBodyFigureDisplayProps) {
@@ -77,9 +82,25 @@ export function RAGBodyFigureDisplay({
     return getFiguresForPoints(extractedPoints);
   }, [extractedPoints, getFiguresForPoints]);
 
-  // Sequential Point Tour hook
+  // Audio Narration hook
+  const narration = useTourNarration({
+    language,
+    onNarrationStart: (point) => {
+      console.log('Narration started for:', point);
+    },
+    onNarrationEnd: (point) => {
+      console.log('Narration ended for:', point);
+    },
+    onReadyForNext: () => {
+      // Signal tour to move to next point
+      tour.signalNarrationComplete();
+    },
+  });
+
+  // Sequential Point Tour hook - wait for narration when enabled
   const tour = useSequentialPointTour({
-    dwellTime: 2500, // 2.5 seconds per point
+    dwellTime: enableNarration && !narration.isMuted ? 1000 : 2500, // Shorter dwell when narration handles timing
+    waitForNarration: enableNarration && !narration.isMuted,
     onPointChange: (point, index) => {
       setTourActivePoint(point);
       setCelebrationQueue(prev => [...prev, point]);
@@ -94,6 +115,11 @@ export function RAGBodyFigureDisplay({
         setActiveFigureIndex(figureWithPoint);
       }
       
+      // Play narration for this point
+      if (enableNarration) {
+        narration.playNarration(point);
+      }
+      
       // Clear celebration after animation
       setTimeout(() => {
         setCelebrationQueue(prev => prev.filter(p => p !== point));
@@ -101,6 +127,11 @@ export function RAGBodyFigureDisplay({
     },
     onTourComplete: () => {
       setTourActivePoint(null);
+      narration.stopAudio();
+    },
+    onTourStart: () => {
+      // Preload point data for narration
+      narration.preloadPointData(extractedPoints);
     },
   });
 
@@ -252,7 +283,19 @@ export function RAGBodyFigureDisplay({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Main Figure Card */}
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden relative">
+        {/* Narration Controls Overlay */}
+        {enableNarration && tour.isRunning && (
+          <NarrationControls
+            isMuted={narration.isMuted}
+            isPlaying={narration.isPlaying}
+            isLoading={narration.isLoading}
+            currentPoint={narration.currentPoint}
+            onToggleMute={narration.toggleMute}
+            language={language}
+          />
+        )}
+        
         <CardHeader className="py-3 border-b bg-gradient-to-r from-jade/10 to-transparent">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <CardTitle className="text-sm flex items-center gap-2">

@@ -17,18 +17,22 @@ interface UseSequentialPointTourOptions {
   onTourComplete?: () => void;
   /** Called when tour starts */
   onTourStart?: () => void;
+  /** Whether to wait for external signal before moving to next point */
+  waitForNarration?: boolean;
 }
 
 /**
  * Hook for managing sequential point celebration tours
  * Provides smooth camera transitions with pause/resume and manual navigation
+ * Supports audio narration synchronization
  */
 export function useSequentialPointTour(options: UseSequentialPointTourOptions = {}) {
   const { 
     dwellTime = 2500, 
     onPointChange, 
     onTourComplete,
-    onTourStart 
+    onTourStart,
+    waitForNarration = false
   } = options;
 
   const [tourState, setTourState] = useState<TourState>({
@@ -41,7 +45,7 @@ export function useSequentialPointTour(options: UseSequentialPointTourOptions = 
 
   const pointsRef = useRef<string[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const isTransitioningRef = useRef(false);
+  const waitingForNarrationRef = useRef(false);
 
   // Clear any running timer
   const clearTimer = useCallback(() => {
@@ -69,6 +73,12 @@ export function useSequentialPointTour(options: UseSequentialPointTourOptions = 
   // Schedule next point
   const scheduleNextPoint = useCallback(() => {
     clearTimer();
+    
+    // If waiting for narration, don't auto-advance
+    if (waitForNarration) {
+      waitingForNarrationRef.current = true;
+      return;
+    }
     
     timerRef.current = setTimeout(() => {
       setTourState(prev => {
@@ -104,7 +114,45 @@ export function useSequentialPointTour(options: UseSequentialPointTourOptions = 
         return prev;
       });
     }, dwellTime);
-  }, [dwellTime, onPointChange, onTourComplete, clearTimer]);
+  }, [dwellTime, onPointChange, onTourComplete, clearTimer, waitForNarration]);
+
+  // Signal that narration is complete - advance to next point
+  const signalNarrationComplete = useCallback(() => {
+    if (!waitingForNarrationRef.current) return;
+    
+    waitingForNarrationRef.current = false;
+    
+    setTourState(prev => {
+      if (!prev.isRunning || prev.isPaused) return prev;
+      
+      const nextIndex = prev.currentIndex + 1;
+      
+      if (nextIndex >= pointsRef.current.length) {
+        // Tour complete
+        onTourComplete?.();
+        return {
+          ...prev,
+          isRunning: false,
+          isPaused: false,
+          currentIndex: -1,
+          currentPoint: null,
+        };
+      }
+
+      // Move to next point
+      const point = pointsRef.current[nextIndex];
+      onPointChange?.(point, nextIndex);
+      
+      // Schedule narration wait for next point
+      waitingForNarrationRef.current = true;
+      
+      return {
+        ...prev,
+        currentIndex: nextIndex,
+        currentPoint: point,
+      };
+    });
+  }, [onPointChange, onTourComplete]);
 
   // Start the tour
   const startTour = useCallback((points: string[]) => {
@@ -112,6 +160,7 @@ export function useSequentialPointTour(options: UseSequentialPointTourOptions = 
 
     clearTimer();
     pointsRef.current = points;
+    waitingForNarrationRef.current = false;
 
     setTourState({
       isRunning: true,
@@ -125,14 +174,19 @@ export function useSequentialPointTour(options: UseSequentialPointTourOptions = 
     onPointChange?.(points[0], 0);
 
     // Schedule the transition to the next point
-    timerRef.current = setTimeout(() => {
-      scheduleNextPoint();
-    }, dwellTime);
-  }, [dwellTime, onPointChange, onTourStart, scheduleNextPoint, clearTimer]);
+    if (waitForNarration) {
+      waitingForNarrationRef.current = true;
+    } else {
+      timerRef.current = setTimeout(() => {
+        scheduleNextPoint();
+      }, dwellTime);
+    }
+  }, [dwellTime, onPointChange, onTourStart, scheduleNextPoint, clearTimer, waitForNarration]);
 
   // Pause the tour
   const pauseTour = useCallback(() => {
     clearTimer();
+    waitingForNarrationRef.current = false;
     setTourState(prev => ({
       ...prev,
       isPaused: true,
@@ -147,12 +201,17 @@ export function useSequentialPointTour(options: UseSequentialPointTourOptions = 
     }));
     
     // Continue from current point
-    scheduleNextPoint();
-  }, [scheduleNextPoint]);
+    if (waitForNarration) {
+      waitingForNarrationRef.current = true;
+    } else {
+      scheduleNextPoint();
+    }
+  }, [scheduleNextPoint, waitForNarration]);
 
   // Stop the tour
   const stopTour = useCallback(() => {
     clearTimer();
+    waitingForNarrationRef.current = false;
     setTourState({
       isRunning: false,
       isPaused: false,
@@ -170,46 +229,61 @@ export function useSequentialPointTour(options: UseSequentialPointTourOptions = 
     
     if (index !== -1) {
       clearTimer();
+      waitingForNarrationRef.current = false;
       goToPoint(index);
       
       // If tour is running and not paused, resume scheduling
       if (tourState.isRunning && !tourState.isPaused) {
-        timerRef.current = setTimeout(() => {
-          scheduleNextPoint();
-        }, dwellTime);
+        if (waitForNarration) {
+          waitingForNarrationRef.current = true;
+        } else {
+          timerRef.current = setTimeout(() => {
+            scheduleNextPoint();
+          }, dwellTime);
+        }
       }
     }
-  }, [tourState.isRunning, tourState.isPaused, dwellTime, goToPoint, scheduleNextPoint, clearTimer]);
+  }, [tourState.isRunning, tourState.isPaused, dwellTime, goToPoint, scheduleNextPoint, clearTimer, waitForNarration]);
 
   // Navigate to next point manually
   const nextPoint = useCallback(() => {
     const nextIndex = tourState.currentIndex + 1;
     if (nextIndex < pointsRef.current.length) {
       clearTimer();
+      waitingForNarrationRef.current = false;
       goToPoint(nextIndex);
       
       if (tourState.isRunning && !tourState.isPaused) {
-        timerRef.current = setTimeout(() => {
-          scheduleNextPoint();
-        }, dwellTime);
+        if (waitForNarration) {
+          waitingForNarrationRef.current = true;
+        } else {
+          timerRef.current = setTimeout(() => {
+            scheduleNextPoint();
+          }, dwellTime);
+        }
       }
     }
-  }, [tourState, dwellTime, goToPoint, scheduleNextPoint, clearTimer]);
+  }, [tourState, dwellTime, goToPoint, scheduleNextPoint, clearTimer, waitForNarration]);
 
   // Navigate to previous point manually
   const previousPoint = useCallback(() => {
     const prevIndex = tourState.currentIndex - 1;
     if (prevIndex >= 0) {
       clearTimer();
+      waitingForNarrationRef.current = false;
       goToPoint(prevIndex);
       
       if (tourState.isRunning && !tourState.isPaused) {
-        timerRef.current = setTimeout(() => {
-          scheduleNextPoint();
-        }, dwellTime);
+        if (waitForNarration) {
+          waitingForNarrationRef.current = true;
+        } else {
+          timerRef.current = setTimeout(() => {
+            scheduleNextPoint();
+          }, dwellTime);
+        }
       }
     }
-  }, [tourState, dwellTime, goToPoint, scheduleNextPoint, clearTimer]);
+  }, [tourState, dwellTime, goToPoint, scheduleNextPoint, clearTimer, waitForNarration]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -237,5 +311,6 @@ export function useSequentialPointTour(options: UseSequentialPointTourOptions = 
     jumpToPoint,
     nextPoint,
     previousPoint,
+    signalNarrationComplete,
   };
 }

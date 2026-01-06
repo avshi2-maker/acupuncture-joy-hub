@@ -14,11 +14,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   Brain, Heart, Stethoscope, Leaf, Apple, Activity,
   Users, User, Sparkles, FileText,
   MapPin, AlertTriangle, CheckCircle2,
-  Loader2, ArrowLeft, ChevronsUpDown, Search, List
+  Loader2, ArrowLeft, ChevronsUpDown, Search, List, GitCompare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -29,6 +30,13 @@ import {
 } from '@/data/clinical-navigator-questionnaires';
 import { useClinicalDeepSearch, DeepSearchRequest } from '@/hooks/useClinicalDeepSearch';
 import { RAGBodyFigureDisplay } from '@/components/acupuncture/RAGBodyFigureDisplay';
+import { ComparisonBodyDisplay } from '@/components/acupuncture/ComparisonBodyDisplay';
+import { 
+  ProtocolCompareSelector, 
+  ProtocolComparisonView, 
+  ProtocolRecord,
+  getComparisonColoredPoints 
+} from './ProtocolCompare';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 
@@ -77,6 +85,12 @@ export function ClinicalNavigatorAdvanced({
   const [celebratedPoints, setCelebratedPoints] = useState<Set<string>>(new Set());
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activePointForCelebration, setActivePointForCelebration] = useState<string | null>(null);
+  
+  // Protocol comparison state
+  const [savedProtocols, setSavedProtocols] = useState<ProtocolRecord[]>([]);
+  const [selectedForComparison, setSelectedForComparison] = useState<ProtocolRecord[]>([]);
+  const [isComparing, setIsComparing] = useState(false);
+  const [comparisonProtocols, setComparisonProtocols] = useState<{ a: ProtocolRecord; b: ProtocolRecord } | null>(null);
 
   // Filter modules by category
   const modulesByCategory = useMemo(() => {
@@ -156,6 +170,49 @@ export function ClinicalNavigatorAdvanced({
       setActivePointForCelebration(null);
     }, 2000);
   }, [celebratedPoints, onPointCelebration]);
+
+  // Save current result as a protocol for comparison
+  const handleSaveProtocol = useCallback(() => {
+    if (!result?.success || !result.report || !selectedModule) return;
+    
+    const protocol: ProtocolRecord = {
+      id: `protocol-${Date.now()}`,
+      name: `${selectedModule.module_name} - ${new Date().toLocaleTimeString()}`,
+      timestamp: new Date().toISOString(),
+      points: result.report.extractedPoints || [],
+      diagnosis: result.report.primaryDiagnosis || '',
+      module: selectedModule.module_name,
+    };
+    
+    setSavedProtocols(prev => [...prev, protocol]);
+  }, [result, selectedModule]);
+
+  // Handle protocol selection for comparison
+  const handleSelectProtocolForComparison = useCallback((protocol: ProtocolRecord) => {
+    setSelectedForComparison(prev => {
+      const isSelected = prev.some(p => p.id === protocol.id);
+      if (isSelected) {
+        return prev.filter(p => p.id !== protocol.id);
+      }
+      if (prev.length >= 2) {
+        return prev; // Max 2 selections
+      }
+      return [...prev, protocol];
+    });
+  }, []);
+
+  // Start comparison
+  const handleStartComparison = useCallback((protocolA: ProtocolRecord, protocolB: ProtocolRecord) => {
+    setComparisonProtocols({ a: protocolA, b: protocolB });
+    setIsComparing(true);
+  }, []);
+
+  // Close comparison
+  const handleCloseComparison = useCallback(() => {
+    setIsComparing(false);
+    setComparisonProtocols(null);
+    setSelectedForComparison([]);
+  }, []);
 
   // Reset to category selection
   const handleBack = useCallback(() => {
@@ -604,16 +661,28 @@ export function ClinicalNavigatorAdvanced({
               </p>
             </div>
           </div>
-          {metadata && (
-            <div className="flex items-center gap-2">
-              <Badge variant="outline">
-                {metadata.chunksFound} {language === 'he' ? 'מקורות' : 'sources'}
-              </Badge>
-              <Badge variant="outline">
-                {metadata.crossReferencesFound} {language === 'he' ? 'הצלבות' : 'cross-refs'}
-              </Badge>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {/* Save for Compare button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSaveProtocol}
+              className="gap-1"
+            >
+              <GitCompare className="h-4 w-4" />
+              {language === 'he' ? 'שמור להשוואה' : 'Save for Compare'}
+            </Button>
+            {metadata && (
+              <>
+                <Badge variant="outline">
+                  {metadata.chunksFound} {language === 'he' ? 'מקורות' : 'sources'}
+                </Badge>
+                <Badge variant="outline">
+                  {metadata.crossReferencesFound} {language === 'he' ? 'הצלבות' : 'cross-refs'}
+                </Badge>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -782,8 +851,8 @@ export function ClinicalNavigatorAdvanced({
             </Tabs>
           </div>
 
-          {/* 3D Body Figure - Celebration Integration with Sequential Tour */}
-          <div className="lg:col-span-1">
+          {/* 3D Body Figure - Celebration Integration with Sequential Tour & Narration */}
+          <div className="lg:col-span-1 space-y-4">
             <RAGBodyFigureDisplay
               pointCodes={report.extractedPoints}
               onPointSelect={handlePointClick}
@@ -791,11 +860,47 @@ export function ClinicalNavigatorAdvanced({
               celebratingPoint={activePointForCelebration}
               enableTour={true}
               autoStartTour={true}
+              enableNarration={true}
               language={language === 'he' ? 'he' : 'en'}
               className="sticky top-4"
             />
+            
+            {/* Protocol Comparison Section */}
+            {savedProtocols.length > 0 && (
+              <ProtocolCompareSelector
+                protocols={savedProtocols}
+                selectedProtocols={selectedForComparison}
+                onSelectProtocol={handleSelectProtocolForComparison}
+                onCompare={handleStartComparison}
+                language={language === 'he' ? 'he' : 'en'}
+              />
+            )}
           </div>
         </div>
+        
+        {/* Comparison Dialog */}
+        <Dialog open={isComparing} onOpenChange={(open) => !open && handleCloseComparison()}>
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+            {comparisonProtocols && (
+              <div className="space-y-6">
+                <ProtocolComparisonView
+                  protocolA={comparisonProtocols.a}
+                  protocolB={comparisonProtocols.b}
+                  onPointClick={(point, source) => handlePointClick(point)}
+                  onClose={handleCloseComparison}
+                  language={language === 'he' ? 'he' : 'en'}
+                />
+                
+                {/* 3D Comparison Body Display */}
+                <ComparisonBodyDisplay
+                  coloredPoints={getComparisonColoredPoints(comparisonProtocols.a, comparisonProtocols.b)}
+                  onPointClick={(point, color) => handlePointClick(point)}
+                  language={language === 'he' ? 'he' : 'en'}
+                />
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     );
   };
