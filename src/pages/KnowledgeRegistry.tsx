@@ -413,6 +413,13 @@ const BUILTIN_ASSETS = [
     defaultLanguage: 'en',
   },
   {
+    id: 'tcm-elderly-70-120-conditions',
+    label: '👴 TCM Elderly 70-120 Conditions (100 Common Geriatric Q&A + Points + Formulas)',
+    path: '/knowledge-assets/TCM_Clinic_70-120_100_Common_Conditions_Complete.csv',
+    defaultCategory: 'general_health',
+    defaultLanguage: 'en',
+  },
+  {
     id: 'tcm-teenage-mental-health-qa',
     label: 'TCM Teenage Mental Health Q&A (13-18 years)',
     path: '/knowledge-assets/tcm-teenage-mental-health-qa.csv',
