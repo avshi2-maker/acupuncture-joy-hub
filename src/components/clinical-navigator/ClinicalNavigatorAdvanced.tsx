@@ -1299,12 +1299,12 @@ export function ClinicalNavigatorAdvanced({
       </AnimatePresence>
 
       {/* Email Protocol Dialog */}
-      {result && selectedModule && (
+      {result?.success && result.report && selectedModule && (
         <EmailProtocolDialog
           open={showEmailDialog}
           onOpenChange={setShowEmailDialog}
           protocolData={{
-            diagnosis: result.report.primaryDiagnosis || '',
+            diagnosis: result.report.primaryDiagnosis ?? '',
             herbalFormula: result.report.herbalPrescription?.formula,
             acupuncturePoints: result.report.acupunctureProtocol?.points || [],
             nutritionAdvice: result.report.nutritionAdvice || [],
