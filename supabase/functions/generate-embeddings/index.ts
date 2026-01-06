@@ -132,12 +132,36 @@ serve(async (req) => {
     console.log(`Processing ${chunks.length} chunks for embedding generation`);
 
     // Prepare texts for embedding (combine content with Q&A if available)
-    const textsToEmbed = chunks.map(chunk => {
+    // Filter out chunks with empty content
+    const validChunks = chunks.filter(chunk => {
+      const text = (chunk.content || '').trim();
+      const question = (chunk.question || '').trim();
+      const answer = (chunk.answer || '').trim();
+      return text.length > 0 || question.length > 0 || answer.length > 0;
+    });
+
+    if (validChunks.length === 0) {
+      console.log('No valid chunks with content to embed');
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: 'No valid chunks with content to embed',
+          processed: 0,
+          skipped: chunks.length,
+          remaining: 0
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const textsToEmbed = validChunks.map(chunk => {
       let text = chunk.content || '';
       if (chunk.question) text += `\n\nQuestion: ${chunk.question}`;
       if (chunk.answer) text += `\nAnswer: ${chunk.answer}`;
       return text.trim();
     });
+
+    console.log(`Processing ${validChunks.length} valid chunks (skipped ${chunks.length - validChunks.length} empty)`);
 
     // Generate embeddings in batches
     const embeddings = await generateBatchEmbeddings(textsToEmbed);
