@@ -778,32 +778,32 @@ export const CLINICAL_QUESTIONNAIRES: QuestionnaireModule[] = [
     ]
   },
 
-  // Module 35: Children 7-13 School
+  // Module 35: Children 7-13 School Age
   {
     id: 35,
-    module_name: "Children 7-13 School",
-    module_name_he: "ילדים 7-13 בית ספר",
+    module_name: "Children 7-13 (School Age)",
+    module_name_he: "ילדים 7-13 (גיל בית ספר)",
     nanobanan_prompt_id: "nanobanan_school_age",
     linked_knowledge_base: "tcm_children_7-13_qa_enhanced.csv",
     icon: "GraduationCap",
     color: "#FFC107",
     category: "age-specific",
     questions: [
-      { id: "35-1", question_he: "מה גיל הילד?", question_en: "What is the child's age?", type: "open" },
-      { id: "35-2", question_he: "האם יש קשיי למידה?", question_en: "Are there learning difficulties?", type: "yesno" },
-      { id: "35-3", question_he: "האם יש קשיי ריכוז?", question_en: "Are there concentration difficulties?", type: "yesno" },
-      { id: "35-4", question_he: "האם יש היפראקטיביות?", question_en: "Is there hyperactivity?", type: "yesno" },
-      { id: "35-5", question_he: "האם יש חרדת בית ספר?", question_en: "Is there school anxiety?", type: "yesno" },
-      { id: "35-6", question_he: "האם יש בעיות חברתיות?", question_en: "Are there social problems?", type: "yesno" },
-      { id: "35-7", question_he: "האם יש בריונות?", question_en: "Is there bullying?", type: "yesno" },
-      { id: "35-8", question_he: "האם יש בעיות שינה?", question_en: "Are there sleep problems?", type: "yesno" },
-      { id: "35-9", question_he: "האם יש כאבי בטן לפני בית ספר?", question_en: "Are there stomach aches before school?", type: "yesno" },
-      { id: "35-10", question_he: "האם יש כאבי ראש?", question_en: "Are there headaches?", type: "yesno" },
-      { id: "35-11", question_he: "האם התזונה מאוזנת?", question_en: "Is the diet balanced?", type: "yesno" },
-      { id: "35-12", question_he: "כמה שעות מסך ביום?", question_en: "How many hours of screen time per day?", type: "open" },
-      { id: "35-13", question_he: "האם יש פעילות גופנית?", question_en: "Is there physical activity?", type: "yesno" },
-      { id: "35-14", question_he: "האם יש תמיכה הורית?", question_en: "Is there parental support?", type: "yesno" },
-      { id: "35-15", question_he: "מהי מטרת הטיפול?", question_en: "What is the treatment goal?", type: "open" }
+      { id: "35-1", question_he: "האם הילד מביע חרדה, כאבי בטן או כאבי ראש לפני מבחנים או הליכה לבית הספר?", question_en: "Does the child express anxiety, stomach aches or headaches before tests or going to school?", type: "yesno" },
+      { id: "35-2", question_he: "האם המורים מתלוננים על חולמנות (Spleen/Heart Def) או על היפראקטיביות וחוסר מנוחה?", question_en: "Do teachers complain about daydreaming (Spleen/Heart Def) or hyperactivity and restlessness?", type: "yesno" },
+      { id: "35-3", question_he: "האם יש קושי להירדם עקב חשיפה למסכים, או סיוטים ופחדים בלילה?", question_en: "Is there difficulty falling asleep due to screen exposure, or nightmares and fears at night?", type: "yesno" },
+      { id: "35-4", question_he: "האם הילד בררן מאוד באוכל (Picky Eater), משתוקק למתוקים, או סובל מחוסר תיאבון בבוקר?", question_en: "Is the child very picky eater, craving sweets, or suffering from lack of appetite in the morning?", type: "yesno" },
+      { id: "35-5", question_he: "האם הילד מתלונן על כאבים ברגליים/ברכיים, בעיקר בלילה (כאבי גדילה)?", question_en: "Does the child complain of leg/knee pain, especially at night (growing pains)?", type: "yesno" },
+      { id: "35-6", question_he: "האם הילד 'תופס' כל וירוס בכיתה ומחלים לאט?", question_en: "Does the child 'catch' every virus in class and recover slowly?", type: "yesno" },
+      { id: "35-7", question_he: "האם יש התפרצויות זעם, תסכול מהיר, או נטייה 'לשמור בבטן'?", question_en: "Are there anger outbursts, quick frustration, or tendency to 'hold things in'?", type: "yesno" },
+      { id: "35-8", question_he: "האם הילד ביישן בצורה קיצונית, נמנע מאירועים חברתיים או חרד חברתית?", question_en: "Is the child extremely shy, avoiding social events or socially anxious?", type: "yesno" },
+      { id: "35-9", question_he: "האם יש תלונות על כאבי בטן סביב הטבור, נפיחות, או יציאות לא סדירות?", question_en: "Are there complaints of stomach pain around the navel, bloating, or irregular bowel movements?", type: "yesno" },
+      { id: "35-10", question_he: "האם הילד חוזר מבית הספר תשוש וזקוק לשינה, או 'היפר' ועייף בו זמנית?", question_en: "Does the child return from school exhausted needing sleep, or 'hyper' and tired at the same time?", type: "yesno" },
+      { id: "35-11", question_he: "האם עדיין קיימת הרטבת לילה (מעבר לגיל הסביר)?", question_en: "Is there still bedwetting (beyond reasonable age)?", type: "yesno" },
+      { id: "35-12", question_he: "האם יש נזלת כרונית, אסטמה, או אלרגיות עונתיות?", question_en: "Is there chronic runny nose, asthma, or seasonal allergies?", type: "yesno" },
+      { id: "35-13", question_he: "האם יש אקזמה, אטופיק דרמטיטיס, או פריחות המחמירות במתח?", question_en: "Is there eczema, atopic dermatitis, or rashes that worsen with stress?", type: "yesno" },
+      { id: "35-14", question_he: "האם הילד מתקשה לזכור חומר לימודי למרות שהוא מבין אותו?", question_en: "Does the child have difficulty remembering study material despite understanding it?", type: "yesno" },
+      { id: "35-15", question_he: "האם הילד מסתגר חברתית או מתקשה ביצירת קשרים?", question_en: "Is the child socially withdrawn or having difficulty forming relationships?", type: "yesno" }
     ]
   },
 
