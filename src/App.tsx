@@ -88,6 +88,7 @@ import ZangFuSyndromesQuestionnaire from "./pages/ZangFuSyndromesQuestionnaire";
 import PulseTongueDiagnosisQuestionnaire from "./pages/PulseTongueDiagnosisQuestionnaire";
 import AcupuncturePointsQuestionnaire from "./pages/AcupuncturePointsQuestionnaire";
 import QuestionnaireHub from "./pages/QuestionnaireHub";
+import TongueGallery from "./pages/TongueGallery";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -186,6 +187,7 @@ const App = () => (
                       <Route path="/pulse-tongue-diagnosis" element={<PulseTongueDiagnosisQuestionnaire />} />
                       <Route path="/acupuncture-points" element={<AcupuncturePointsQuestionnaire />} />
                       <Route path="/questionnaire-hub" element={<QuestionnaireHub />} />
+                      <Route path="/tongue-gallery" element={<RequireTier><TongueGallery /></RequireTier>} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                     <FloatingMusicPlayer />
