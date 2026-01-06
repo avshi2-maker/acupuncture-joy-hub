@@ -19,7 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { 
   Brain, Heart, Stethoscope, Leaf, Apple, Activity,
   Users, User, Sparkles, FileText, Mail,
-  MapPin, AlertTriangle, CheckCircle2,
+  MapPin, AlertTriangle, CheckCircle2, Database,
   Loader2, ArrowLeft, ChevronsUpDown, Search, List, GitCompare, X,
   RotateCcw, Eye, MoveHorizontal
 } from 'lucide-react';
@@ -1226,14 +1226,35 @@ export function ClinicalNavigatorAdvanced({
               {language === 'he' ? 'שמור להשוואה' : 'Save for Compare'}
             </Button>
             {metadata && (
-              <>
-                <Badge variant="outline">
-                  {metadata.chunksFound} {language === 'he' ? 'מקורות' : 'sources'}
-                </Badge>
-                <Badge variant="outline">
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Knowledge Base Status Indicator */}
+                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border ${
+                  metadata.chunksFound > 0 
+                    ? 'bg-green-500/10 border-green-500/30 text-green-700 dark:text-green-400' 
+                    : 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-400'
+                }`}>
+                  {metadata.chunksFound > 0 ? (
+                    <Database className="h-3.5 w-3.5" />
+                  ) : (
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                  )}
+                  <span className="text-xs font-medium">
+                    {metadata.chunksFound > 0 
+                      ? (language === 'he' ? `${metadata.chunksFound} קטעי ידע נמצאו` : `${metadata.chunksFound} KB chunks found`)
+                      : (language === 'he' ? 'לא נמצאו קטעים בבסיס הידע' : 'No KB chunks found')}
+                  </span>
+                </div>
+                
+                <Badge variant="outline" className="text-xs">
                   {metadata.crossReferencesFound} {language === 'he' ? 'הצלבות' : 'cross-refs'}
                 </Badge>
-              </>
+                
+                {metadata.source_file && (
+                  <Badge variant="secondary" className="text-xs">
+                    📚 {metadata.source_file}
+                  </Badge>
+                )}
+              </div>
             )}
           </div>
 
