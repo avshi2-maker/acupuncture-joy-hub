@@ -523,6 +523,14 @@ const BUILTIN_ASSETS = [
     defaultCategory: 'clinical_protocols',
     defaultLanguage: 'en',
   },
+  // Pediatric Acupuncture Safety Guide
+  {
+    id: 'pediatric-acupuncture-safety',
+    label: '👶 Pediatric Acupuncture Safety Guide (18 Points + Age Recommendations + Warnings)',
+    path: '/knowledge-assets/Pediatric_Acupuncture_Points_Safety_Guide.csv',
+    defaultCategory: 'clinical_protocols',
+    defaultLanguage: 'en',
+  },
   // TCM Emotional Processing Q&A
   {
     id: 'tcm-grief-qa',
