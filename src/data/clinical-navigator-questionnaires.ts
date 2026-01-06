@@ -738,7 +738,7 @@ export interface QuestionItem {
   options?: string[];
 }
 
-// Module category assignments based on subject matter
+// Module category assignments based on subject matter (5 categories)
 const MODULE_CATEGORY_MAP: Record<number, keyof typeof MODULE_CATEGORIES> = {
   // Diagnostic (Pattern identification, Pulse, Tongue)
   2: 'diagnostic', 4: 'diagnostic', 5: 'diagnostic', 36: 'diagnostic',
@@ -749,10 +749,9 @@ const MODULE_CATEGORY_MAP: Record<number, keyof typeof MODULE_CATEGORIES> = {
   12: 'specialty', 13: 'specialty', 14: 'specialty', 15: 'specialty',
   16: 'specialty', 17: 'specialty', 18: 'specialty', 19: 'specialty',
   20: 'specialty', 21: 'specialty', 22: 'specialty',
-  // Herbal (Formulas, Materia Medica)
-  23: 'herbal', 24: 'herbal', 25: 'herbal', 26: 'herbal',
-  // Lifestyle (Diet, Exercise, Mental Health)
-  27: 'lifestyle', 28: 'lifestyle', 29: 'lifestyle', 30: 'lifestyle',
+  // Wellness (Herbal + Lifestyle combined)
+  23: 'wellness', 24: 'wellness', 25: 'wellness', 26: 'wellness',
+  27: 'wellness', 28: 'wellness', 29: 'wellness', 30: 'wellness',
   // Age-specific (Pediatrics, Geriatrics, Women's Health)
   31: 'age-specific', 32: 'age-specific', 33: 'age-specific', 
   34: 'age-specific', 35: 'age-specific',
@@ -762,8 +761,7 @@ export const MODULE_CATEGORIES = {
   diagnostic: { en: 'Diagnostic Methods', he: 'שיטות אבחון' },
   constitutional: { en: 'Constitutional Assessment', he: 'הערכת מבנה' },
   specialty: { en: 'Clinical Specialties', he: 'התמחויות קליניות' },
-  herbal: { en: 'Herbal Medicine', he: 'רפואת צמחים' },
-  lifestyle: { en: 'Lifestyle & Nutrition', he: 'אורח חיים ותזונה' },
+  wellness: { en: 'Herbal & Lifestyle', he: 'צמחים ואורח חיים' },
   'age-specific': { en: 'Age-Specific Care', he: 'טיפול לפי גיל' },
 } as const;
 
