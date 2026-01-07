@@ -119,3 +119,6 @@ verify_jwt = false
 
 [functions.send-protocol-email]
 verify_jwt = false
+
+[functions.audit-knowledge-storage]
+verify_jwt = false
