@@ -1,0 +1,105 @@
+Line,Original Name,File Name,Category,Language,Status,Chunks,Created At,Priority_Score,Priority_Tier
+72,Treatment_Planning_Protocols_Professional_100plus.csv,Treatment_Planning_Protocols_Professional_100plus.csv,treatment_protocols,en,indexed,106,2025-12-31,110.0,1-Critical
+87,Profound_Crisis_QA_100_Complete.csv,Profound_Crisis_QA_100_Complete.csv,crisis_emergency,en,indexed,94,2025-12-30,109.4,1-Critical
+85,acupuncture_point_warnings_comprehensive.csv,acupuncture_point_warnings_comprehensive.csv,safety_warnings,en,indexed,90,2025-12-30,109.0,1-Critical
+92,chronic-pain-management.csv,chronic-pain-management.csv,clinical_protocols,en,indexed,56,2025-12-26,105.6,1-Critical
+45,🎗️ TCM Oncology Comprehensive (53 Cancer Types - All Ages),____TCM_Oncology_Comprehensive__53_Cancer_Types_-_All_Ages_,clinical_protocols,en,indexed,55,2026-01-04,105.5,1-Critical
+57,"🏎️ CAF Master Studies (50 Clinical Frameworks - ""Ferrari"" Engine)",____CAF_Master_Studies__50_Clinical_Frameworks_-__Ferrari__Engine_,clinical_protocols,en,indexed,50,2026-01-01,105.0,1-Critical
+97,herbal 200 formula.csv,herbal_200_formula.csv,herbal_medicine,en,indexed,200,2025-12-26,100.0,2-Core
+74,Diagnostics_Professional_Corrected_4Columns.csv,Diagnostics_Professional_Corrected_4Columns.csv,tcm_diagnosis,en,indexed,100,2025-12-31,100.0,2-Core
+104,KNOWLEDGE_ACUPUNCTURE_POINTS_BOOK^MPOINTS_CATACORIES_1-2.pdf,acupuncture-points-sapir-guide.pdf,acupuncture_points,en,indexed,1798,2025-12-25,100.0,2-Core
+83,clinic_tongue_diagnosis_reference.csv,clinic_tongue_diagnosis_reference.csv,tcm_diagnosis,en,indexed,70,2025-12-30,97.0,2-Core
+2,Sapir Acupuncture Points Guide - Location & Energetic Functions,KNOWLEDGE_ACUPUNCTURE_POINTS_BOOK_POINTS_CATEGORIES.docx,acupuncture,en,indexed,50,2026-01-07,95.0,2-Core
+84,clinic_pulse_diagnosis_reference.csv,clinic_pulse_diagnosis_reference.csv,tcm_diagnosis,en,indexed,50,2025-12-30,95.0,2-Core
+103,pulse_and_tongue_diagnosis-2.pdf,pulse_and_tongue_diagnosis-2.pdf,tcm_diagnosis,he,indexed,45,2025-12-25,94.5,2-Core
+60,Four Examinations (Si Zhen) - 40 Diagnostic Signs,Four_Examinations__Si_Zhen__-_40_Diagnostic_Signs,tcm_diagnosis,en,indexed,40,2026-01-01,94.0,2-Core
+1,Pulse & Tongue Diagnosis Guide - Hebrew (East-West Academy),pulse_and_tongue_diagnosis-3.pdf,tcm_diagnosis,he,indexed,33,2026-01-07,93.3,2-Core
+5,Dr Zang Fu Syndromes Q&A (Hebrew),dr-zanfu-syndromes-qa.csv,tcm-syndromes,he,indexed,27,2026-01-07,92.7,2-Core
+52,neuro-degenerative-tcm-100.csv,neuro-degenerative-tcm-100.csv,neurology,en,indexed,100,2026-01-02,90.0,3-Specialty
+53,"🧠 Vagus Nerve Q&A (100 Symptoms, Mechanisms, Points & Formulas)",___Vagus_Nerve_Q_A__100_Symptoms__Mechanisms__Points___Formulas_,neurology,en,indexed,100,2026-01-02,90.0,3-Specialty
+58,tcm_renovada_skin_renewal_100qa.csv,tcm_renovada_skin_renewal_100qa.csv,dermatology,en,indexed,100,2026-01-01,90.0,3-Specialty
+77,skin_disease_qa_100.csv,skin_disease_qa_100.csv,dermatology,en,indexed,100,2025-12-30,90.0,3-Specialty
+63,womens-health-tcm.csv,womens-health-tcm.csv,womens_health,en,indexed,99,2026-01-01,89.9,3-Specialty
+91,digestive-disorders.csv,digestive-disorders.csv,digestive_disorders,en,indexed,60,2025-12-26,86.0,3-Specialty
+47,TCM_Oncology_Comprehensive_All_Ages.csv,tcm-oncology-comprehensive.csv,oncology,en,indexed,53,2026-01-04,85.3,3-Specialty
+68,tcm_elderly_70-120_qa_50.csv,tcm_elderly_70-120_qa_50.csv,geriatric,en,indexed,50,2026-01-01,85.0,3-Specialty
+66,adults_50_70.csv,adults_50_70.csv,geriatric,en,indexed,50,2026-01-01,85.0,3-Specialty
+62,"Fertility Protocols (IVF, Male Factor, Recurrent Loss)",Fertility_Protocols__IVF__Male_Factor__Recurrent_Loss_,womens_health,en,indexed,43,2026-01-01,84.3,3-Specialty
+61,"Pregnancy Trimester Guide (Safe Points, Labor, Postpartum)",Pregnancy_Trimester_Guide__Safe_Points__Labor__Postpartum_,womens_health,en,indexed,41,2026-01-01,84.1,3-Specialty
+65,elderly_lifestyle_recommendations.csv,elderly_lifestyle_recommendations.csv,geriatric,en,indexed,27,2026-01-01,82.7,3-Specialty
+41,Pediatric_Acupuncture_Points_Safety_Guide.csv,Pediatric_Acupuncture_Points_Safety_Guide.csv,pediatrics,en,indexed,18,2026-01-06,81.8,3-Specialty
+86,Pediatric_QA_with_acupuncture_points.csv,Pediatric_QA_with_acupuncture_points.csv,pediatrics,en,indexed,14,2025-12-30,81.4,3-Specialty
+76,nine_constitutions_qa_100.csv,nine_constitutions_qa_100.csv,tcm_constitution,en,indexed,100,2025-12-30,80.0,4-Theory
+88,tcm_clinic_diet_nutrition_intake_form.csv,tcm_clinic_diet_nutrition_intake_form.csv,tcm_theory,en,indexed,103,2025-12-29,80.0,4-Theory
+27,TCM_Trauma_Casualties_100_QA_Corrected.csv,TCM_Trauma_Casualties_100_QA_Corrected.csv,tcm_theory,en,indexed,100,2026-01-06,80.0,4-Theory
+59,tcm_pattern_differentiation_100qa modefied.csv,tcm_pattern_differentiation_100qa_modefied.csv,tcm_theory,en,indexed,100,2026-01-01,80.0,4-Theory
+80,tcm_trauma_casualties_qa_100.csv,tcm_trauma_casualties_qa_100.csv,tcm_theory,en,indexed,100,2025-12-30,80.0,4-Theory
+34,Extreme_Weather_Climate_TCM_100QA_CLEANED.csv,Extreme_Weather_Climate_TCM_100QA_CLEANED.csv,tcm_theory,en,indexed,100,2026-01-06,80.0,4-Theory
+30,TCM_Clinic 70-120 _100_Common_Conditions_Complete.csv,TCM_Clinic_70-120__100_Common_Conditions_Complete.csv,tcm_theory,en,indexed,110,2026-01-06,80.0,4-Theory
+29,TCM_Diet_Nutrition_100_QA_Complete.csv,TCM_Diet_Nutrition_100_QA_Complete.csv,tcm_theory,en,indexed,100,2026-01-06,80.0,4-Theory
+21,tcm_pattern_differentiation_enhanced.csv,tcm_pattern_differentiation_enhanced.csv,tcm_theory,en,indexed,100,2026-01-06,80.0,4-Theory
+44,🌿 TCM Herbal Formulas Comprehensive (91 Formulas + Acupoints),___TCM_Herbal_Formulas_Comprehensive__91_Formulas___Acupoints_,tcm_theory,en,indexed,91,2026-01-04,79.1,4-Theory
+48,tcm_pulse_tongue_diagnosis_qa.csv,tcm_pulse_tongue_diagnosis_qa.csv,tcm_theory,en,indexed,85,2026-01-03,78.5,4-Theory
+89,tongue-diagnosis.csv,tongue-diagnosis.csv,tcm_theory,en,indexed,82,2025-12-26,78.2,4-Theory
+51,tcm_clinic_syndromes.csv,tcm_clinic_syndromes.csv,tcm_theory,en,indexed,80,2026-01-03,78.0,4-Theory
+49,tcm_stress_biofeedback_75qa.csv,tcm_stress_biofeedback_75qa.csv,tcm_theory,en,indexed,75,2026-01-03,77.5,4-Theory
+94,Pulse Diagnosis Q&A,pulse-diagnosis.csv,tcm_theory,en,indexed,70,2025-12-26,77.0,4-Theory
+46,TCM_Oncology_Comprehensive_All_Ages (1).csv,TCM_Oncology_Comprehensive_All_Ages__1_.csv,tcm_theory,en,indexed,52,2026-01-04,75.2,4-Theory
+69,tcm_adults_18-50_qa_50_enhanced.csv,tcm_adults_18-50_qa_50_enhanced.csv,tcm_theory,en,indexed,50,2026-01-01,75.0,4-Theory
+4,Zang Fu Syndromes Full Hebrew Course (Dr. Zanfu Pathology),zang-fu-syndromes-hebrew-full-course.docx,tcm-education,he,indexed,50,2026-01-07,75.0,4-Theory
+33,TCM_Adults_50_70_Comprehensive_CONDITIONS.csv,TCM_Adults_50_70_Comprehensive_CONDITIONS.csv,tcm_theory,en,indexed,50,2026-01-06,75.0,4-Theory
+32,TCM_Adults_18_50_Comprehensive_CONDITIONS.csv,TCM_Adults_18_50_Comprehensive_CONDITIONS.csv,tcm_theory,en,indexed,50,2026-01-06,75.0,4-Theory
+22,tcm_children_7-13_qa_enhanced.csv,tcm_children_7-13_qa_enhanced.csv,tcm_theory,en,indexed,50,2026-01-06,75.0,4-Theory
+71,tcm_newborn_qa_50.csv,tcm_newborn_qa_50.csv,tcm_theory,en,indexed,49,2026-01-01,74.9,4-Theory
+102,TCM Professional Training Syllabus,TCM_Professional_Training_Syllabus.xlsx,tcm_training_syllabus,he-en,indexed,48,2025-12-25,74.8,4-Theory
+42,TCM_Grief_QA_Final_Complete.csv,TCM_Grief_QA_Final_Complete.csv,tcm_theory,en,indexed,43,2026-01-04,74.3,4-Theory
+40,TCM_Grief_Symptom_Tongue_Pulse_Mapping.csv,TCM_Grief_Symptom_Tongue_Pulse_Mapping.csv,tcm_theory,en,indexed,33,2026-01-06,73.3,4-Theory
+39,TCM_Western_Symptom_Translation_Guide.csv,TCM_Western_Symptom_Translation_Guide.csv,tcm_theory,en,indexed,30,2026-01-06,73.0,4-Theory
+31,Elderly_Lifestyle_TCM_Enhanced.csv,Elderly_Lifestyle_TCM_Enhanced.csv,tcm_theory,en,indexed,27,2026-01-06,72.7,4-Theory
+50,tcm_syndromes_qa.csv,tcm_syndromes_qa.csv,tcm_theory,en,indexed,26,2026-01-03,72.6,4-Theory
+43,TCM_Grief_QA_Complete.csv,TCM_Grief_QA_Complete.csv,tcm_theory,en,indexed,21,2026-01-04,72.1,4-Theory
+38,TCM_Grief_Insomnia_Acupuncture_Points.csv,TCM_Grief_Insomnia_Acupuncture_Points.csv,tcm_theory,en,indexed,17,2026-01-06,71.7,4-Theory
+93,Work_Stress_Burnout.csv,Work_Stress_Burnout.csv,wellness,en,indexed,100,2025-12-26,70.0,5-Support
+96,NUTRITION.csv,NUTRITION.csv,nutrition,en,indexed,200,2025-12-26,70.0,5-Support
+7,sport_performance_100_qa.csv,sport_performance_100_qa.csv,wellness_sport,en,indexed,100,2026-01-07,70.0,5-Support
+23,wellness_issue_enhanced_fixed.csv,wellness_issue_enhanced_fixed.csv,wellness_sport,en,indexed,1000,2026-01-06,70.0,5-Support
+99,wellnesss.csv,wellnesss.csv,wellness_sport,en,indexed,1000,2025-12-26,70.0,5-Support
+98,Natural Healing.csv,Natural_Healing.csv,wellness,en,indexed,96,2025-12-26,69.6,5-Support
+100,sport performance recovery.csv,sport_performance_recovery.csv,wellness_sport,en,indexed,67,2025-12-26,66.7,5-Support
+79,immune-resilience.csv,immune-resilience.csv,wellness_sport,en,indexed,48,2025-12-30,64.8,5-Support
+3,BaZi Chart Example Data,bazi_chart_data.csv,bazi,en,indexed,47,2026-01-07,64.7,5-Support
+8,TCM Six Stages Questionnaire (Hebrew),tcm_six_stages_he.csv,clinical_questionnaires,he,indexed,15,2026-01-06,61.5,5-Support
+10,TCM Tongue Diagnosis Questionnaire (Hebrew),tcm_tongue_diagnosis_he.csv,clinical_questionnaires,he,indexed,15,2026-01-06,61.5,5-Support
+12,TCM Yin Yang Constitution Questionnaire (Hebrew),tcm_yin_yang_constitution_he.csv,clinical_questionnaires,he,indexed,15,2026-01-06,61.5,5-Support
+9,TCM Qi Blood Fluids Questionnaire (Hebrew),tcm_qi_blood_fluids_he.csv,clinical_questionnaires,he,indexed,15,2026-01-06,61.5,5-Support
+13,TCM Pattern Identification Questionnaire (Hebrew),tcm_pattern_identification_he.csv,clinical_questionnaires,he,indexed,15,2026-01-06,61.5,5-Support
+14,TCM Shen Mind Emotions Questionnaire (Hebrew),tcm_shen_mind_emotions_he.csv,clinical_questionnaires,he,indexed,15,2026-01-06,61.5,5-Support
+17,TCM Herbal Formulas Questionnaire (Hebrew),tcm_herbal_formulas_he.csv,clinical_questionnaires,he,indexed,15,2026-01-06,61.5,5-Support
+20,TCM San Jiao Wei Qi Questionnaire (Hebrew),tcm_san_jiao_wei_qi_he.csv,clinical_questionnaires,he,indexed,15,2026-01-06,61.5,5-Support
+19,TCM Pediatric Questionnaire (Hebrew),tcm_pediatric_he.csv,clinical_questionnaires,he,indexed,15,2026-01-06,61.5,5-Support
+18,TCM Herbal Medicine Questionnaire (Hebrew),tcm_herbal_medicine_he.csv,clinical_questionnaires,he,indexed,15,2026-01-06,61.5,5-Support
+11,TCM Pulse Diagnosis Questionnaire (Hebrew),tcm_pulse_diagnosis_he.csv,clinical_questionnaires,he,indexed,15,2026-01-06,61.5,5-Support
+16,TCM Herbal Matching Questionnaire (Hebrew),tcm_herbal_matching_he.csv,clinical_questionnaires,he,indexed,15,2026-01-06,61.5,5-Support
+15,TCM Oncology Support Questionnaire (Hebrew),tcm_oncology_support_he.csv,clinical_questionnaires,he,indexed,15,2026-01-06,61.5,5-Support
+73,QA_Professional_Corrected_4Columns.csv,QA_Professional_Corrected_4Columns.csv,clinical_qa,en,indexed,1075,2025-12-31,50.0,6-General
+81,clinic_allergies_intake_form.csv,clinic_allergies_intake_form.csv,clinic_intake,en,indexed,102,2025-12-30,50.0,6-General
+55,"Brain Health TCM (100 Q&A - Pediatric, Adult, Geriatric)",brain-health-tcm.csv,brain_health,en,indexed,100,2026-01-02,50.0,6-General
+54,energy-channels-100-qa.csv,energy-channels-100-qa.csv,energy_channels,en,indexed,100,2026-01-02,50.0,6-General
+28,TCM_Mindset_Mental_100_QA_Complete.csv,TCM_Mindset_Mental_100_QA_Complete.csv,anxiety_mental,en,indexed,100,2026-01-06,50.0,6-General
+35,Profound_Crisis_QA_100_CLEANED.csv,Profound_Crisis_QA_100_CLEANED.csv,other,en,indexed,100,2026-01-06,50.0,6-General
+78,extreme_weather_climate_conditions_qa_100.csv,extreme_weather_climate_conditions_qa_100.csv,environmental_health,en,indexed,100,2025-12-30,50.0,6-General
+6,elite_lifestyle_longevity.csv,elite_lifestyle_longevity.csv,other,en,indexed,97,2026-01-07,49.7,6-General
+37,HT7_Shenmen_Needling_Technique_Complete.csv,HT7_Shenmen_Needling_Technique_Complete.csv,other,en,indexed,93,2026-01-06,49.3,6-General
+82,clinic_medications_supplements_intake.csv,clinic_medications_supplements_intake.csv,clinic_intake,en,indexed,79,2025-12-30,47.9,6-General
+75,chief-complaints-tcm.csv,chief-complaints-tcm.csv,general_health,en,indexed,77,2025-12-30,47.7,6-General
+101,TCM-CAF Clinical Asset Framework (15 Assets),tcm-caf-knowledge.csv,tcm-caf,en,indexed,75,2025-12-26,47.5,6-General
+95,Mental Health TCM Q&A,mental-health-tcm.csv,anxiety_mental,en,indexed,69,2025-12-26,46.9,6-General
+90,pediatric-acupuncture.csv,pediatric-acupuncture.csv,pediatric_acupuncture,en,indexed,66,2025-12-26,46.6,6-General
+64,tcm_teenage_mental_health_qa.csv,tcm_teenage_mental_health_qa.csv,anxiety_mental,he,indexed,50,2026-01-01,45.0,6-General
+70,tcm_children_7-13_qa_50.csv,tcm_children_7-13_qa_50.csv,pediatric,en,indexed,50,2026-01-01,45.0,6-General
+67,Age Prompts Adults (18-50),Age_Prompts_Adults__18-50_,general_health,en,indexed,50,2026-01-01,45.0,6-General
+36,TCM_Teenage_Mental_Health_Enhanced_CLEANED.csv,TCM_Teenage_Mental_Health_Enhanced_CLEANED.csv,anxiety_mental,he,indexed,50,2026-01-06,45.0,6-General
+25,trauma corrected.csv,trauma_corrected.csv,other,en,indexed,47,2026-01-06,44.7,6-General
+56,🍽️ Gastric Conditions (30 Stomach/Esophagus Q&A - Deep Thinking),____Gastric_Conditions__30_Stomach_Esophagus_Q_A_-_Deep_Thinking_,digestive,en,indexed,30,2026-01-01,43.0,6-General
+26,"🛡️ TCM Trauma Q&A (22 Q&A - Kidney-Heart, Zhi, Po, Formulas)",____TCM_Trauma_Q_A__22_Q_A_-_Kidney-Heart__Zhi__Po__Formulas_,anxiety_mental,en,indexed,22,2026-01-06,42.2,6-General
+24,immune-resilience.csv,immune-resilience.csv,other,en,indexed,11,2026-01-06,41.1,6-General
