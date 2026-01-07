@@ -1,5 +1,5 @@
 
 [build]
-  command = "bun run build"
-  publish = "dist"
+  command = "echo 'SKIPPING BUILD TO SAVE FUNCTIONS'"
+  publish = "public" 
   functions = "netlify/functions"
