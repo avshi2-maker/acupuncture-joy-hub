@@ -49,7 +49,7 @@ verify_jwt = false
 verify_jwt = true
 
 [functions.generate-legal-report]
-verify_jwt = true
+verify_jwt = false
 
 [functions.generate-session-report]
 verify_jwt = false
