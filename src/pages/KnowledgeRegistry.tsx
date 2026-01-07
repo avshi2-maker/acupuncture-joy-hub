@@ -1104,7 +1104,7 @@ export default function KnowledgeRegistry() {
       return;
     }
 
-    toast.loading('Generating PDF manifest...', { id: 'pdf-gen' });
+    toast.loading('Generating PDF manifest with charts...', { id: 'pdf-gen' });
 
     try {
       const { jsPDF } = await import('jspdf');
@@ -1120,6 +1120,21 @@ export default function KnowledgeRegistry() {
         chunkCountMap[c.document_id] = (chunkCountMap[c.document_id] || 0) + 1;
       });
 
+      // Calculate category breakdown
+      const categoryStats: Record<string, { docs: number; chunks: number }> = {};
+      indexedDocs.forEach(d => {
+        const cat = d.category || 'uncategorized';
+        if (!categoryStats[cat]) {
+          categoryStats[cat] = { docs: 0, chunks: 0 };
+        }
+        categoryStats[cat].docs += 1;
+        categoryStats[cat].chunks += chunkCountMap[d.id] || 0;
+      });
+
+      // Sort by chunks descending
+      const sortedCategories = Object.entries(categoryStats)
+        .sort((a, b) => b[1].chunks - a[1].chunks);
+
       const totalChunks = chunkCounts?.length || 0;
       const doc = new jsPDF({ orientation: 'landscape' });
 
@@ -1131,12 +1146,65 @@ export default function KnowledgeRegistry() {
       doc.setFontSize(10);
       doc.setTextColor(100);
       doc.text(`Generated: ${format(new Date(), 'MMMM d, yyyy HH:mm')}`, 14, 28);
-      doc.text(`Total Documents: ${indexedDocs.length} | Total Chunks: ${totalChunks}`, 14, 34);
+      doc.text(`Total Documents: ${indexedDocs.length} | Total Chunks: ${totalChunks} | Categories: ${sortedCategories.length}`, 14, 34);
 
-      // Table
+      // ===== CATEGORY BREAKDOWN CHART =====
+      const chartStartX = 14;
+      const chartStartY = 42;
+      const chartWidth = 260;
+      const barHeight = 6;
+      const maxChunks = sortedCategories[0]?.[1].chunks || 1;
+      const topCategories = sortedCategories.slice(0, 12); // Top 12 categories
+
+      doc.setFontSize(11);
+      doc.setTextColor(0, 80, 60);
+      doc.text('Category Distribution (by chunks)', chartStartX, chartStartY);
+
+      topCategories.forEach(([category, stats], idx) => {
+        const y = chartStartY + 8 + (idx * (barHeight + 3));
+        const barWidth = (stats.chunks / maxChunks) * (chartWidth - 100);
+        const percentage = ((stats.chunks / totalChunks) * 100).toFixed(1);
+
+        // Category name
+        doc.setFontSize(7);
+        doc.setTextColor(60);
+        const catLabel = category.length > 20 ? category.substring(0, 18) + '...' : category;
+        doc.text(catLabel, chartStartX, y + 4);
+
+        // Bar background
+        doc.setFillColor(230, 230, 230);
+        doc.rect(chartStartX + 55, y, chartWidth - 100, barHeight, 'F');
+
+        // Bar fill with gradient effect (darker green for higher values)
+        const intensity = Math.max(40, 100 - (idx * 5));
+        doc.setFillColor(0, intensity, Math.max(60, intensity - 20));
+        doc.rect(chartStartX + 55, y, barWidth, barHeight, 'F');
+
+        // Stats label
+        doc.setFontSize(6);
+        doc.setTextColor(80);
+        doc.text(`${stats.chunks} chunks (${percentage}%) - ${stats.docs} docs`, chartStartX + 55 + barWidth + 3, y + 4);
+      });
+
+      // Show "and X more categories" if there are more
+      if (sortedCategories.length > 12) {
+        const moreY = chartStartY + 8 + (12 * (barHeight + 3));
+        doc.setFontSize(7);
+        doc.setTextColor(120);
+        const otherChunks = sortedCategories.slice(12).reduce((sum, [, s]) => sum + s.chunks, 0);
+        doc.text(`... and ${sortedCategories.length - 12} more categories (${otherChunks} chunks)`, chartStartX, moreY + 4);
+      }
+
+      // ===== DOCUMENT TABLE =====
+      const tableStartY = chartStartY + 12 + Math.min(topCategories.length, 12) * (barHeight + 3) + 10;
+
+      doc.setFontSize(11);
+      doc.setTextColor(0, 80, 60);
+      doc.text('Document Inventory', 14, tableStartY);
+
       const tableData = indexedDocs.map((d, idx) => [
         idx + 1,
-        (d.original_name || '').substring(0, 45) + ((d.original_name || '').length > 45 ? '...' : ''),
+        (d.original_name || '').substring(0, 40) + ((d.original_name || '').length > 40 ? '...' : ''),
         d.category || 'N/A',
         d.language || 'en',
         d.row_count || 0,
@@ -1146,34 +1214,34 @@ export default function KnowledgeRegistry() {
       ]);
 
       autoTable(doc, {
-        startY: 40,
+        startY: tableStartY + 4,
         head: [['#', 'Document Name', 'Category', 'Lang', 'Rows', 'Chunks', 'Size', 'Indexed']],
         body: tableData,
         theme: 'striped',
-        headStyles: { fillColor: [0, 100, 80], fontSize: 8 },
-        bodyStyles: { fontSize: 7 },
+        headStyles: { fillColor: [0, 100, 80], fontSize: 7 },
+        bodyStyles: { fontSize: 6 },
         columnStyles: {
-          0: { cellWidth: 10 },
-          1: { cellWidth: 80 },
-          2: { cellWidth: 35 },
-          3: { cellWidth: 15 },
-          4: { cellWidth: 20 },
-          5: { cellWidth: 20 },
-          6: { cellWidth: 25 },
-          7: { cellWidth: 25 }
+          0: { cellWidth: 8 },
+          1: { cellWidth: 70 },
+          2: { cellWidth: 32 },
+          3: { cellWidth: 12 },
+          4: { cellWidth: 18 },
+          5: { cellWidth: 18 },
+          6: { cellWidth: 22 },
+          7: { cellWidth: 22 }
         },
         margin: { left: 14, right: 14 }
       });
 
       // Footer with summary
       const finalY = (doc as any).lastAutoTable.finalY || 200;
-      doc.setFontSize(9);
+      doc.setFontSize(8);
       doc.setTextColor(60);
-      doc.text(`Summary: ${indexedDocs.length} indexed documents | ${totalChunks} knowledge chunks | ${new Set(indexedDocs.map(d => d.category)).size} categories`, 14, finalY + 10);
-      doc.text('This manifest certifies all proprietary materials in Dr. Sapir\'s TCM Knowledge Base.', 14, finalY + 16);
+      doc.text(`Summary: ${indexedDocs.length} indexed documents | ${totalChunks} knowledge chunks | ${sortedCategories.length} categories`, 14, finalY + 8);
+      doc.text('This manifest certifies all proprietary materials in Dr. Sapir\'s TCM Knowledge Base.', 14, finalY + 14);
 
       doc.save(`RAG_Knowledge_Manifest_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-      toast.success(`PDF manifest downloaded: ${indexedDocs.length} docs, ${totalChunks} chunks`, { id: 'pdf-gen' });
+      toast.success(`PDF with category chart: ${indexedDocs.length} docs, ${totalChunks} chunks`, { id: 'pdf-gen' });
     } catch (error) {
       console.error('PDF generation error:', error);
       toast.error('Failed to generate PDF', { id: 'pdf-gen' });
