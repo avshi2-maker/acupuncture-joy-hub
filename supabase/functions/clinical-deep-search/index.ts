@@ -19,83 +19,398 @@ class HttpError extends Error {
  * Clinical Deep Search Edge Function
  * Implements the "Deep Search" logic for comprehensive clinical reports
  * Cross-references across all knowledge bases for holistic responses
+ * 
+ * MASTER CONFIG SOURCE: This config is the single source of truth for module configurations.
+ * It links Module ID -> CSV Filename -> System Prompt
  */
 
-// Module to Knowledge Base mapping - UPDATED TO MATCH ACTUAL DATABASE FILENAMES
-// Each module maps to actual original_name values in knowledge_documents table
-// Uses partial matching - search will use ILIKE '%knowledgeBase%'
-const MODULE_KNOWLEDGE_MAP: Record<number, { name: string; promptId: string; knowledgeBase: string; fallbackKB?: string }> = {
-  // TCM Theory & Diagnostics
-  1: { name: 'TCM Shen Mind Emotions', promptId: 'nanobanan_general', knowledgeBase: 'Mental Health TCM Q&A', fallbackKB: 'QA_Professional' },
-  2: { name: 'TCM Pattern Identification', promptId: 'nanobanan_bianzheng', knowledgeBase: 'tcm_pattern_differentiation', fallbackKB: 'QA_Professional' },
-  3: { name: 'TCM Yin Yang Constitution', promptId: 'nanobanan_general', knowledgeBase: 'nine_constitutions_qa_100', fallbackKB: 'QA_Professional' },
-  4: { name: 'TCM Pulse Diagnosis', promptId: 'nanobanan_general', knowledgeBase: 'Pulse Diagnosis Q&A', fallbackKB: 'clinic_pulse_diagnosis' },
-  5: { name: 'TCM Tongue Diagnosis', promptId: 'nanobanan_general', knowledgeBase: 'tongue-diagnosis', fallbackKB: 'clinic_tongue_diagnosis' },
-  6: { name: 'TCM Qi Blood Fluids', promptId: 'nanobanan_general', knowledgeBase: 'energy-channels-100-qa', fallbackKB: 'QA_Professional' },
-  7: { name: 'TCM Six Stages', promptId: 'nanobanan_general', knowledgeBase: 'QA_Professional_Corrected', fallbackKB: 'Diagnostics_Professional' },
-  8: { name: 'TCM San Jiao Wei Qi', promptId: 'nanobanan_general', knowledgeBase: 'energy-channels-100-qa', fallbackKB: 'QA_Professional' },
-  
-  // Pediatrics
-  9: { name: 'TCM Pediatric', promptId: 'nanobanan_school_age', knowledgeBase: 'tcm_children_7-13', fallbackKB: 'Pediatric_QA' },
-  35: { name: 'Children 7-13 School', promptId: 'nanobanan_school_age', knowledgeBase: 'tcm_children_7-13', fallbackKB: 'pediatric-acupuncture' },
-  
-  // Herbal Medicine
-  10: { name: 'TCM Herbal Medicine', promptId: 'nanobanan_general', knowledgeBase: 'herbal 200 formula', fallbackKB: 'TCM Herbal Formulas Comprehensive' },
-  11: { name: 'TCM Herbal Formulas', promptId: 'nanobanan_general', knowledgeBase: 'TCM Herbal Formulas Comprehensive', fallbackKB: 'herbal 200 formula' },
-  12: { name: 'TCM Herbal Matching', promptId: 'nanobanan_general', knowledgeBase: 'herbal 200 formula', fallbackKB: 'TCM Herbal Formulas Comprehensive' },
-  
-  // Oncology
-  13: { name: 'TCM Oncology Support', promptId: 'nanobanan_oncology', knowledgeBase: 'TCM Oncology Comprehensive', fallbackKB: 'QA_Professional' },
-  14: { name: 'Integrative Oncology', promptId: 'nanobanan_oncology', knowledgeBase: 'TCM Oncology Comprehensive', fallbackKB: 'QA_Professional' },
-  
-  // Women's Health
-  15: { name: 'TCM Gynecology', promptId: 'nanobanan_gynecology', knowledgeBase: 'Women Health Guide', fallbackKB: 'Fertility Protocols' },
-  16: { name: 'TCM Fertility Support', promptId: 'nanobanan_fertility', knowledgeBase: 'Fertility Protocols', fallbackKB: 'Women Health Guide' },
-  17: { name: 'TCM Pregnancy Care', promptId: 'nanobanan_pregnancy', knowledgeBase: 'Pregnancy Trimester Guide', fallbackKB: 'Women Health Guide' },
-  
-  // Mental Health & Wellness
-  18: { name: 'Western to TCM Translator', promptId: 'nanobanan_translator', knowledgeBase: 'chief-complaints-tcm', fallbackKB: 'QA_Professional' },
-  19: { name: 'Grief Insomnia', promptId: 'nanobanan_insomnia', knowledgeBase: 'Mental Health TCM Q&A', fallbackKB: 'Work_Stress_Burnout' },
-  20: { name: 'Stress & Biofeedback', promptId: 'nanobanan_stress', knowledgeBase: 'Work_Stress_Burnout', fallbackKB: 'Mental Health TCM Q&A' },
-  21: { name: 'TCM Addiction Recovery', promptId: 'nanobanan_addiction', knowledgeBase: 'Mental Health TCM Q&A', fallbackKB: 'Profound_Crisis' },
-  22: { name: 'Teen Mental Health', promptId: 'nanobanan_teen_health', knowledgeBase: 'Mental Health TCM Q&A', fallbackKB: 'Brain Health TCM' },
-  23: { name: 'Profound Crisis', promptId: 'nanobanan_crisis', knowledgeBase: 'Profound_Crisis_QA_100', fallbackKB: 'Mental Health TCM Q&A' },
-  
-  // Specialty Areas
-  24: { name: 'Renovada Skin', promptId: 'nanobanan_skin', knowledgeBase: 'skin_disease_qa_100', fallbackKB: 'QA_Professional' },
-  25: { name: 'Extreme Weather', promptId: 'nanobanan_climate', knowledgeBase: 'Extreme_Weather_Climate', fallbackKB: 'extreme_weather_climate_conditions' },
-  
-  // Age Groups
-  26: { name: 'Adults 50-70 Vitality', promptId: 'nanobanan_adults_50_70', knowledgeBase: 'adults_50_70', fallbackKB: 'QA_Professional' },
-  27: { name: 'Adults 18-50 General', promptId: 'nanobanan_adults_18_50', knowledgeBase: 'Age Prompts Adults (18-50)', fallbackKB: 'QA_Professional' },
-  28: { name: 'Elderly Lifestyle', promptId: 'nanobanan_elderly_life', knowledgeBase: 'Elderly_Lifestyle_TCM', fallbackKB: 'elderly_lifestyle_recommendations' },
-  29: { name: 'Geriatrics 70-120', promptId: 'nanobanan_geriatrics', knowledgeBase: 'TCM_Clinic 70-120', fallbackKB: 'elderly_lifestyle' },
-  
-  // Additional Categories
-  30: { name: 'Diet & Nutrition', promptId: 'nanobanan_nutrition', knowledgeBase: 'NUTRITION', fallbackKB: 'tcm_clinic_diet_nutrition' },
-  31: { name: 'Mindset Performance', promptId: 'nanobanan_mindset', knowledgeBase: 'TCM_Mindset_Mental_100', fallbackKB: 'Mental Health TCM Q&A' },
-  32: { name: 'Trauma & Orthopedics', promptId: 'nanobanan_trauma', knowledgeBase: 'TCM_Trauma', fallbackKB: 'tcm_trauma_casualties' },
-  33: { name: 'Immune Resilience', promptId: 'nanobanan_immune', knowledgeBase: 'immune-resilience', fallbackKB: 'wellnesss' },
-  34: { name: 'General Wellness', promptId: 'nanobanan_wellness', knowledgeBase: 'wellness_issue_enhanced', fallbackKB: 'wellnesss' },
-  36: { name: 'Pattern Differentiation', promptId: 'nanobanan_bianzheng', knowledgeBase: 'tcm_pattern_differentiation', fallbackKB: 'Diagnostics_Professional' },
-  
-  // Sports & Performance
-  37: { name: 'Sports Performance', promptId: 'nanobanan_sports', knowledgeBase: 'sport_performance_100', fallbackKB: 'immune-resilience' },
-  38: { name: 'Elite Lifestyle', promptId: 'nanobanan_elite', knowledgeBase: 'elite_lifestyle_longevity', fallbackKB: 'Natural Healing' },
-  
-  // Brain & Neurology
-  39: { name: 'Brain Health', promptId: 'nanobanan_brain', knowledgeBase: 'Brain Health TCM', fallbackKB: 'neuro-degenerative-tcm' },
-  40: { name: 'Vagus Nerve', promptId: 'nanobanan_vagus', knowledgeBase: 'Vagus Nerve Q&A', fallbackKB: 'neuro-degenerative-tcm' },
-  
-  // Digestive
-  41: { name: 'Digestive Disorders', promptId: 'nanobanan_digestive', knowledgeBase: 'digestive-disorders', fallbackKB: 'Gastric Conditions' },
-  42: { name: 'Gastric Conditions', promptId: 'nanobanan_gastric', knowledgeBase: 'Gastric Conditions', fallbackKB: 'digestive-disorders' },
+// ═══════════════════════════════════════════════════════════════════════════════
+// MASTER MODULE CONFIGURATION - THE IRON-CLAD TRUTH SOURCE
+// DO NOT USE INTERNAL DEFAULTS - USE THIS CONFIG FOR EVERYTHING
+// ═══════════════════════════════════════════════════════════════════════════════
+
+interface MasterModuleConfig {
+  id: number;
+  name: string;
+  csvFilename: string;      // Exact filename in RAG database (knowledge_documents.original_name)
+  systemPrompt: string;     // The "Brain" logic for this specific module
+}
+
+const MASTER_MODULE_CONFIG: Record<number, MasterModuleConfig> = {
+  // === EXISTING MODULES ===
+  1: {
+    id: 1,
+    name: "TCM Shen Mind Emotions",
+    csvFilename: "Mental Health TCM Q&A",
+    systemPrompt: `ROLE: You are a compassionate TCM Psychiatrist.
+LOGIC: Analyze the user's emotional state (Shen).
+CONNECTION: If anxiety/insomnia is detected, command the 3D model to ZOOM to Heart-7 (Shenmen) or Yintang.
+OUTPUT: Combine emotional validation with specific point prescriptions.`
+  },
+  2: {
+    id: 2,
+    name: "TCM Pattern Identification",
+    csvFilename: "tcm_pattern_differentiation",
+    systemPrompt: `ROLE: You are a TCM Pattern Identification Specialist.
+LOGIC: Identify the primary TCM pattern (Bian Zheng) from symptoms.
+OUTPUT: Provide pattern name, key differentiating signs, and treatment principle.`
+  },
+  3: {
+    id: 3,
+    name: "TCM Yin Yang Constitution",
+    csvFilename: "nine_constitutions_qa_100",
+    systemPrompt: `ROLE: You are a TCM Constitution Analyst.
+LOGIC: Assess the patient's constitutional type based on Yin/Yang balance.
+OUTPUT: Identify constitution type and provide personalized lifestyle recommendations.`
+  },
+  4: {
+    id: 4,
+    name: "TCM Pulse Diagnosis",
+    csvFilename: "Pulse Diagnosis Q&A",
+    systemPrompt: `ROLE: You are a TCM Pulse Diagnosis Expert.
+LOGIC: Interpret pulse qualities and their clinical significance.
+OUTPUT: Describe pulse findings and their relationship to internal organ function.`
+  },
+  5: {
+    id: 5,
+    name: "TCM Tongue Diagnosis",
+    csvFilename: "tongue-diagnosis",
+    systemPrompt: `ROLE: You are a TCM Tongue Diagnosis Specialist.
+LOGIC: Analyze tongue body, coating, and features for diagnostic information.
+OUTPUT: Correlate tongue findings with internal patterns and provide treatment guidance.`
+  },
+  6: {
+    id: 6,
+    name: "TCM Qi Blood Fluids",
+    csvFilename: "energy-channels-100-qa",
+    systemPrompt: `ROLE: You are a TCM Qi, Blood, and Body Fluids Specialist.
+LOGIC: Assess the state of Qi, Blood, and Jin-Ye (Body Fluids).
+OUTPUT: Identify deficiencies, stagnation, or pathological accumulation patterns.`
+  },
+  7: {
+    id: 7,
+    name: "TCM Six Stages",
+    csvFilename: "QA_Professional_Corrected_4Columns",
+    systemPrompt: `ROLE: You are a Shang Han Lun (Six Stages) Expert.
+LOGIC: Apply the Six Stages theory to externally-contracted diseases.
+OUTPUT: Identify the stage of disease progression and appropriate formulas.`
+  },
+  8: {
+    id: 8,
+    name: "TCM San Jiao Wei Qi",
+    csvFilename: "energy-channels-100-qa",
+    systemPrompt: `ROLE: You are a San Jiao and Wei Qi Specialist.
+LOGIC: Analyze the Triple Burner and Defensive Qi systems.
+OUTPUT: Provide treatment strategies for water metabolism and immune function.`
+  },
+  9: {
+    id: 9,
+    name: "TCM Pediatric",
+    csvFilename: "tcm_children_7-13",
+    systemPrompt: `ROLE: You are a Pediatric TCM Specialist.
+LOGIC: Apply age-appropriate TCM principles for children.
+OUTPUT: Provide gentle, child-friendly treatment protocols.`
+  },
+  10: {
+    id: 10,
+    name: "TCM Herbal Medicine",
+    csvFilename: "herbal 200 formula",
+    systemPrompt: `ROLE: You are a TCM Herbal Medicine Expert.
+LOGIC: Match patterns to appropriate herbal formulas.
+OUTPUT: Provide formula recommendations with ingredient explanations.`
+  },
+  11: {
+    id: 11,
+    name: "TCM Herbal Formulas",
+    csvFilename: "TCM Herbal Formulas Comprehensive",
+    systemPrompt: `ROLE: You are a Classical Formula Specialist.
+LOGIC: Select and modify classical formulas for specific presentations.
+OUTPUT: Explain formula composition, modifications, and dosing.`
+  },
+  12: {
+    id: 12,
+    name: "TCM Herbal Matching",
+    csvFilename: "herbal 200 formula",
+    systemPrompt: `ROLE: You are a Herb Pairing Specialist.
+LOGIC: Match individual herbs to patient conditions.
+OUTPUT: Provide herb selections with actions and contraindications.`
+  },
+  13: {
+    id: 13,
+    name: "TCM Oncology Support",
+    csvFilename: "TCM Oncology Comprehensive",
+    systemPrompt: `ROLE: You are an Integrative Oncology TCM Specialist.
+LOGIC: Support cancer patients with TCM alongside conventional treatment.
+OUTPUT: Provide supportive care protocols for side effect management.`
+  },
+  14: {
+    id: 14,
+    name: "Integrative Oncology",
+    csvFilename: "TCM Oncology Comprehensive",
+    systemPrompt: `ROLE: You are an Integrative Oncology Consultant.
+LOGIC: Bridge Western oncology with TCM supportive care.
+OUTPUT: Coordinate treatment timing and manage interactions.`
+  },
+  15: {
+    id: 15,
+    name: "TCM Gynecology",
+    csvFilename: "Women Health Guide",
+    systemPrompt: `ROLE: You are a TCM Gynecology Specialist.
+LOGIC: Address women's health conditions with TCM.
+OUTPUT: Provide cycle-aware treatment protocols.`
+  },
+  16: {
+    id: 16,
+    name: "TCM Fertility Support",
+    csvFilename: "Fertility Protocols",
+    systemPrompt: `ROLE: You are a TCM Fertility Specialist.
+LOGIC: Support conception through TCM protocols.
+OUTPUT: Provide phase-specific treatment for fertility optimization.`
+  },
+  17: {
+    id: 17,
+    name: "TCM Pregnancy Care",
+    csvFilename: "Pregnancy Trimester Guide",
+    systemPrompt: `ROLE: You are a TCM Pregnancy Care Specialist.
+LOGIC: Provide safe TCM support during pregnancy.
+OUTPUT: Trimester-appropriate treatments with safety considerations.`
+  },
+  18: {
+    id: 18,
+    name: "Western to TCM Translator",
+    csvFilename: "chief-complaints-tcm",
+    systemPrompt: `ROLE: You are a Western-TCM Translation Specialist.
+LOGIC: Convert Western diagnoses to TCM pattern equivalents.
+OUTPUT: Bridge terminology and explain pattern correlations.`
+  },
+  19: {
+    id: 19,
+    name: "Grief Insomnia",
+    csvFilename: "Mental Health TCM Q&A",
+    systemPrompt: `ROLE: You are a TCM Sleep and Grief Specialist.
+LOGIC: Address insomnia and grief with Shen-calming approaches.
+OUTPUT: Provide protocols for sleep restoration and emotional healing.`
+  },
+  20: {
+    id: 20,
+    name: "Stress & Biofeedback",
+    csvFilename: "Work_Stress_Burnout",
+    systemPrompt: `ROLE: You are a TCM Stress Management Specialist.
+LOGIC: Address burnout and chronic stress patterns.
+OUTPUT: Provide stress-reduction protocols and lifestyle modifications.`
+  },
+  21: {
+    id: 21,
+    name: "TCM Addiction Recovery",
+    csvFilename: "Mental Health TCM Q&A",
+    systemPrompt: `ROLE: You are a TCM Addiction Recovery Specialist.
+LOGIC: Support recovery with TCM detox and craving management.
+OUTPUT: Provide protocols for withdrawal support and long-term recovery.`
+  },
+  22: {
+    id: 22,
+    name: "Teen Mental Health",
+    csvFilename: "Mental Health TCM Q&A",
+    systemPrompt: `ROLE: You are a Teen Mental Health TCM Specialist.
+LOGIC: Address adolescent mental health with age-appropriate TCM.
+OUTPUT: Provide protocols for anxiety, depression, and stress in teens.`
+  },
+  23: {
+    id: 23,
+    name: "Profound Crisis",
+    csvFilename: "Profound_Crisis_QA_100",
+    systemPrompt: `ROLE: You are a TCM Crisis Intervention Specialist.
+LOGIC: Provide TCM support during acute emotional crises.
+OUTPUT: Offer stabilization protocols and Shen-anchoring treatments.`
+  },
+  24: {
+    id: 24,
+    name: "Renovada Skin",
+    csvFilename: "skin_disease_qa_100",
+    systemPrompt: `ROLE: You are a TCM Dermatology Specialist.
+LOGIC: Address skin conditions through internal TCM patterns.
+OUTPUT: Provide internal and external treatment protocols.`
+  },
+  25: {
+    id: 25,
+    name: "Extreme Weather",
+    csvFilename: "Extreme_Weather_Climate",
+    systemPrompt: `ROLE: You are a TCM Climate Adaptation Specialist.
+LOGIC: Address health issues from extreme weather exposure.
+OUTPUT: Provide seasonal and climate-specific treatment protocols.`
+  },
+  26: {
+    id: 26,
+    name: "Adults 50-70 Vitality",
+    csvFilename: "adults_50_70",
+    systemPrompt: `ROLE: You are a TCM Vitality Specialist for Adults 50-70.
+LOGIC: Address age-related decline and maintain vitality.
+OUTPUT: Provide longevity-focused treatment protocols.`
+  },
+  27: {
+    id: 27,
+    name: "Adults 18-50 General",
+    csvFilename: "Age Prompts Adults (18-50)",
+    systemPrompt: `ROLE: You are a TCM General Wellness Specialist for Adults.
+LOGIC: Address common health concerns for working-age adults.
+OUTPUT: Provide practical wellness protocols.`
+  },
+  28: {
+    id: 28,
+    name: "Elderly Lifestyle",
+    csvFilename: "Elderly_Lifestyle_TCM",
+    systemPrompt: `ROLE: You are a TCM Geriatric Lifestyle Specialist.
+LOGIC: Support healthy aging with lifestyle modifications.
+OUTPUT: Provide gentle, sustainable health recommendations.`
+  },
+  29: {
+    id: 29,
+    name: "Geriatrics 70-120",
+    csvFilename: "TCM_Clinic 70-120",
+    systemPrompt: `ROLE: You are a TCM Geriatric Specialist.
+LOGIC: Address complex health needs of elderly patients.
+OUTPUT: Provide safe, gentle treatment protocols.`
+  },
+  30: {
+    id: 30,
+    name: "Diet & Nutrition",
+    csvFilename: "NUTRITION",
+    systemPrompt: `ROLE: You are a TCM Dietary Therapy Specialist.
+LOGIC: Apply food therapy principles to health conditions.
+OUTPUT: Provide dietary recommendations based on pattern and constitution.`
+  },
+  31: {
+    id: 31,
+    name: "Mindset Performance",
+    csvFilename: "TCM_Mindset_Mental_100",
+    systemPrompt: `ROLE: You are a TCM Mental Performance Specialist.
+LOGIC: Optimize cognitive function and mental clarity.
+OUTPUT: Provide protocols for focus, memory, and mental resilience.`
+  },
+  32: {
+    id: 32,
+    name: "Trauma & Orthopedics",
+    csvFilename: "TCM_Trauma",
+    systemPrompt: `ROLE: You are a TCM Trauma and Orthopedic Specialist.
+LOGIC: Address musculoskeletal injuries and trauma.
+OUTPUT: Provide recovery protocols combining acupuncture and herbs.`
+  },
+  33: {
+    id: 33,
+    name: "Immune Resilience",
+    csvFilename: "immune-resilience",
+    systemPrompt: `ROLE: You are a TCM Immunology Specialist.
+LOGIC: Strengthen Wei Qi and immune function.
+OUTPUT: Provide immune-boosting protocols for prevention and recovery.`
+  },
+  34: {
+    id: 34,
+    name: "General Wellness",
+    csvFilename: "wellness_issue_enhanced",
+    systemPrompt: `ROLE: You are a TCM General Wellness Consultant.
+LOGIC: Address common wellness concerns with holistic TCM.
+OUTPUT: Provide balanced treatment recommendations.`
+  },
+  35: {
+    id: 35,
+    name: "Children 7-13 School",
+    csvFilename: "tcm_children_7-13",
+    systemPrompt: `ROLE: You are a School-Age Pediatric TCM Specialist.
+LOGIC: Address health concerns for school-age children.
+OUTPUT: Provide child-friendly treatment protocols.`
+  },
+  36: {
+    id: 36,
+    name: "Pattern Differentiation",
+    csvFilename: "tcm_pattern_differentiation",
+    systemPrompt: `ROLE: You are a Bian Zheng (Pattern Differentiation) Master.
+LOGIC: Systematically differentiate TCM patterns from symptoms.
+OUTPUT: Provide clear pattern diagnosis with treatment principles.`
+  },
+
+  // === THE NEW "ROLLS-ROYCE" MODULES ===
+  37: {
+    id: 37,
+    name: "Sports Performance Recovery",
+    csvFilename: "sport_performance_100_qa",
+    systemPrompt: `ROLE: You are an expert Sports Medicine Physician and TCM Orthopedic Specialist.
+CONTEXT: The user is an athlete seeking immediate recovery or performance optimization.
+NANO-BANAN PROTOCOL:
+1. IDENTIFY: Detect the user's specific sport and injury (e.g., 'Runner's Knee').
+2. RETRIEVE: Search 'sport_performance_100_qa.csv' for the exact protocol.
+3. 3D LINK:
+   - Leg/Knee Issue -> ZOOM to ST36/SP9.
+   - Arm/Shoulder Issue -> ZOOM to LI15/SI9.
+   - Back Issue -> ROTATE to Posterior View (BL23).
+4. OUTPUT: Structure the answer with 'Western Mechanics' (Ice/Rest) + 'TCM Alchemy' (Points/Herbs).
+5. ALWAYS include the specific Trigger Points and Pharmacopeia from the knowledge base.`
+  },
+
+  38: {
+    id: 38,
+    name: "Elite Lifestyle & Longevity",
+    csvFilename: "elite_lifestyle_longevity",
+    systemPrompt: `ROLE: You are a Concierge Longevity Doctor for high-net-worth individuals.
+CONTEXT: The user is an executive or elite enthusiast (Golf, Ski, Biohacking, Yachting).
+NANO-BANAN PROTOCOL:
+1. IDENTIFY: Detect the high-performance stressor (Jet Lag, Burnout, Golf Swing, Ski Injury).
+2. RETRIEVE: Search 'elite_lifestyle_longevity.csv' for the executive protocol.
+3. 3D LINK:
+   - Stress/Burnout -> ZOOM to Head/Face (Shen points).
+   - Structural Pain -> ROTATE to specific joint.
+4. OUTPUT: Provide sophisticated, efficient advice. Focus on 'Bio-Hacking' combined with ancient wisdom.
+5. ALWAYS include the specific Trigger Points and Pharmacopeia from the knowledge base.`
+  },
+
+  // === ADDITIONAL MODULES ===
+  39: {
+    id: 39,
+    name: "Brain Health",
+    csvFilename: "Brain Health TCM",
+    systemPrompt: `ROLE: You are a TCM Neurology and Brain Health Specialist.
+LOGIC: Address cognitive decline, neurological symptoms, and brain optimization.
+OUTPUT: Provide protocols for brain health and neuroprotection.`
+  },
+  40: {
+    id: 40,
+    name: "Vagus Nerve",
+    csvFilename: "Vagus Nerve Q&A",
+    systemPrompt: `ROLE: You are a Vagus Nerve and Autonomic Specialist.
+LOGIC: Optimize vagal tone and parasympathetic function.
+OUTPUT: Provide protocols for vagal stimulation and nervous system balance.`
+  },
+  41: {
+    id: 41,
+    name: "Digestive Disorders",
+    csvFilename: "digestive-disorders",
+    systemPrompt: `ROLE: You are a TCM Gastroenterology Specialist.
+LOGIC: Address digestive complaints through Spleen/Stomach patterns.
+OUTPUT: Provide comprehensive digestive treatment protocols.`
+  },
+  42: {
+    id: 42,
+    name: "Gastric Conditions",
+    csvFilename: "Gastric Conditions",
+    systemPrompt: `ROLE: You are a TCM Gastric Health Specialist.
+LOGIC: Address stomach-specific conditions and acid-related issues.
+OUTPUT: Provide targeted gastric treatment protocols.`
+  }
 };
+
+// Helper function to get module config with fallback
+function getModuleConfig(moduleId: number): MasterModuleConfig {
+  return MASTER_MODULE_CONFIG[moduleId] || {
+    id: moduleId,
+    name: "General Wellness",
+    csvFilename: "QA_Professional_Corrected_4Columns",
+    systemPrompt: "You are a helpful TCM Assistant. Provide holistic health advice based on Traditional Chinese Medicine principles."
+  };
+}
 
 // Default fallback for unknown modules
 const DEFAULT_KNOWLEDGE_BASE = 'QA_Professional_Corrected_4Columns';
 
-// Cross-reference databases for secondary sweep - UPDATED TO MATCH ACTUAL FILES
+// Cross-reference databases for secondary sweep
 const CROSS_REFERENCE_MODULES = {
   nutrition: { moduleId: 30, name: 'Diet & Nutrition', knowledgeBase: 'NUTRITION', fallbackKB: 'tcm_clinic_diet_nutrition' },
   lifestyle: { moduleId: 28, name: 'Elderly Lifestyle', knowledgeBase: 'Elderly_Lifestyle_TCM', fallbackKB: 'Natural Healing' },
@@ -436,20 +751,12 @@ serve(async (req) => {
     const { moduleId, questionnaireData, patientAge, patientGender, chiefComplaint, language = 'en' } = requestData;
 
     console.log(`=== DEEP SEARCH START ===`);
-    console.log(`Module: ${moduleId} - ${MODULE_KNOWLEDGE_MAP[moduleId]?.name}`);
+    
+    // Get module configuration from MASTER_MODULE_CONFIG
+    const moduleConfig = getModuleConfig(moduleId);
+    console.log(`Module: ${moduleId} - ${moduleConfig.name}`);
+    console.log(`CSV Target: ${moduleConfig.csvFilename}`);
     console.log(`User: ${user.id}`);
-
-    // Validate module
-    const moduleInfo = MODULE_KNOWLEDGE_MAP[moduleId];
-    if (!moduleInfo) {
-      return new Response(JSON.stringify({ 
-        success: false, 
-        error: `Invalid module ID: ${moduleId}` 
-      }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
 
     // Prepare AI gateway key (used for both translation bridge + report generation)
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
@@ -474,7 +781,7 @@ serve(async (req) => {
     if (language === 'he' && rawSearchQuery.trim()) {
       const translated = await translateHebrewToEnglishQuery({
         apiKey: LOVABLE_API_KEY,
-        moduleName: moduleInfo.name,
+        moduleName: moduleConfig.name,
         hebrewText: rawSearchQuery,
       });
 
@@ -495,7 +802,7 @@ serve(async (req) => {
 
 
     // === STEP 1: Primary Retrieval ===
-    console.log(`=== PRIMARY RETRIEVAL: ${moduleInfo.knowledgeBase} ===`);
+    console.log(`=== PRIMARY RETRIEVAL: ${moduleConfig.csvFilename} ===`);
     
     // Extract clean keywords for search
     const keywords = retrievalSearchQuery
@@ -505,10 +812,7 @@ serve(async (req) => {
       .slice(0, 6);
     
     console.log(`Search keywords: ${keywords.join(', ')}`);
-    console.log(`Target knowledge base: ${moduleInfo.knowledgeBase}`);
-    if (moduleInfo.fallbackKB) {
-      console.log(`Fallback knowledge base: ${moduleInfo.fallbackKB}`);
-    }
+    console.log(`Target knowledge base: ${moduleConfig.csvFilename}`);
     
     // === SCOPED PRIMARY SEARCH ===
     let primaryResults: any[] = [];
@@ -529,7 +833,7 @@ serve(async (req) => {
           document_id,
           knowledge_documents!inner(file_name, original_name, category)
         `)
-        .ilike('knowledge_documents.original_name', `%${moduleInfo.knowledgeBase}%`)
+        .ilike('knowledge_documents.original_name', `%${moduleConfig.csvFilename}%`)
         .or(keywordConditions)
         .limit(20);
       
@@ -537,32 +841,10 @@ serve(async (req) => {
         console.error('Primary scoped search error:', primaryError);
       } else {
         primaryResults = primaryChunks || [];
-        console.log(`Primary scoped search found: ${primaryResults.length} chunks from ${moduleInfo.knowledgeBase}`);
+        console.log(`Primary scoped search found: ${primaryResults.length} chunks from ${moduleConfig.csvFilename}`);
       }
       
-      // Strategy 2: If no results, try fallback knowledge base
-      if (primaryResults.length === 0 && moduleInfo.fallbackKB) {
-        console.log(`Trying fallback KB: ${moduleInfo.fallbackKB}`);
-        const { data: fallbackChunks } = await supabase
-          .from('knowledge_chunks')
-          .select(`
-            id,
-            content,
-            question,
-            answer,
-            chunk_index,
-            document_id,
-            knowledge_documents!inner(file_name, original_name, category)
-          `)
-          .ilike('knowledge_documents.original_name', `%${moduleInfo.fallbackKB}%`)
-          .or(keywordConditions)
-          .limit(20);
-        
-        primaryResults = fallbackChunks || [];
-        console.log(`Fallback KB found: ${primaryResults.length} chunks from ${moduleInfo.fallbackKB}`);
-      }
-      
-      // Strategy 3: If still no results, use DEFAULT knowledge base
+      // Strategy 2: If no results, try DEFAULT knowledge base
       if (primaryResults.length === 0) {
         console.log(`Trying default KB: ${DEFAULT_KNOWLEDGE_BASE}`);
         const { data: defaultChunks } = await supabase
@@ -667,7 +949,7 @@ serve(async (req) => {
       .join('\n\n');
 
     const fullContext = `
-=== PRIMARY MODULE: ${moduleInfo.name} ===
+=== PRIMARY MODULE: ${moduleConfig.name} ===
 ${primaryContext || 'No specific content found in primary module.'}
 
 === NUTRITION DATABASE ===
@@ -681,13 +963,19 @@ ${mindsetContext || 'No specific mindset/mental guidance found.'}
 `;
 
     // === STEP 4: Generate AI Response ===
-    // LOVABLE_API_KEY already validated above (also used for the translation bridge)
-
+    // Use the module-specific system prompt from MASTER_MODULE_CONFIG
     const languageInstruction = language === 'he' 
       ? '\n\nIMPORTANT: Respond in Hebrew (עברית). Use Hebrew for all explanatory text while keeping TCM terminology in English/Pinyin.'
       : '\n\nRespond in English.';
 
-    const systemPrompt = DEEP_SEARCH_SYSTEM_PROMPT + languageInstruction + `\n\n=== KNOWLEDGE BASE CONTEXT ===\n${fullContext}\n=== END CONTEXT ===`;
+    // Combine: Module-specific prompt + General structure + Language + Context
+    const systemPrompt = `${moduleConfig.systemPrompt}
+
+${DEEP_SEARCH_SYSTEM_PROMPT}${languageInstruction}
+
+=== KNOWLEDGE BASE CONTEXT ===
+${fullContext}
+=== END CONTEXT ===`;
 
     const userMessage = `
 Please provide a comprehensive clinical report for the following case:
@@ -837,7 +1125,7 @@ Please analyze this case and provide a complete treatment plan following the str
         tokens_used: aiData.usage?.total_tokens || 0,
         metadata: {
           moduleId,
-          moduleName: moduleInfo.name,
+          moduleName: moduleConfig.name,
           pointsFound: extractedPoints.length,
           crossRefsFound: totalCrossRefs,
           translationBridgeActive: !!translationBridge,
@@ -862,16 +1150,16 @@ Please analyze this case and provide a complete treatment plan following the str
         body_figure_command: bodyFigureCommand,
       },
       metadata: {
-        moduleUsed: moduleInfo.name,
+        moduleUsed: moduleConfig.name,
         knowledgeBasesQueried: [
-          moduleInfo.knowledgeBase,
+          moduleConfig.csvFilename,
           ...Object.values(CROSS_REFERENCE_MODULES).map(m => m.knowledgeBase)
         ],
         chunksFound: primaryResults.length,
         crossReferencesFound: totalCrossRefs,
         sourcesUsed: allSources,
         translationBridge,
-        source_file: moduleInfo.knowledgeBase,
+        source_file: moduleConfig.csvFilename,
       },
     };
 
