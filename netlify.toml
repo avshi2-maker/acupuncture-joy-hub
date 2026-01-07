@@ -1,4 +1,5 @@
 
 [build]
-  functions = "serverless_brain"
+  command = "bun run build"
   publish = "dist"
+  functions = "netlify/functions"
