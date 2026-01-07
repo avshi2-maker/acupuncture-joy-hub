@@ -1,5 +1,0 @@
-
-[build]
-  command = "echo 'SKIPPING BUILD TO SAVE FUNCTIONS'"
-  publish = "public" 
-  functions = "netlify/functions"
