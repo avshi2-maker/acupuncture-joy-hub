@@ -15,6 +15,7 @@ import { FileText, Download, CheckCircle, Clock, AlertCircle, Shield, Database, 
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { GoldenKnowledgeImport } from '@/components/admin/GoldenKnowledgeImport';
 import { BulkKnowledgeIndexer } from '@/components/admin/BulkKnowledgeIndexer';
+import { KnowledgeStorageAudit } from '@/components/admin/KnowledgeStorageAudit';
 import { format } from 'date-fns';
 
 // Hook to check if user has admin role
@@ -2033,6 +2034,8 @@ ${report.verificationInstructions || ''}
           </p>
         </CardContent>
       </Card>
+
+      <KnowledgeStorageAudit />
 
       {/* Legal Report Section */}
       <Card className="mb-8 border-primary/20">
