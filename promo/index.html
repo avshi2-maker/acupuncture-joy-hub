@@ -1,0 +1,195 @@
+
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מסע הריפוי הטבעי שלך</title>
+    <meta property="og:title" content="המדריך לריפוי טבעי | שאלות ותשובות">
+    <meta property="og:description" content="התשובות לכל מה שרצית לדעת על רפואה סינית ואיזון הגוף.">
+    <meta property="og:image" content="stress.png">
+    <meta property="og:type" content="website">
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f9fbfd; margin: 0; padding: 0; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 25px rgba(0,0,0,0.05); }
+        
+        /* HEADER WITH IMAGE BACKGROUND */
+        .header { 
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('stress.png');
+            background-size: cover;
+            background-position: center;
+            color: white; 
+            padding: 80px 20px 60px 20px; 
+            text-align: center; 
+            border-bottom-left-radius: 30px; 
+            border-bottom-right-radius: 30px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: 0.5px; }
+        .header p { opacity: 0.95; margin-top: 10px; font-size: 18px; font-weight: 500; }
+        
+        .card-list { padding: 25px 20px; margin-top: -10px; }
+        
+        .qa-card { 
+            background: white; border-radius: 15px; 
+            margin-bottom: 15px; border: 1px solid #f0f0f0;
+            overflow: hidden; transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .qa-card.active { 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
+            border-color: #a8d5ba; 
+            transform: translateY(-2px);
+        }
+        
+        .question { 
+            padding: 18px; font-weight: 700; font-size: 17px; color: #2c3e50; 
+            cursor: pointer; position: relative;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .question::after { content: '+'; font-size: 24px; color: #27ae60; font-weight: 300; transition: transform 0.3s; }
+        .qa-card.active .question::after { content: '-'; color: #e74c3c; transform: rotate(180deg); }
+        
+        .answer { 
+            padding: 0 18px 20px 18px; color: #555; line-height: 1.6; 
+            font-size: 16px; display: none; background: #fff; 
+        }
+        
+        .cta-box { text-align: center; padding: 40px 20px; background: #f0f7f4; margin-top: 20px; }
+        .btn-whatsapp { 
+            background: #25D366; color: white; text-decoration: none; 
+            padding: 14px 30px; border-radius: 50px; font-weight: bold; 
+            font-size: 18px; display: inline-flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+            transition: transform 0.2s;
+        }
+        .btn-whatsapp:hover { transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🍃 ריפוי טבעי והוליסטי</h1>
+        <p>מפת הדרכים לבריאות שלך</p>
+    </div>
+
+    <div class="card-list">
+        
+        <div class="qa-card">
+            <div class="question">מהי הרפואה הסינית וכיצד היא עובדת?</div>
+            <div class="answer">הרפואה הסינית רואה בגוף ובנפש יחידה אחת שלמה. היא מתמקדת באיזון זרימת האנרגיה (צ'י) בגוף באמצעות דיקור, צמחי מרפא ותזונה כדי להפעיל את כוחות הריפוי הטבעיים.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">מהו הצ'י (Qi) ומדוע הוא חשוב?</div>
+            <div class="answer">צ'י הוא כוח החיים הזורם בגופנו. כאשר הצ'י זורם בחופשיות, אנו בריאים. כאשר יש חסימה או חוסר בצ'י, עלולים להופיע כאב או מחלה.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">האם הדיקור כואב?</div>
+            <div class="answer">לרוב לא. המחטים דקיקות כמו שערה. ייתכן שתחושו עקצוץ קל או תחושת כבדות נעימה, המעידה על כך שהטיפול עובד.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">באיזה מצבים הרפואה הסינית מטפלת?</div>
+            <div class="answer">היא יעילה למגוון רחב של מצבים: כאבי גב, מיגרנות, בעיות עיכול, חרדה, נדודי שינה, בעיות פוריות, וחיזוק המערכת החיסונית.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">כמה זמן נמשך טיפול?</div>
+            <div class="answer">מפגש ראשון כולל אבחון מעמיק ונמשך כשעה וחצי. טיפולי המשך נמשכים בדרך כלל בין 45 ל-60 דקות.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">תוך כמה זמן ארגיש שיפור?</div>
+            <div class="answer">זה משתנה. במצבים אקוטיים (כמו כאב גב תפוס) ניתן לחוש הקלה מיידית. במצבים כרוניים נדרשת סדרת טיפולים כדי לראות שינוי עמוק.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">האם צמחי מרפא בטוחים לשימוש?</div>
+            <div class="answer">כן, כאשר הם ניתנים על ידי מטפל מוסמך. הפורמולות מותאמות אישית למטופל ולמצבו הבריאותי, תוך התחשבות בתרופות אחרות שהוא נוטל.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">מה ההבדל בין רפואה סינית לרפואה מערבית?</div>
+            <div class="answer">הרפואה המערבית מצטיינת בטיפול בחירום ובסימפטומים ספציפיים. הרפואה הסינית מחפשת את שורש הבעיה ומטפלת באדם כולו, לא רק במחלה.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">האם הטיפול מתאים לילדים?</div>
+            <div class="answer">בהחלט. ישנה שיטת טיפול מיוחדת לילדים בשם 'שונישין' שאינה כוללת מחטים, וכן דיקור עדין מאוד המותאם לגילם.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">מהי אבחנת דופק ולשון?</div>
+            <div class="answer">אלו כלי אבחון מרכזיים. הלשון משקפת את מצב האיברים הפנימיים, והדופק מגלה לנו על איכות וכמות האנרגיה והדם בגוף.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">האם צריך להאמין בזה כדי שזה יעבוד?</div>
+            <div class="answer">לא. הרפואה הסינית עובדת גם על תינוקות ובעלי חיים, שאין להם 'אמונה' בטיפול. זהו מנגנון פיזיולוגי ואנרגטי אמיתי.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">האם יש תופעות לוואי לדיקור?</div>
+            <div class="answer">תופעות הלוואי נדירות וקלות מאוד, כמו שטף דם קטן באזור הדקירה או תחושת עייפות נעימה אחרי הטיפול שמחייבת מנוחה.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">כיצד תזונה קשורה לריפוי?</div>
+            <div class="answer">לכל מזון יש אנרגיה משלו (מחממת, מקררת, מלחלחת). התזונה הסינית מותאמת אישית כדי לאזן את הגוף ולמנוע מחלות.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">מהי כוסות רוח ולמה זה משאיר סימן?</div>
+            <div class="answer">כוסות רוח יוצרות ואקום המזרים דם לאזור תפוס ומשחרר רעלים. הסימנים אינם שטפי דם אלא עדות לשחרור תקיעות (סטגנציה) ונעלמים תוך ימים ספורים.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">האם מותר לעשות דיקור בהריון?</div>
+            <div class="answer">כן, ואף מומלץ. הדיקור בטוח ויכול לעזור בבחילות, כאבי גב, היפוך עובר והכנה ללידה קלה יותר.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">מה זה מרידיאנים?</div>
+            <div class="answer">אלו הם ערוצי האנרגיה בגוף (כמו מערכת הובלה) שדרכם זורם הצ'י. נקודות הדיקור נמצאות על גבי ערוצים אלו.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">האם הרפואה הסינית עוזרת לסטרס וחרדה?</div>
+            <div class="answer">מאוד. הדיקור משחרר אנדורפינים (משככי כאב טבעיים) ומאזן את מערכת העצבים, מה שמוביל לתחושת רוגע ושלווה.</div>
+        </div>
+        
+        <div class="qa-card">
+            <div class="question">האם אפשר לשלב רפואה סינית עם תרופות?</div>
+            <div class="answer">כן. חשוב ליידע את המטפל על כל התרופות שאתם נוטלים כדי למנוע התנגשויות, במיוחד בטיפול בצמחי מרפא.</div>
+        </div>
+        
+    </div>
+
+    <div class="cta-box">
+        <h3>יש לך שאלה אישית?</h3>
+        <p>אני כאן בשבילך. אפשר לשלוח הודעה ולהתייעץ.</p>
+        <br>
+        <a href="https://wa.me/972500000000?text=היי,%20ראיתי%20את%20מדריך%20הריפוי%20ורציתי%20לשאול..." class="btn-whatsapp">
+            <span>התייעצות ב-WhatsApp</span>
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326z"/></svg>
+        </a>
+    </div>
+</div>
+
+<script>
+    const cards = document.querySelectorAll('.qa-card');
+    cards.forEach(card => {
+        card.querySelector('.question').addEventListener('click', () => {
+            card.classList.toggle('active');
+            const answer = card.querySelector('.answer');
+            answer.style.display = answer.style.display === "block" ? "none" : "block";
+        });
+    });
+</script>
+
+</body>
+</html>
