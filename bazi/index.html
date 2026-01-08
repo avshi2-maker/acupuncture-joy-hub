@@ -4,193 +4,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Roni Clinical System v1767875803</title>
+    <title>Dr. Roni Sapir - Clinical System</title>
     <style>
-        /* RESET & BASICS */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('bazi_background.png?v=1767875803');
+            background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('bazi_background.png');
             background-size: cover; background-position: center; background-attachment: fixed;
-            min-height: 100vh; color: #333; padding: 20px;
+            min-height: 100vh; color: #333;
+        }
+        #dashboard { max-width: 800px; margin: 0 auto; padding: 20px; }
+        
+        .box {
+            background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 20px; 
+            margin-bottom: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.8); backdrop-filter: blur(5px);
         }
         
-        /* CONTAINER */
-        #container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #2c5f2d; font-size: 2.2em; margin-bottom: 5px; }
+        .bio-text { font-size: 1em; color: #666; font-style: italic; margin-bottom: 10px; }
         
-        /* CARD STYLE */
-        .card {
-            background: white; padding: 25px; border-radius: 15px; 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 25px;
-            border: 1px solid #e0e0e0;
+        /* NEW YIN YANG CARD */
+        .yinyang-card {
+            background: linear-gradient(135deg, #1a5f7a 0%, #2c3e50 100%);
+            color: white; padding: 20px; border-radius: 15px;
+            display: flex; align-items: center; justify-content: space-between;
+            text-decoration: none; transition: transform 0.3s;
+            box-shadow: 0 5px 15px rgba(26, 95, 122, 0.4);
+            margin-bottom: 20px; border: 2px solid #d4af37;
         }
-        
-        h1 { color: #2c5f2d; text-align: center; margin-bottom: 5px; }
-        h2 { color: #1a5f7a; border-bottom: 2px solid #b7e4c7; padding-bottom: 10px; margin-bottom: 20px; font-size: 1.4em; }
+        .yinyang-card:hover { transform: scale(1.02); }
+        .yy-icon { font-size: 3em; animation: spin 10s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* SECTION 1: QA BUTTONS */
-        .qa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
-        .qa-btn {
-            background: #e8f5e9; padding: 12px; border: 1px solid #c8e6c9; border-radius: 8px;
-            cursor: pointer; text-align: right; font-weight: bold; color: #2e7d32;
-            transition: 0.2s;
-        }
-        .qa-btn:hover { background: #c8e6c9; transform: translateY(-2px); }
-
-        /* SECTION 2: INPUTS (ALWAYS VISIBLE) */
-        .input-block { margin-bottom: 15px; }
-        .label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
+        /* EXISTING STYLES */
+        .input-wrapper { position: relative; margin-bottom: 20px; }
+        textarea { width: 100%; padding: 20px; border: 2px solid #b7e4c7; border-radius: 15px; min-height: 160px; background: #faffff; font-size:1.1em; }
+        .mic-btn { position: absolute; bottom: 15px; left: 15px; background: #2c5f2d; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; cursor: pointer; }
         
-        /* TEXTAREA FOR MAIN COMPLAINT (Big Box) */
-        textarea {
-            width: 100%; height: 100px; padding: 12px; 
-            border: 2px solid #b2dfdb; border-radius: 8px; font-size: 16px;
-            font-family: inherit; resize: vertical;
+        .btn-perplexity {
+            background: linear-gradient(135deg, #20b2aa 0%, #008080 100%);
+            color: white; padding: 18px; border: none; border-radius: 50px;
+            font-weight: bold; cursor: pointer; width: 100%; font-size: 1.2em;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
         
-        /* INPUTS FOR DETAILS (Smaller Boxes) */
-        input[type="text"] {
-            width: 100%; height: 50px; padding: 12px;
-            border: 2px solid #b2dfdb; border-radius: 8px; font-size: 16px;
-        }
-        
-        textarea:focus, input:focus { outline: none; border-color: #00897b; background: #f0fdfc; }
-
-        /* SECTION 3: ACTIONS */
-        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .btn {
-            padding: 15px; border: none; border-radius: 50px; color: white;
-            font-weight: bold; font-size: 1.1em; cursor: pointer; text-align: center;
-        }
-        .btn-internal { background: #2c5f2d; }
-        .btn-external { background: linear-gradient(135deg, #009688 0%, #004d40 100%); }
-
-        /* RESULTS (Hidden by default) */
-        #results-area { display: none; margin-top: 20px; }
-        .result-box { background: #fffde7; padding: 15px; border-radius: 10px; border: 1px solid #fbc02d; }
-        .fallback-box { background: #ffebee; padding: 15px; border-radius: 10px; border: 1px solid #ef5350; color: #c62828; display: none; }
-
+        .contact-info { text-align: center; font-size: 0.9em; color: #444; margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; }
+        .contact-info a { color: #2c5f2d; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="container">
-    
-    <div class="card">
+<div id="dashboard">
+    <div class="box" style="text-align:center;">
         <h1>🌿 Dr. Roni Sapir</h1>
-        <p style="text-align:center; color:#666;">מערכת קלינית מלאה</p>
+        <h3>רפואה משלימה</h3>
+        <p class="bio-text">a/m data allow you every time to use</p>
     </div>
-
-    <div class="card">
-        <h2>1. בחר נושא (QA)</h2>
-        <div class="qa-grid">
-            <button class="qa-btn" onclick="fill('כאבי ראש חזקים', 'מופיע בבוקר, מחמיר באור', 'הקלה מיידית')">🤕 כאבי ראש</button>
-            <button class="qa-btn" onclick="fill('עייפות כרונית וחולשה', 'בעיקר אחרי האוכל', 'חיזוק אנרגיה')">🔋 עייפות</button>
-            <button class="qa-btn" onclick="fill('נדודי שינה ומחשבות', 'קושי להירדם בלילה', 'שינה רציפה')">😴 שינה</button>
-            <button class="qa-btn" onclick="fill('כאבי גב תחתון', 'מוחמר בישיבה ממושכת', 'שיפור טווח תנועה')">🦴 אורתופדיה</button>
+    
+    <a href="../yinyang/" class="yinyang-card">
+        <div>
+            <h3 style="margin:0; font-size:1.4em; color:#d4af37;">☯️ מצגת יין-ויאנג אינטראקטיבית</h3>
+            <p style="margin:5px 0 0 0; font-size:0.9em; opacity:0.9;">למד על הפילוסופיה שעומדת בבסיס הטיפול</p>
         </div>
-
-        <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
-
-        <h2>2. פירוט המקרה (הקלד חופשי)</h2>
-        
-        <div class="input-block">
-            <span class="label">🔹 תלונה עיקרית (מה הבעיה?):</span>
-            <textarea id="q1" placeholder="הקלד כאן את התלונה..."></textarea>
+        <div class="yy-icon">☯️</div>
+    </a>
+    
+    <div class="box">
+        <h2 style="color:#2c5f2d; font-size:1.4em; margin-bottom:20px;">מחקר קליני מהיר</h2>
+        <div class="input-wrapper">
+            <textarea id="q" placeholder="לחץ על המיקרופון ודבר, או הקלד שאלה כאן..."></textarea>
+            <button class="mic-btn" onclick="toggleVoice()">🎤</button>
         </div>
-
-        <div class="input-block">
-            <span class="label">🔹 נסיבות (מתי/איפה/מה מחמיר?):</span>
-            <input type="text" id="q2" placeholder="למשל: בבוקר, בקור, במתח...">
-        </div>
-
-        <div class="input-block">
-            <span class="label">🔹 מטרת הטיפול (Goal):</span>
-            <input type="text" id="q3" placeholder="מה התוצאה הרצויה?">
-        </div>
-
-        <div class="btn-row">
-            <button class="btn btn-internal" onclick="analyze()">🔍 אבחון פנימי</button>
-            <button class="btn btn-external" onclick="askPerplexity()">🔮 שאל את Perplexity</button>
-        </div>
+        <button onclick="askPerplexity()" class="btn-perplexity">🔮 שאל את המערכת (Perplexity AI)</button>
     </div>
-
-    <div id="results-area" class="card">
-        <h2>📋 תוצאות</h2>
-        
-        <div id="bazi-box" class="result-box" style="display:none;">
-            <h3>✅ אבחון אנרגטי (Ba Zi)</h3>
-            <p><strong>אלמנט מאובחן:</strong> מים יאנג (Water Yang)<br>
-            <strong>עונה:</strong> סתיו (מתכת)<br>
-            <strong>נקודות מומלצות:</strong> KI6, TH1, GB38</p>
-        </div>
-
-        <div id="fallback-box" class="fallback-box">
-            <h3⚠️ לא נמצאה התאמה פנימית</h3>
-            <p>המונח לא זוהה במאגר המערכת.<br>אנא השתמש בכפתור Perplexity.</p>
-        </div>
-
-        <div style="margin-top:20px; text-align:center;">
-            <a id="wa-link" href="#" target="_blank" style="background:#25D366; color:white; padding:10px 20px; border-radius:20px; text-decoration:none; font-weight:bold;">
-                👩‍⚕️ שלח ל-WhatsApp של ד"ר רוני
-            </a>
-        </div>
+    
+    <div class="box contact-info">
+        <strong>Dr. Roni Sapir | רפואה משלימה</strong><br>
+        WhatsApp: <a href="https://wa.me/972544634923">054-4634923</a>
     </div>
-
 </div>
 
 <script>
-    // --- JAVASCRIPT LOGIC ---
-
-    // 1. FILL FUNCTION (Populates the 3 boxes)
-    function fill(complaint, context, goal) {
-        document.getElementById('q1').value = complaint;
-        document.getElementById('q2').value = context;
-        document.getElementById('q3').value = goal;
+    function toggleVoice() {
+        if (!('webkitSpeechRecognition' in window)) { alert("הדפדפן לא תומך בדיבור."); return; }
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = 'he-IL';
+        recognition.onresult = (e) => {
+            const t = e.results[0][0].transcript;
+            document.getElementById('q').value += " " + t;
+        };
+        recognition.start();
     }
 
-    // 2. ANALYZE INTERNAL
-    function analyze() {
-        const q1 = document.getElementById('q1').value;
-        const q2 = document.getElementById('q2').value;
-        const q3 = document.getElementById('q3').value;
-        
-        if(!q1) { alert("נא להזין תלונה עיקרית"); return; }
-
-        document.getElementById('results-area').style.display = 'block';
-
-        // Simple Keyword Matching
-        const fullText = (q1 + " " + q2).toLowerCase();
-        const keywords = ["כאב", "ראש", "בטן", "עייפות", "שינה", "גב", "tcm", "דיקור", "qi", "yin"];
-        
-        const isMedical = keywords.some(k => fullText.includes(k));
-
-        if(isMedical) {
-            document.getElementById('bazi-box').style.display = 'block';
-            document.getElementById('fallback-box').style.display = 'none';
-        } else {
-            document.getElementById('bazi-box').style.display = 'none';
-            document.getElementById('fallback-box').style.display = 'block';
-        }
-
-        // Update WhatsApp Link
-        const msg = `*פנייה חדשה:*\n1. תלונה: ${q1}\n2. נסיבות: ${q2}\n3. מטרה: ${q3}`;
-        document.getElementById('wa-link').href = `https://wa.me/972544634923?text=${encodeURIComponent(msg)}`;
-    }
-
-    // 3. ASK PERPLEXITY (Combines all 3 boxes)
     function askPerplexity() {
-        const q1 = document.getElementById('q1').value;
-        const q2 = document.getElementById('q2').value;
-        const q3 = document.getElementById('q3').value;
-        
-        const combinedQuery = q1 + " " + q2 + " " + q3;
-        
-        if(!combinedQuery.trim()) { alert("נא להזין נתונים"); return; }
-        
-        window.open(`https://www.perplexity.ai/search?q=${encodeURIComponent(combinedQuery)}`, '_blank');
+        const q = document.getElementById('q').value.trim();
+        if (!q) { alert("נא להזין שאלה."); return; }
+        window.open(`https://www.perplexity.ai/search?q=${encodeURIComponent(q)}`, '_blank');
     }
 </script>
-
 </body>
 </html>
