@@ -1,579 +1,188 @@
+
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Roni Sapir - Ba Zi Clinical Compass</title>
+    <title>Dr. Roni Sapir - Clinical Compass</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            /* IMAGE REFERENCE - Ensure 'bazi_background.png' is in the same folder */
-            background: linear-gradient(rgba(20, 30, 40, 0.4), rgba(20, 30, 40, 0.4)), url('bazi_background.png');
+            background: linear-gradient(rgba(20, 30, 40, 0.6), rgba(20, 30, 40, 0.6)), url('bazi_background.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             min-height: 100vh;
             color: #333;
         }
-
-        /* Mobile Scrolling Fix */
-        @media (hover: none) {
-            body { background-attachment: scroll; }
-        }
+        @media (hover: none) { body { background-attachment: scroll; } }
         
-        #dashboard {
-            display: block;
-            padding: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+        #dashboard { max-width: 800px; margin: 0 auto; padding: 20px; }
         
         .box {
-            background: rgba(255, 255, 255, 0.92); /* Glass effect */
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.6);
+            background: rgba(255, 255, 255, 0.96);
+            padding: 25px; border-radius: 15px; margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.8);
         }
         
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+        h1 { color: #1b4332; font-size: 1.8em; margin-bottom: 5px; }
+        h2 { color: #2d6a4f; font-size: 1.3em; border-bottom: 2px solid #b7e4c7; padding-bottom: 10px; margin-bottom: 15px; }
         
-        .badge-display {
-            background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9em;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            border: 1px solid #d8f3dc;
-        }
-        
-        h1 { color: #1b4332; font-size: 1.8em; margin-bottom: 5px; text-shadow: 1px 1px 0px rgba(255,255,255,0.5); }
-        h2 { color: #2d6a4f; font-size: 1.4em; border-bottom: 2px solid #b7e4c7; padding-bottom: 10px; display: inline-block; margin-bottom: 15px; }
-        
-        .sample {
-            background: #fff;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 10px;
-            cursor: pointer;
-            border-right: 4px solid #40916c;
-            transition: all 0.3s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        
-        .sample:hover {
-            background: #e8f5e9;
-            transform: translateX(-5px);
-        }
+        .bio-text { font-size: 0.9em; color: #555; margin-bottom: 15px; font-style: italic; }
         
         textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #b7e4c7;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-family: inherit;
-            min-height: 100px;
-            resize: vertical;
-            background: #f8fff9;
+            width: 100%; padding: 15px; border: 2px solid #b7e4c7; border-radius: 10px;
+            font-size: 1.1em; font-family: inherit; min-height: 120px; resize: vertical;
+            background: #faffff; margin-bottom: 15px;
         }
-        
         textarea:focus { outline: none; border-color: #2d6a4f; }
         
-        .btns { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-        
         button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 50px;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 12px 25px; border: none; border-radius: 50px; font-size: 1em;
+            font-weight: bold; cursor: pointer; transition: 0.2s; color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-right: 10px; margin-bottom: 10px;
+        }
+        .btn-primary { background: #2d6a4f; width: 100%; }
+        
+        .btn-whatsapp { 
+            background: #25D366; display: block; text-decoration: none; 
+            text-align: center; padding: 15px; border-radius: 15px; 
+            color: white; font-weight: bold; font-size: 1.1em; 
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); 
+        }
+        .btn-whatsapp:hover { transform: scale(1.02); background: #128c7e; }
+
+        .warning-box {
+            background: #ffebee; border: 1px solid #ef9a9a; color: #c62828;
+            padding: 15px; border-radius: 10px; margin: 20px 0;
+            text-align: center; font-weight: bold; font-size: 0.9em;
         }
         
-        .btn-primary { background: #2d6a4f; color: white; }
-        .btn-voice { background: #40916c; color: white; }
-        .btn-multi { background: #d97757; color: white; }
-        .btn-speak { background: #7c3aed; color: white; }
-        .btn-speak.playing { background: #dc2626; }
-        .btn-whatsapp { background: #25D366; color: white; }
-        
-        button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
-        
-        .multi-panel {
-            background: #f1f8e9;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 15px;
-            border: 2px solid #a8dadc;
-            display: none;
-        }
-        .multi-panel.show { display: block; }
-        .multi-panel input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; }
-        
-        .thinking { text-align: center; display: none; padding: 40px; }
-        .thinking.show { display: block; }
-        
-        .avatar {
-            width: 120px; height: 120px; border-radius: 50%; background: #fff;
-            margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
-            font-size: 60px; border: 4px solid #40916c; animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(64, 145, 108, 0.4); }
-            50% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(64, 145, 108, 0); }
-        }
-        
-        .stage {
-            background: #e8f5e9; padding: 12px; margin: 10px 0; border-radius: 8px;
-            border-right: 4px solid #81c784; text-align: right;
-        }
-        .stage.done { background: #c8e6c9; border-right-color: #2e7d32; color: #1b5e20; }
-        
-        .results { display: none; }
+        .results { display: none; animation: fadeIn 0.5s; }
         .results.show { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .bazi-box {
-            background: #fffde7; padding: 20px; border-radius: 10px; margin: 20px 0; border: 1px solid #fbc02d;
+        .ai-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .ai-btn { padding: 10px; border-radius: 8px; text-align: center; font-size: 0.9em; }
+        
+        .contact-info { 
+            margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; 
+            text-align: center; font-size: 0.9em; color: #444; 
         }
-        .bazi-item { padding: 8px; margin: 5px 0; background: rgba(255,255,255,0.7); border-radius: 5px; }
-        .bazi-label { font-weight: bold; color: #f57f17; }
+        .contact-info a { color: #2d6a4f; text-decoration: none; font-weight: bold; }
         
-        .ai-section { background: #e0f2f1; padding: 20px; border-radius: 10px; margin: 20px 0; }
-        .ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
-        .ai-btn { padding: 12px; border-radius: 10px; font-weight: bold; color: white; text-align: center; cursor: pointer; border: none; }
-        
-        .interpretation { background: #dcedc8; padding: 20px; border-radius: 10px; margin: 20px 0; line-height: 1.8; }
-        
-        @media (max-width: 600px) {
-            .header { flex-direction: column; align-items: flex-start; gap: 10px; }
-            .btns { flex-direction: column; }
-            button { width: 100%; }
-        }
+        .loader { text-align: center; padding: 40px; display: none; }
+        .loader.show { display: block; }
     </style>
 </head>
 <body>
 
 <div id="dashboard">
-    <!-- Header -->
     <div class="box">
-        <div class="header">
-            <div>
-                <h1>🌿 Dr. Roni Sapir</h1>
-                <p>מצפן קליני: Ba Zi & Acupuncture</p>
-            </div>
-            <span class="badge-display">VIP ACCESS</span>
+        <h1>🌿 Dr. Roni Sapir</h1>
+        <h3 style="color:#555; margin-bottom:5px;">רפואה משלימה</h3>
+        <p class="bio-text">a/m data allow you every time to use</p>
+    </div>
+    
+    <div class="box" id="input-section">
+        <h2>מה השאלה הקלינית?</h2>
+        <textarea id="q" placeholder="הקלד כאן סימפטום, אבחנה, או תלונה... (למשל: כאבי ראש בצד ימין אצל גבר בן 40)"></textarea>
+        <button class="btn-primary" onclick="analyze()">🔍 נתח מקרה</button>
+    </div>
+    
+    <div class="box loader" id="loader">
+        <div style="font-size: 3em;">⚙️</div>
+        <h3>מעבד נתונים...</h3>
+    </div>
+    
+    <div class="box results" id="results">
+        
+        <div style="background: #fffde7; padding: 10px; border-radius: 8px; border: 1px solid #fbc02d; font-size: 0.9em; margin-bottom: 20px;">
+            <strong>🔮 אנרגיה יומית (Ba Zi):</strong><br>
+            עונה: סתיו (מתכת) | מרידיאנים: BL, GB
         </div>
-    </div>
-    
-    <!-- Sample Questions -->
-    <div class="box">
-        <h2>💡 שאלות לדוגמה</h2>
-        <div class="sample" onclick="useQuestion(this)">כאבי ראש תכופים בבוקר</div>
-        <div class="sample" onclick="useQuestion(this)">עייפות כרונית ובעיות ריכוז</div>
-        <div class="sample" onclick="useQuestion(this)">קשיי שינה וחרדה בלילות</div>
-        <div class="sample" onclick="useQuestion(this)">כאבי גב תחתון בישיבה</div>
-        <div class="sample" onclick="useQuestion(this)">בעיות עיכול וגזים</div>
-    </div>
-    
-    <!-- Query Input -->
-    <div class="box">
-        <h2>🔮 שאל את המערכת</h2>
-        <textarea id="question" placeholder="תאר את התסמינים שלך או שאל שאלה קלינית..."></textarea>
-        <div class="btns">
-            <button class="btn-primary" onclick="startAnalysis()">🔍 קבל תשובה</button>
-            <button class="btn-voice" onclick="startVoice()">🎤 הקלטה קולית</button>
-            <button class="btn-multi" onclick="toggleMulti()">🧩 אבחון רב-זוויתי</button>
+
+        <h3>💡 ניתוח עבור:</h3>
+        <div style="background:#e8f5e9; padding:15px; border-radius:10px; margin-bottom:20px; font-weight:bold; color:#1b4332;" id="user-query-display">...</div>
+
+        <div class="warning-box">
+            ⚠️ שים לב: המידע כאן הוא כלי עזר בלבד.<br>
+            יש לאמת כל אבחנה רפואית עם איש מקצוע.
         </div>
         
-        <!-- Multi-angle panel -->
-        <div id="multiPanel" class="multi-panel">
-            <h3>🧩 אבחון מורכב (3 זוויות)</h3>
-            <label>1. תסמינים עיקריים:</label>
-            <input type="text" id="multi1" placeholder="כאבי ראש, עייפות...">
-            <label>2. נסיבות (זמן/מקום/החמרה):</label>
-            <input type="text" id="multi2" placeholder="בבוקר, אחרי אכילה...">
-            <label>3. מטרת הטיפול:</label>
-            <input type="text" id="multi3" placeholder="הפחתת כאב, שיפור שינה...">
-            <button class="btn-primary" onclick="startMultiAnalysis()" style="margin-top: 15px;">🚀 התחל ניתוח</button>
-        </div>
-    </div>
-    
-    <!-- Thinking Animation -->
-    <div id="thinking" class="box thinking">
-        <div class="avatar">👨‍⚕️</div>
-        <p><strong>Dr. Roni AI מנתח...</strong></p>
-        <div id="stages"></div>
-    </div>
-    
-    <!-- Results -->
-    <div id="results" class="box results">
-        <h2>📋 תוצאות האבחון</h2>
-        <div id="resultContent"></div>
-        
-        <!-- AI Second Opinion -->
-        <div class="ai-section">
-            <h3>🤖 דעה שנייה (AI):</h3>
+        <p style="text-align:center; margin-bottom:15px;">לא נמצאה תשובה מלאה בשרת המקומי.</p>
+
+        <a href="#" id="whatsapp-link" target="_blank" class="btn-whatsapp">
+            👩‍⚕️ שלח שאלה לד"ר רוני (WhatsApp)
+        </a>
+
+        <div style="background:#f5f5f5; padding:15px; border-radius:10px; margin-top:20px;">
+            <h4>🤖 התייעץ עם AI חיצוני:</h4>
+            <p style="font-size:0.8em; color:#666; margin-bottom:10px;">(השאלה הועתקה ללוח באופן אוטומטי)</p>
             <div class="ai-grid">
-                <button class="ai-btn" style="background: #10a37f;" onclick="openAI('chatgpt')">ChatGPT</button>
-                <button class="ai-btn" style="background: #8b5cf6;" onclick="openAI('claude')">Claude</button>
-                <button class="ai-btn" style="background: #4285f4;" onclick="openAI('gemini')">Gemini</button>
-                <button class="ai-btn" style="background: #1e90ff;" onclick="openAI('perplexity')">Perplexity</button>
+                <button class="ai-btn" style="background: #10a37f" onclick="openAI('chatgpt')">ChatGPT</button>
+                <button class="ai-btn" style="background: #d97757" onclick="openAI('claude')">Claude</button>
+                <button class="ai-btn" style="background: #4285f4" onclick="openAI('gemini')">Gemini</button>
             </div>
         </div>
-        
-        <!-- Actions -->
-        <div class="btns">
-            <button id="speakBtn" class="btn-speak" onclick="toggleSpeech()">🔊 הקרא בקול</button>
-            <button class="btn-whatsapp" onclick="shareWhatsApp()">📱 שתף בוואטסאפ (Dr. Roni)</button>
-            <button class="btn-primary" onclick="reset()">🔄 אבחון חדש</button>
+
+        <div style="text-align:center; margin-top:20px;">
+            <button style="background:#777; width:auto;" onclick="reset()">🔄 שאלה חדשה</button>
         </div>
+    </div>
+    
+    <div class="box contact-info">
+        <strong>Dr. Roni Sapir | רפואה משלימה</strong><br>
+        WhatsApp Contact Only: <a href="https://wa.me/972544634923">054-4634923</a><br>
+        Email: <a href="mailto:ronisapir61@gmail.com">ronisapir61@gmail.com</a>
     </div>
 </div>
 
 <script>
-    // Configuration - Update this URL to your Supabase project
-    const SUPABASE_URL = 'https://hwwwioyrsbewptuwvrix.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh3d3dpb3lyc2Jld3B0dXd2cml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY1OTIyNDEsImV4cCI6MjA4MjE2ODI0MX0.IRMAj221P124oRNP0tibo7kZ_2qULFn4A6YhB9NssH0';
-    
-    let currentQuery = '';
-    let lastAnalysis = null;
-    let currentAudio = null;
-    let isPlaying = false;
-    
-    function useQuestion(el) {
-        document.getElementById('question').value = el.textContent;
-    }
-    
-    function toggleMulti() {
-        document.getElementById('multiPanel').classList.toggle('show');
-    }
-    
-    function startVoice() {
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'he-IL';
-            recognition.onresult = function(event) {
-                document.getElementById('question').value = event.results[0][0].transcript;
-            };
-            recognition.start();
-            alert('מקליט... דבר עכשיו');
-        } else {
-            alert('הדפדפן שלך לא תומך בזיהוי קולי');
-        }
-    }
-    
-    function startAnalysis() {
-        currentQuery = document.getElementById('question').value;
-        if (!currentQuery.trim()) {
-            alert('אנא הזן שאלה או תסמינים');
-            return;
-        }
-        runAnalysis(currentQuery, 'simple');
-    }
-    
-    function startMultiAnalysis() {
-        const m1 = document.getElementById('multi1').value;
-        const m2 = document.getElementById('multi2').value;
-        const m3 = document.getElementById('multi3').value;
-        if (!m1.trim()) {
-            alert('אנא הזן לפחות את התסמינים העיקריים');
-            return;
-        }
-        currentQuery = `תסמינים: ${m1}. נסיבות: ${m2}. מטרה: ${m3}`;
-        runAnalysis(currentQuery, 'multi');
-    }
-    
-    async function runAnalysis(query, analysisType) {
-        // Show thinking
-        document.getElementById('thinking').classList.add('show');
-        document.getElementById('results').classList.remove('show');
+    const DR_PHONE = "972544634923";
+
+    function analyze() {
+        const q = document.getElementById('q').value.trim();
+        if (!q) { alert('נא להקליד שאלה'); return; }
         
-        const stages = [
-            'מנתח תסמינים...',
-            'בודק דפוסי TCM...',
-            'מחשב נקודות דיקור...',
-            'יוצר פרשנות Ba Zi...',
-            'מסכם המלצות...'
-        ];
+        document.getElementById('input-section').style.display = 'none';
+        document.getElementById('loader').classList.add('show');
         
-        const stagesDiv = document.getElementById('stages');
-        stagesDiv.innerHTML = '';
+        // Auto-copy to clipboard
+        navigator.clipboard.writeText(q);
         
-        // Start stage animation
-        let stageIndex = 0;
-        const stageInterval = setInterval(() => {
-            if (stageIndex < stages.length) {
-                const stageEl = document.createElement('div');
-                stageEl.className = 'stage';
-                stageEl.textContent = stages[stageIndex];
-                stagesDiv.appendChild(stageEl);
-                
-                if (stageIndex > 0) {
-                    stagesDiv.children[stageIndex - 1].classList.add('done');
-                }
-                stageIndex++;
-            }
-        }, 600);
-
-        try {
-            const response = await fetch(`${SUPABASE_URL}/functions/v1/bazi-analysis`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                },
-                body: JSON.stringify({ query, analysisType })
-            });
-
-            clearInterval(stageInterval);
-            
-            // Mark all stages as done
-            Array.from(stagesDiv.children).forEach(el => el.classList.add('done'));
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'שגיאה בקבלת תשובה מהשרת');
-            }
-
-            const data = await response.json();
-            lastAnalysis = data.analysis;
-            
-            setTimeout(() => showResults(data.analysis), 500);
-            
-        } catch (error) {
-            clearInterval(stageInterval);
-            document.getElementById('thinking').classList.remove('show');
-            alert('שגיאה: ' + error.message);
-            console.error('Analysis error:', error);
-        }
+        setTimeout(() => {
+            document.getElementById('loader').classList.remove('show');
+            showResults(q);
+        }, 1000);
     }
-    
-    function showResults(analysis) {
-        document.getElementById('thinking').classList.remove('show');
+
+    function showResults(query) {
         document.getElementById('results').classList.add('show');
+        document.getElementById('user-query-display').textContent = query;
         
-        let resultHTML = '';
-        
-        if (analysis.rawResponse) {
-            // Fallback for raw text response
-            resultHTML = `
-                <div class="interpretation">
-                    <h3>🎯 ניתוח קליני</h3>
-                    <p style="white-space: pre-wrap;">${analysis.rawResponse}</p>
-                </div>
-            `;
-        } else {
-            // Structured JSON response
-            const ba = analysis.baziAnalysis || {};
-            const tcm = analysis.tcmPattern || {};
-            const tx = analysis.treatment || {};
-            const life = analysis.lifestyle || {};
-            
-            resultHTML = `
-                <div class="bazi-box">
-                    <h3>☯️ ניתוח Ba Zi קליני</h3>
-                    <div class="bazi-item"><span class="bazi-label">שאילתא:</span> ${currentQuery}</div>
-                    <div class="bazi-item"><span class="bazi-label">יסוד דומיננטי:</span> ${ba.dominantElement || 'לא זוהה'}</div>
-                    <div class="bazi-item"><span class="bazi-label">חוסר איזון:</span> ${ba.elementImbalance || 'לא זוהה'}</div>
-                    <div class="bazi-item"><span class="bazi-label">עונת רגישות:</span> ${ba.sensitiveSeasons || 'לא זוהה'}</div>
-                    <div class="bazi-item"><span class="bazi-label">שעות אופטימליות לטיפול:</span> ${ba.optimalTreatmentHours || 'לא זוהה'}</div>
-                </div>
-                
-                <div class="interpretation">
-                    <h3>🔍 דפוס TCM</h3>
-                    <p><strong>דפוס:</strong> ${tcm.pattern || 'לא זוהה'}</p>
-                    <p>${tcm.explanation || ''}</p>
-                </div>
-                
-                <div class="interpretation">
-                    <h3>🎯 המלצות טיפוליות</h3>
-                    <p><strong>נקודות ראשיות:</strong> ${(tx.primaryPoints || []).join(', ') || 'לא זוהה'}</p>
-                    <p><strong>נקודות משניות:</strong> ${(tx.secondaryPoints || []).join(', ') || 'לא זוהה'}</p>
-                    <p><strong>עקרון טיפולי:</strong> ${tx.treatmentPrinciple || 'לא זוהה'}</p>
-                    <p><strong>פורמולה מוצעת:</strong> ${tx.herbalFormula || 'לא זוהה'}</p>
-                    <p>${tx.formulaExplanation || ''}</p>
-                </div>
-                
-                <div class="interpretation">
-                    <h3>🌱 המלצות אורח חיים</h3>
-                    <p><strong>תזונה:</strong> ${life.dietaryAdvice || 'לא זוהה'}</p>
-                    <p><strong>פעילות גופנית:</strong> ${life.exerciseRecommendations || 'לא זוהה'}</p>
-                    <p><strong>הנחיות רגשיות:</strong> ${life.emotionalGuidance || 'לא זוהה'}</p>
-                </div>
-                
-                ${analysis.summary ? `
-                <div class="bazi-box" style="background: #e8f5e9; border-color: #4caf50;">
-                    <h3>📋 סיכום קליני</h3>
-                    <p>${analysis.summary}</p>
-                </div>
-                ` : ''}
-            `;
-        }
-        
-        document.getElementById('resultContent').innerHTML = resultHTML;
+        // Build WhatsApp Link
+        const msg = `היי ד"ר רוני, אשמח להתייעצות לגבי המקרה הבא:\n\n*${query}*\n\nתודה!`;
+        const url = `https://wa.me/${DR_PHONE}?text=${encodeURIComponent(msg)}`;
+        document.getElementById('whatsapp-link').href = url;
     }
-    
-    function openAI(platform) {
-        const encodedQuery = encodeURIComponent(`As a TCM practitioner, analyze this: ${currentQuery}. Provide acupuncture points, herbal formulas, and Ba Zi insights.`);
+
+    function openAI(type) {
         const urls = {
-            chatgpt: `https://chat.openai.com/?q=${encodedQuery}`,
-            claude: `https://claude.ai/new?q=${encodedQuery}`,
-            gemini: `https://gemini.google.com/app?q=${encodedQuery}`,
-            perplexity: `https://www.perplexity.ai/?q=${encodedQuery}`
+            chatgpt: 'https://chat.openai.com',
+            claude: 'https://claude.ai',
+            gemini: 'https://gemini.google.com'
         };
-        window.open(urls[platform], '_blank');
+        window.open(urls[type], '_blank');
     }
-    
-    function shareWhatsApp() {
-        let shareText = `🌿 ניתוח Ba Zi מ-Dr. Roni AI\n\nשאילתא: ${currentQuery}`;
-        
-        if (lastAnalysis && !lastAnalysis.rawResponse) {
-            const ba = lastAnalysis.baziAnalysis || {};
-            const tx = lastAnalysis.treatment || {};
-            shareText += `\n\n☯️ יסוד: ${ba.dominantElement || 'לא זוהה'}`;
-            shareText += `\n🎯 נקודות: ${(tx.primaryPoints || []).join(', ') || 'לא זוהה'}`;
-            shareText += `\n💊 פורמולה: ${tx.herbalFormula || 'לא זוהה'}`;
-        }
-        
-        shareText += `\n\nלתוצאות מלאות בקרו ב: ${window.location.href}`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-    }
-    
+
     function reset() {
-        stopSpeech();
-        document.getElementById('question').value = '';
-        document.getElementById('multi1').value = '';
-        document.getElementById('multi2').value = '';
-        document.getElementById('multi3').value = '';
-        document.getElementById('multiPanel').classList.remove('show');
         document.getElementById('results').classList.remove('show');
-        lastAnalysis = null;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    
-    function getAnalysisText() {
-        if (!lastAnalysis) return '';
-        
-        if (lastAnalysis.rawResponse) {
-            return lastAnalysis.rawResponse;
-        }
-        
-        const ba = lastAnalysis.baziAnalysis || {};
-        const tcm = lastAnalysis.tcmPattern || {};
-        const tx = lastAnalysis.treatment || {};
-        const life = lastAnalysis.lifestyle || {};
-        
-        let text = `ניתוח באזי קליני עבור השאילתא: ${currentQuery}. `;
-        text += `יסוד דומיננטי: ${ba.dominantElement || 'לא זוהה'}. `;
-        text += `חוסר איזון: ${ba.elementImbalance || 'לא זוהה'}. `;
-        text += `דפוס TCM: ${tcm.pattern || 'לא זוהה'}. ${tcm.explanation || ''} `;
-        text += `נקודות ראשיות: ${(tx.primaryPoints || []).join(', ') || 'לא זוהה'}. `;
-        text += `עקרון טיפולי: ${tx.treatmentPrinciple || 'לא זוהה'}. `;
-        text += `פורמולה מוצעת: ${tx.herbalFormula || 'לא זוהה'}. `;
-        text += `תזונה: ${life.dietaryAdvice || 'לא זוהה'}. `;
-        if (lastAnalysis.summary) {
-            text += `סיכום: ${lastAnalysis.summary}`;
-        }
-        
-        return text;
-    }
-    
-    async function toggleSpeech() {
-        if (isPlaying) {
-            stopSpeech();
-            return;
-        }
-        
-        const text = getAnalysisText();
-        if (!text) {
-            alert('אין תוצאות להקראה');
-            return;
-        }
-        
-        const btn = document.getElementById('speakBtn');
-        btn.textContent = '⏳ טוען...';
-        btn.disabled = true;
-        
-        try {
-            const response = await fetch(`${SUPABASE_URL}/functions/v1/text-to-speech`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                },
-                body: JSON.stringify({ 
-                    text: text.substring(0, 5000), // Limit to 5000 chars
-                    voice: 'Sarah',
-                    language: 'he'
-                })
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'שגיאה בהמרת הטקסט לקול');
-            }
-            
-            const data = await response.json();
-            
-            // Play audio from base64
-            const audioUrl = `data:audio/mpeg;base64,${data.audioContent}`;
-            currentAudio = new Audio(audioUrl);
-            
-            currentAudio.onplay = () => {
-                isPlaying = true;
-                btn.textContent = '⏹️ עצור הקראה';
-                btn.classList.add('playing');
-                btn.disabled = false;
-            };
-            
-            currentAudio.onended = () => {
-                stopSpeech();
-            };
-            
-            currentAudio.onerror = () => {
-                stopSpeech();
-                alert('שגיאה בהשמעת הקול');
-            };
-            
-            await currentAudio.play();
-            
-        } catch (error) {
-            console.error('TTS error:', error);
-            alert('שגיאה: ' + error.message);
-            btn.textContent = '🔊 הקרא בקול';
-            btn.disabled = false;
-        }
-    }
-    
-    function stopSpeech() {
-        if (currentAudio) {
-            currentAudio.pause();
-            currentAudio.currentTime = 0;
-            currentAudio = null;
-        }
-        isPlaying = false;
-        const btn = document.getElementById('speakBtn');
-        btn.textContent = '🔊 הקרא בקול';
-        btn.classList.remove('playing');
-        btn.disabled = false;
+        document.getElementById('input-section').style.display = 'block';
+        document.getElementById('q').value = '';
     }
 </script>
-
 </body>
 </html>
