@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>איזון יין-יאנג - Dr. Roni</title>
+    <style>
+        :root { --color-primary: #1a5f7a; --color-accent: #d4af37; --color-light: #f5f3f0; --color-dark: #2c3e50; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f3f0; overflow-x: hidden; text-align: right; direction: rtl;
+        }
+        .slide {
+            max-width: 960px; margin: 20px auto; background: white;
+            padding: 40px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); border-radius: 15px;
+            overflow: hidden;
+        }
+        .slide-title {
+            background: linear-gradient(135deg, #1a5f7a 0%, #2c7a96 100%); color: #f5f3f0;
+            text-align: center; padding: 60px 20px;
+        }
+        h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+        h2 { color: #1a5f7a; border-bottom: 3px solid #d4af37; padding-bottom: 10px; margin-bottom: 20px; }
+        
+        /* Video Container */
+        .video-container {
+            width: 100%; max-width: 800px; margin: 30px auto;
+            border-radius: 15px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 4px solid #d4af37;
+        }
+        video { width: 100%; display: block; }
+
+        .characteristics { display: flex; gap: 20px; flex-wrap: wrap; }
+        .char-column { flex: 1; padding: 20px; border-radius: 10px; min-width: 250px; }
+        .yin { background: #1a5f7a; color: white; }
+        .yang { background: #d4af37; color: #2c3e50; }
+        
+        .back-btn {
+            display: block; width: 200px; margin: 40px auto; padding: 15px;
+            background: #2c3e50; color: white; text-align: center; text-decoration: none;
+            border-radius: 50px; font-weight: bold; transition: 0.3s;
+        }
+        .back-btn:hover { transform: scale(1.05); background: #1a252f; }
+    </style>
+</head>
+<body>
+
+    <section class="slide slide-title">
+        <h1>איזון יין-יאנג בטיפול סיני</h1>
+        <p>שפת הטבע ליצירת איזון בגוף והנפש</p>
+    </section>
+
+    <section class="slide" style="text-align:center;">
+        <h2>🎥 צפו: הריקוד הנצחי של היין והיאנג</h2>
+        <div class="video-container">
+            <video controls autoplay loop muted playsinline>
+                <source src="yinyang_video.mp4" type="video/mp4">
+                הדפדפן שלך לא תומך בווידאו.
+            </video>
+        </div>
+        <p style="margin-top:15px; color:#666;">הניגודים המשלימים שיוצרים את השלם.</p>
+    </section>
+
+    <section class="slide">
+        <h2>האיכויות (Characteristics)</h2>
+        <div class="characteristics">
+            <div class="char-column yin">
+                <h3>🌑 יין (Yin)</h3>
+                <ul>
+                    <li>פנימי, עמוק</li>
+                    <li>קריר, לח</li>
+                    <li>שלווה, מנוחה</li>
+                    <li>נשי, מכיל</li>
+                </ul>
+            </div>
+            <div class="char-column yang">
+                <h3>☀️ יאנג (Yang)</h3>
+                <ul>
+                    <li>חיצוני, עליון</li>
+                    <li>חם, יבש</li>
+                    <li>פעילות, תנועה</li>
+                    <li>גברי, יוזם</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide" style="text-align:center; background: #eefcf1;">
+        <h2>❓ יש לכם שאלות על האיזון שלכם?</h2>
+        <p>המערכת הקלינית שלנו זמינה עבורכם.</p>
+        <a href="../bazi/" class="back-btn">חזרה למערכת האבחון 🚀</a>
+    </section>
+
+</body>
+</html>
