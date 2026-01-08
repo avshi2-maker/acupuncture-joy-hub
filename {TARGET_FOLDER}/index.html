@@ -4,80 +4,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>איזון יין-יאנג - Dr. Roni</title>
+    <title>איזון יין-יאנג - מערכת מומחה</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url('bazi_background.png?v=1767885671');
+            background: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url('bazi_background.png?v=1767887217');
             background-size: cover; background-position: center; background-attachment: fixed;
             min-height: 100vh; color: #333; padding: 20px;
         }
-        
         #container { max-width: 950px; margin: 0 auto; }
-        
         .card {
             background: white; padding: 25px; border-radius: 15px; 
             box-shadow: 0 5px 20px rgba(0,0,0,0.08); margin-bottom: 25px;
             border-top: 5px solid #1a5f7a;
         }
-        
         h1 { color: #1a5f7a; text-align: center; margin-bottom: 5px; }
         h2 { color: #d4af37; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; font-size: 1.4em; }
-
+        
         /* VIDEO */
-        .video-wrapper {
-            width: 100%; border-radius: 12px; overflow: hidden; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2); margin-top: 20px;
-            background: #000;
-        }
+        .video-wrapper { width: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.2); margin-top: 20px; background: #000; }
         video { width: 100%; display: block; }
 
         /* GRIDS */
-        .qa-grid {
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-            gap: 10px; margin-bottom: 10px;
-        }
-        
-        /* Clinical Buttons (Section 1) */
-        .qa-btn {
-            background: #f0f7fa; padding: 12px; border: 1px solid #1a5f7a; border-radius: 8px;
-            cursor: pointer; text-align: right; font-weight: 600; color: #1a5f7a;
-            transition: 0.2s; font-size: 0.9em;
-        }
+        .qa-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 10px; }
+        .qa-btn { background: #f0f7fa; padding: 12px; border: 1px solid #1a5f7a; border-radius: 8px; cursor: pointer; text-align: right; font-weight: 600; color: #1a5f7a; transition: 0.2s; font-size: 0.9em; }
         .qa-btn:hover { background: #1a5f7a; color: white; transform: translateY(-2px); }
-
-        /* Question Buttons (Section 2) */
-        .q-only-btn {
-            background: #fff8e1; padding: 12px; border: 1px solid #ffc107; border-radius: 8px;
-            cursor: pointer; text-align: right; font-weight: 500; color: #f57f17;
-            transition: 0.2s; font-size: 0.9em;
-        }
+        .q-only-btn { background: #fff8e1; padding: 12px; border: 1px solid #ffc107; border-radius: 8px; cursor: pointer; text-align: right; font-weight: 500; color: #f57f17; transition: 0.2s; font-size: 0.9em; }
         .q-only-btn:hover { background: #ffc107; color: #333; transform: translateY(-2px); }
+
+        /* MODAL (POP-UP) */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fefefe; padding: 30px; border-radius: 15px; width: 90%; max-width: 600px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .close { color: #aaa; float: left; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: black; }
+        .modal-q { font-size: 1.5em; color: #1a5f7a; margin-bottom: 15px; border-bottom: 2px solid #d4af37; padding-bottom: 10px; }
+        .modal-a { font-size: 1.1em; line-height: 1.6; color: #555; margin-bottom: 20px; }
+        .play-btn { background: #25D366; color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .play-btn:hover { background: #128C7E; }
 
         /* INPUTS */
         .input-block { margin-bottom: 15px; }
         .label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
-        textarea {
-            width: 100%; padding: 12px; border: 2px solid #bdc3c7; border-radius: 8px; 
-            font-size: 16px; font-family: inherit; resize: vertical; background: #fdfdfd;
-        }
+        textarea { width: 100%; padding: 12px; border: 2px solid #bdc3c7; border-radius: 8px; font-size: 16px; font-family: inherit; resize: vertical; background: #fdfdfd; }
         #q1 { height: 100px; }
         #q2, #q3 { height: 60px; }
-        textarea:focus { outline: none; border-color: #1a5f7a; background: #fff; }
-
-        /* ACTIONS */
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .btn {
-            padding: 15px; border: none; border-radius: 50px; color: white;
-            font-weight: bold; font-size: 1.1em; cursor: pointer; text-align: center;
-        }
+        .btn { padding: 15px; border: none; border-radius: 50px; color: white; font-weight: bold; font-size: 1.1em; cursor: pointer; text-align: center; }
         .btn-internal { background: #1a5f7a; }
         .btn-external { background: linear-gradient(135deg, #d4af37 0%, #b4932a 100%); }
-        
-        #results-area { display: none; margin-top:20px; }
-        .result-box { background:#eef7fb; padding:15px; border-radius:10px; }
     </style>
 </head>
 <body>
@@ -87,8 +62,6 @@
     <div class="card" style="text-align:center;">
         <img src="tcm_clinic_slide.png" style="max-width:180px;" alt="Logo">
         <h1>קליניקת יין-יאנג</h1>
-        <p>מערכת אבחון ומחקר</p>
-        
         <div class="video-wrapper">
             <video controls autoplay loop muted playsinline poster="tcm_clinic_slide.png">
                 <source src="yin-yang.mp4" type="video/mp4">
@@ -97,36 +70,34 @@
     </div>
 
     <div class="card">
-        <h2>1. תרחישים קליניים (20 QA)</h2>
+        <h2>1. שאלות ותשובות נפוצות (לחץ לתשובה)</h2>
         <div class="qa-grid">
-            <button class="qa-btn" onclick="addText('כאבי ראש', 'בבוקר/לחץ', 'הקלה')">🤕 כאבי ראש</button>
-            <button class="qa-btn" onclick="addText('מיגרנה', 'רגישות לאור', 'מניעה')">⚡ מיגרנה</button>
-            <button class="qa-btn" onclick="addText('כאב גב תחתון', 'תנועה', 'שיפור טווח')">🦴 גב תחתון</button>
-            <button class="qa-btn" onclick="addText('כאבי ברכיים', 'בקור', 'חימום')">🦵 ברכיים</button>
-            <button class="qa-btn" onclick="addText('צוואר תפוס', 'מתח', 'שחרור')">💆‍♂️ צוואר</button>
-            
-            <button class="qa-btn" onclick="addText('נדודי שינה', 'מחשבות', 'שינה עמוקה')">😴 נדודי שינה</button>
-            <button class="qa-btn" onclick="addText('חרדה ומתח', 'דפיקות לב', 'רוגע')">😰 חרדה</button>
-            <button class="qa-btn" onclick="addText('עייפות כרונית', 'חולשה', 'אנרגיה')">🔋 עייפות</button>
-            <button class="qa-btn" onclick="addText('דיכאון קל', 'חוסר חשק', 'שמחה')">😔 דיכאון</button>
-            <button class="qa-btn" onclick="addText('סחרחורות', 'בקימה', 'יציבות')">💫 סחרחורות</button>
+            <button class="qa-btn" onclick="openModal(0)">🤕 כאבי ראש</button>
+<button class="qa-btn" onclick="openModal(1)">⚡ מיגרנה</button>
+<button class="qa-btn" onclick="openModal(2)">🦴 כאב גב תחתון</button>
+<button class="qa-btn" onclick="openModal(3)">🦵 כאבי ברכיים</button>
+<button class="qa-btn" onclick="openModal(4)">💆‍♂️ צוואר תפוס</button>
+<button class="qa-btn" onclick="openModal(5)">😴 נדודי שינה</button>
+<button class="qa-btn" onclick="openModal(6)">😰 חרדה ומתח</button>
+<button class="qa-btn" onclick="openModal(7)">🔋 עייפות כרונית</button>
+<button class="qa-btn" onclick="openModal(8)">😔 דיכאון קל</button>
+<button class="qa-btn" onclick="openModal(9)">💫 סחרחורות</button>
+<button class="qa-btn" onclick="openModal(10)">🎈 נפיחות בבטן</button>
+<button class="qa-btn" onclick="openModal(11)">🧻 עצירות</button>
+<button class="qa-btn" onclick="openModal(12)">🌀 מעי רגיז</button>
+<button class="qa-btn" onclick="openModal(13)">🔥 צרבות</button>
+<button class="qa-btn" onclick="openModal(14)">⚖️ קושי במשקל</button>
+<button class="qa-btn" onclick="openModal(15)">🌸 כאבי מחזור</button>
+<button class="qa-btn" onclick="openModal(16)">🌡️ גלי חום</button>
+<button class="qa-btn" onclick="openModal(17)">🤧 אלרגיות</button>
+<button class="qa-btn" onclick="openModal(18)">✨ בעיות עור</button>
+<button class="qa-btn" onclick="openModal(19)">❄️ קור בגפיים</button>
 
-            <button class="qa-btn" onclick="addText('נפיחות בבטן', 'אחרי אוכל', 'עיכול')">🎈 נפיחות</button>
-            <button class="qa-btn" onclick="addText('עצירות', 'יובש', 'יציאות')">🧻 עצירות</button>
-            <button class="qa-btn" onclick="addText('מעי רגיז', 'מתח', 'הרגעה')">🌀 מעי רגיז</button>
-            <button class="qa-btn" onclick="addText('צרבות', 'חום בקיבה', 'קירור')">🔥 צרבות</button>
-            <button class="qa-btn" onclick="addText('משקל', 'חילוף חומרים', 'איזון')">⚖️ משקל</button>
-
-            <button class="qa-btn" onclick="addText('כאבי מחזור', 'התכווצויות', 'זרימה')">🌸 מחזור</button>
-            <button class="qa-btn" onclick="addText('גלי חום', 'גיל מעבר', 'איזון')">🌡️ גלי חום</button>
-            <button class="qa-btn" onclick="addText('אלרגיות', 'עונתי', 'חיזוק')">🤧 אלרגיות</button>
-            <button class="qa-btn" onclick="addText('בעיות עור', 'יובש', 'עור בריא')">✨ עור</button>
-            <button class="qa-btn" onclick="addText('קור בגפיים', 'חוסר זרימה', 'חימום')">❄️ קור בגפיים</button>
         </div>
     </div>
 
     <div class="card" style="border-top-color: #f39c12;">
-        <h2>2. שאלות עומק (Theory Questions)</h2>
+        <h2>2. שאלות מחקר (לחץ להעברה ללוח העבודה)</h2>
         <div class="qa-grid">
             <button class="q-only-btn" onclick="setQuestion('איך משפיעה לחץ נפשי על איזון היין-יאנג בגוף?')">❓ איך משפיעה לחץ נפשי על איזון היין-יאנג בגוף?</button>
 <button class="q-only-btn" onclick="setQuestion('מהו הקשר בין הלשון לאיזון יין-יאנג באבחון?')">❓ מהו הקשר בין הלשון לאיזון יין-יאנג באבחון?</button>
@@ -154,67 +125,77 @@
 
     <div class="card">
         <h2>3. לוח העבודה (Workspace)</h2>
-        <div class="input-block">
-            <span class="label">1. שאלה / תלונה עיקרית:</span>
-            <textarea id="q1" placeholder="..."></textarea>
-        </div>
-        <div class="input-block">
-            <span class="label">2. נסיבות / הקשר:</span>
-            <textarea id="q2" placeholder="..."></textarea>
-        </div>
-        <div class="input-block">
-            <span class="label">3. מטרה:</span>
-            <textarea id="q3" placeholder="..."></textarea>
-        </div>
-
+        <div class="input-block"><span class="label">1. שאלה / תלונה עיקרית:</span><textarea id="q1" placeholder="..."></textarea></div>
+        <div class="input-block"><span class="label">2. נסיבות / הקשר:</span><textarea id="q2" placeholder="..."></textarea></div>
+        <div class="input-block"><span class="label">3. מטרה:</span><textarea id="q3" placeholder="..."></textarea></div>
         <div class="btn-row">
-            <button class="btn btn-internal" onclick="analyze()">☯️ ניתוח פנימי</button>
+            <button class="btn btn-internal" onclick="sendWa()">👩‍⚕️ שלח לד"ר רוני</button>
             <button class="btn btn-external" onclick="askPerplexity()">🔮 שאל את Perplexity</button>
         </div>
     </div>
-    
-    <div id="results-area" class="card">
-        <h2>תוצאות</h2>
-        <div class="result-box">
-             <a id="wa-link" href="#" target="_blank" style="display:block; text-align:center; background:#25D366; color:white; padding:15px; border-radius:50px; text-decoration:none; font-weight:bold;">
-                👩‍⚕️ שלח לד"ר רוני (WhatsApp)
-            </a>
-        </div>
+
+</div>
+
+<div id="qaModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h3 id="modalQ" class="modal-q"></h3>
+        <p id="modalA" class="modal-a"></p>
+        <button class="play-btn" onclick="playAudio()">🔊 השמע תשובה</button>
     </div>
 </div>
 
 <script>
-    // 1. Clinical Buttons (Append)
-    function addText(t1, t2, t3) {
-        appendField('q1', t1);
-        appendField('q2', t2);
-        appendField('q3', t3);
+    const qaData = [{"q": "כאבי ראש", "a": "ברפואה סינית, כאב ראש קשור לעיתים לחוסר זרימה של צ'י או דם לראש, או לעליית יאנג הכבד. הטיפול מתמקד בהנעה ואיזון.", "icon": "🤕"}, {"q": "מיגרנה", "a": "מיגרנה מקושרת לעיתים קרובות לתקיעות של צ'י הכבד או לחות-חמה. הטיפול כולל נקודות להרגעת הכבד וסילוק לחות.", "icon": "⚡"}, {"q": "כאב גב תחתון", "a": "קשור לרוב לחולשת כליות (שורש היין והיאנג). הטיפול יתמקד בחיזוק הכליות והנעת צ'י באזור הגב.", "icon": "🦴"}, {"q": "כאבי ברכיים", "a": "יכולים לנבוע מקור, לחות, או חולשת כליות. הטיפול משלב חימום, הנעה וחיזוק.", "icon": "🦵"}, {"q": "צוואר תפוס", "a": "נגרם לרוב מחדירת רוח-קור או מתח נפשי היוצר תקיעות. הטיפול כולל שחרור שרירים וסילוק רוח.", "icon": "💆‍♂️"}, {"q": "נדודי שינה", "a": "קשורים לחוסר איזון בין הלב (נפש) לכליות, או לחוסר דם. הטיפול מרגיע את הנפש ומזין.", "icon": "😴"}, {"q": "חרדה ומתח", "a": "חוסר יציבות של צ'י הלב או תקיעות בכבד. הטיפול מתמקד בהרגעה, הזרמת צ'י ואיזון רגשי.", "icon": "😰"}, {"q": "עייפות כרונית", "a": "מצביע על חולשת צ'י (טחול/ריאות/כליות) או לחות המכבידה על הגוף. הטיפול מחזק ומניע.", "icon": "🔋"}, {"q": "דיכאון קל", "a": "תקיעות של צ'י הכבד לאורך זמן הפוגעת בנפש. הטיפול מניע את הצ'י ומשחרר רגשות.", "icon": "😔"}, {"q": "סחרחורות", "a": "יכולות לנבוע מעליית יאנג הכבד, חוסר דם, או לחות. האבחון המדויק קריטי לטיפול.", "icon": "💫"}, {"q": "נפיחות בבטן", "a": "חולשת טחול הגורמת להצטברות לחות ומזון. הטיפול מחזק את מערכת העיכול ומסלק לחות.", "icon": "🎈"}, {"q": "עצירות", "a": "יכולה לנבוע מיובש, חוסר צ'י, או חום. הטיפול יתמקד בלחלוח המעיים והנעת הצואה.", "icon": "🧻"}, {"q": "מעי רגיז", "a": "חוסר הרמוניה בין הכבד (מתח) לטחול (עיכול). הטיפול מאזן בין האיברים ומרגיע.", "icon": "🌀"}, {"q": "צרבות", "a": "עלייה של צ'י הקיבה מעלה (במקום מטה), לעיתים עם חום. הטיפול מוריד את הצ'י ומקרר.", "icon": "🔥"}, {"q": "קושי במשקל", "a": "לרוב קשור לחולשת טחול ולחות. הטיפול מחזק את חילוף החומרים ומסלק עודפים.", "icon": "⚖️"}, {"q": "כאבי מחזור", "a": "תקיעות דם או קור ברחם. הטיפול מניע דם, מחמם ומרגיע את הכאב.", "icon": "🌸"}, {"q": "גלי חום", "a": "חוסר יין של הכליות, המאפשר לחום מדומה לעלות. הטיפול מזין יין ומקרר.", "icon": "🌡️"}, {"q": "אלרגיות", "a": "חולשת צ'י הריאות והמגן (Wei Qi), המאפשרת חדירת גורמים חיצוניים. הטיפול מחזק את המערכת החיסונית.", "icon": "🤧"}, {"q": "בעיות עור", "a": "יכולות לנבוע מחום בדם, לחות או יובש. הטיפול מטהר, מקרר או מזין את העור.", "icon": "✨"}, {"q": "קור בגפיים", "a": "חוסר יאנג או תקיעות צ'י שמונעת מהחום להגיע לקצוות. הטיפול מחמם ומניע.", "icon": "❄️"}];
+    let currentUtterance = null;
+
+    function openModal(index) {
+        const item = qaData[index];
+        document.getElementById('modalQ').innerHTML = item.icon + " " + item.q;
+        document.getElementById('modalA').innerText = item.a;
+        document.getElementById('qaModal').style.display = 'flex';
+        // Stop any previous audio
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     }
 
-    function appendField(id, text) {
-        const field = document.getElementById(id);
-        if (field.value.trim() === "") {
-            field.value = text;
+    function closeModal() {
+        document.getElementById('qaModal').style.display = 'none';
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    }
+    
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('qaModal');
+        if (event.target == modal) closeModal();
+    }
+
+    function playAudio() {
+        const text = document.getElementById('modalA').innerText;
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // Stop current
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.lang = 'he-IL'; // Hebrew
+            currentUtterance.rate = 0.9; // Slightly slower
+            window.speechSynthesis.speak(currentUtterance);
         } else {
-            field.value += "\n" + text;
+            alert("הדפדפן שלך לא תומך בהקראת טקסט.");
         }
     }
 
-    // 2. Theory Buttons (Set Question)
+    // Theory Buttons Logic
     function setQuestion(q) {
         document.getElementById('q1').value = q;
-        document.getElementById('q2').value = "שאלה תיאורטית / Theoretical Question";
-        document.getElementById('q3').value = "חיפוש מידע מעמיק";
+        document.getElementById('q2').value = "שאלה תיאורטית";
+        document.getElementById('q3').value = "מחקר מעמיק";
         document.getElementById('q1').scrollIntoView({behavior: "smooth"});
     }
 
-    // 3. Actions
-    function analyze() {
+    // Actions
+    function sendWa() {
         const q1 = document.getElementById('q1').value;
         if(!q1) { alert("נא להזין תוכן."); return; }
-        document.getElementById('results-area').style.display = 'block';
-        const msg = `*שאלה/מקרה:*\n${q1}\n${document.getElementById('q2').value}\n${document.getElementById('q3').value}`;
-        document.getElementById('wa-link').href = `https://wa.me/972544634923?text=${encodeURIComponent(msg)}`;
+        const msg = `*פנייה חדשה:*\n${q1}\n${document.getElementById('q2').value}\n${document.getElementById('q3').value}`;
+        window.open(`https://wa.me/972544634923?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
     function askPerplexity() {
