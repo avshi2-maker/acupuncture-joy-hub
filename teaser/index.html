@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>האנרגיה היומית שלך | Dr. Roni</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1b4332 0%, #081c15 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%;
+        }
+        h1 { font-size: 2rem; margin-bottom: 10px; color: #b7e4c7; }
+        .circle {
+            width: 120px; height: 120px;
+            border: 3px solid #d8f3dc;
+            border-radius: 50%;
+            margin: 30px auto;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3rem;
+            animation: pulse 3s infinite;
+            cursor: pointer;
+            background: rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        .circle:active { transform: scale(0.95); }
+        @keyframes pulse { 0% {box-shadow: 0 0 0 0 rgba(216, 243, 220, 0.4);} 70% {box-shadow: 0 0 0 20px rgba(216, 243, 220, 0);} 100% {box-shadow: 0 0 0 0 rgba(216, 243, 220, 0);} }
+        
+        .result { display: none; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .element { font-size: 1.8rem; color: #ffd700; font-weight: bold; margin: 10px 0; }
+        
+        .btn {
+            background: #2d6a4f; color: white;
+            padding: 15px 30px; border-radius: 50px;
+            text-decoration: none; font-weight: bold;
+            display: inline-block; margin-top: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.2s, background 0.2s;
+            border: 1px solid #40916c;
+        }
+        .btn:hover { transform: scale(1.05); background: #40916c; }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="main">
+        <h1>✨ המצפן היומי</h1>
+        <p style="font-size: 1.1rem; opacity: 0.9;">מטפלים יקרים,<br>מה האנרגיה בקליניקה היום?</p>
+        
+        <div class="circle" onclick="reveal()">⚡</div>
+        <p style="opacity: 0.7; font-size: 0.9rem;">לחצו על המעגל לגילוי</p>
+    </div>
+
+    <div class="card result" id="oracle">
+        <h1 style="font-size: 1.5rem;">התדר היום:</h1>
+        <div class="element" id="prediction">...</div>
+        <p id="desc" style="margin: 20px 0; line-height: 1.6; font-size: 1.1rem;">...</p>
+        
+        <hr style="border-color: rgba(255,255,255,0.2); margin: 20px 0;">
+        
+        <p style="font-size: 0.95rem; opacity: 0.9;">רוצים ניתוח קליני מלא למטופלים?</p>
+        <a href="../bazi/" class="btn">פתחו את המערכת המלאה 🚀</a>
+    </div>
+
+    <script>
+        const forecasts = [
+            {t: "Yang Wood (עץ יאנג)", d: "זמן לפריצת דרך. בקליניקה: התמקדו בנקודות Liv3 ו-GB34 להנעת צ'י תקוע. שימו לב למטופלים עם כעס עצור."},
+            {t: "Yin Water (מים יין)", d: "יום של הקשבה עמוקה. הרגש צף. מתאים לטיפול בחרדות עם Kidney 6 וחיזוק ה-Yin. היו עדינים."},
+            {t: "Yang Metal (מתכת יאנג)", d: "יום של גבולות ברורים וחיתוך. מצוין לשחרור דפוסים ישנים עם LI4. נשימה וריאות במרכז."},
+            {t: "Earth (אדמה)", d: "יציבות והזנה. המטופלים זקוקים לתמיכה ב-Spleen. שלבו תזונה ומגע עוטף. קרקוע הוא המפתח."},
+            {t: "Fire (אש)", d: "שמחה ותקשורת. הלב פתוח. יום נהדר לטיפול בבעיות Shen עם HT7. עודדו ביטוי רגשי."}
+        ];
+
+        function reveal() {
+            const random = forecasts[Math.floor(Math.random() * forecasts.length)];
+            document.getElementById('main').style.display = 'none';
+            document.getElementById('oracle').style.display = 'block';
+            document.getElementById('prediction').innerText = random.t;
+            document.getElementById('desc').innerText = random.d;
+        }
+    </script>
+</body>
+</html>
