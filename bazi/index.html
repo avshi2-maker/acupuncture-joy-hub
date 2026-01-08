@@ -4,133 +4,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Roni Sapir - Clinical Compass</title>
+    <title>Dr. Roni Sapir - Clinical System</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(rgba(20, 30, 40, 0.6), rgba(20, 30, 40, 0.6)), url('bazi_background.png');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            min-height: 100vh;
-            color: #333;
+            background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('bazi_background.png');
+            background-size: cover; background-position: center; background-attachment: fixed;
+            min-height: 100vh; color: #333;
         }
         @media (hover: none) { body { background-attachment: scroll; } }
         
         #dashboard { max-width: 800px; margin: 0 auto; padding: 20px; }
         
         .box {
-            background: rgba(255, 255, 255, 0.96);
-            padding: 25px; border-radius: 15px; margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.8);
+            background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 20px; 
+            margin-bottom: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.8); backdrop-filter: blur(5px);
         }
         
-        h1 { color: #1b4332; font-size: 1.8em; margin-bottom: 5px; }
-        h2 { color: #2d6a4f; font-size: 1.3em; border-bottom: 2px solid #b7e4c7; padding-bottom: 10px; margin-bottom: 15px; }
+        h1 { color: #2c5f2d; font-size: 2.2em; margin-bottom: 5px; }
+        .bio-text { font-size: 1em; color: #666; font-style: italic; margin-bottom: 10px; }
         
-        .bio-text { font-size: 0.9em; color: #555; margin-bottom: 15px; font-style: italic; }
+        /* INPUT AREA */
+        .input-wrapper { position: relative; margin-bottom: 20px; }
         
         textarea {
-            width: 100%; padding: 15px; border: 2px solid #b7e4c7; border-radius: 10px;
-            font-size: 1.1em; font-family: inherit; min-height: 120px; resize: vertical;
-            background: #faffff; margin-bottom: 15px;
+            width: 100%; padding: 20px; border: 2px solid #b7e4c7; border-radius: 15px;
+            font-size: 1.2em; font-family: inherit; min-height: 160px; resize: vertical;
+            background: #faffff; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
         }
-        textarea:focus { outline: none; border-color: #2d6a4f; }
+        textarea:focus { outline: none; border-color: #2c5f2d; }
         
-        button {
-            padding: 12px 25px; border: none; border-radius: 50px; font-size: 1em;
-            font-weight: bold; cursor: pointer; transition: 0.2s; color: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-right: 10px; margin-bottom: 10px;
+        /* MICROPHONE BUTTON */
+        .mic-btn {
+            position: absolute; bottom: 15px; left: 15px;
+            background: #2c5f2d; color: white; border: none;
+            width: 50px; height: 50px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 1.5em; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: 0.2s;
         }
-        .btn-primary { background: #2d6a4f; width: 100%; }
+        .mic-btn:hover { transform: scale(1.1); background: #1e4232; }
+        .mic-btn.listening { background: #e74c3c; animation: pulse 1.5s infinite; }
         
-        .btn-whatsapp { 
-            background: #25D366; display: block; text-decoration: none; 
-            text-align: center; padding: 15px; border-radius: 15px; 
-            color: white; font-weight: bold; font-size: 1.1em; 
-            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); 
-        }
-        .btn-whatsapp:hover { transform: scale(1.02); background: #128c7e; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
 
-        .warning-box {
-            background: #ffebee; border: 1px solid #ef9a9a; color: #c62828;
-            padding: 15px; border-radius: 10px; margin: 20px 0;
-            text-align: center; font-weight: bold; font-size: 0.9em;
+        /* PERPLEXITY BUTTON (HERO) */
+        .btn-perplexity {
+            background: linear-gradient(135deg, #20b2aa 0%, #008080 100%);
+            color: white; padding: 18px; border: none; border-radius: 50px;
+            font-weight: bold; cursor: pointer; width: 100%; font-size: 1.2em;
+            box-shadow: 0 8px 20px rgba(32, 178, 170, 0.4); 
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            text-decoration: none; transition: transform 0.2s; margin-bottom: 15px;
         }
-        
-        .results { display: none; animation: fadeIn 0.5s; }
-        .results.show { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .ai-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        .ai-btn { padding: 10px; border-radius: 8px; text-align: center; font-size: 0.9em; }
+        .btn-perplexity:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(32, 178, 170, 0.5); }
+
+        /* WHATSAPP BUTTON (SECONDARY) */
+        .btn-whatsapp { 
+            background: #fff; border: 2px solid #25D366; color: #25D366;
+            display: block; text-decoration: none; text-align: center; 
+            padding: 15px; border-radius: 50px; font-weight: bold; font-size: 1.1em;
+            transition: 0.2s;
+        }
+        .btn-whatsapp:hover { background: #e8f5e9; }
         
         .contact-info { 
-            margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; 
             text-align: center; font-size: 0.9em; color: #444; 
+            border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px; 
         }
-        .contact-info a { color: #2d6a4f; text-decoration: none; font-weight: bold; }
-        
-        .loader { text-align: center; padding: 40px; display: none; }
-        .loader.show { display: block; }
+        .contact-info a { color: #2c5f2d; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="dashboard">
-    <div class="box">
+    <div class="box" style="text-align:center;">
         <h1>🌿 Dr. Roni Sapir</h1>
-        <h3 style="color:#555; margin-bottom:5px;">רפואה משלימה</h3>
+        <h3>רפואה משלימה</h3>
         <p class="bio-text">a/m data allow you every time to use</p>
     </div>
     
-    <div class="box" id="input-section">
-        <h2>מה השאלה הקלינית?</h2>
-        <textarea id="q" placeholder="הקלד כאן סימפטום, אבחנה, או תלונה... (למשל: כאבי ראש בצד ימין אצל גבר בן 40)"></textarea>
-        <button class="btn-primary" onclick="analyze()">🔍 נתח מקרה</button>
-    </div>
-    
-    <div class="box loader" id="loader">
-        <div style="font-size: 3em;">⚙️</div>
-        <h3>מעבד נתונים...</h3>
-    </div>
-    
-    <div class="box results" id="results">
+    <div class="box">
+        <h2 style="color:#2c5f2d; font-size:1.4em; margin-bottom:20px;">מחקר קליני מהיר</h2>
         
-        <div style="background: #fffde7; padding: 10px; border-radius: 8px; border: 1px solid #fbc02d; font-size: 0.9em; margin-bottom: 20px;">
-            <strong>🔮 אנרגיה יומית (Ba Zi):</strong><br>
-            עונה: סתיו (מתכת) | מרידיאנים: BL, GB
-        </div>
-
-        <h3>💡 ניתוח עבור:</h3>
-        <div style="background:#e8f5e9; padding:15px; border-radius:10px; margin-bottom:20px; font-weight:bold; color:#1b4332;" id="user-query-display">...</div>
-
-        <div class="warning-box">
-            ⚠️ שים לב: המידע כאן הוא כלי עזר בלבד.<br>
-            יש לאמת כל אבחנה רפואית עם איש מקצוע.
+        <div class="input-wrapper">
+            <textarea id="q" placeholder="לחץ על המיקרופון ודבר, או הקלד שאלה כאן..."></textarea>
+            <button class="mic-btn" onclick="toggleVoice()" title="לחץ לדיבור">
+                🎤
+            </button>
         </div>
         
-        <p style="text-align:center; margin-bottom:15px;">לא נמצאה תשובה מלאה בשרת המקומי.</p>
+        <button onclick="askPerplexity()" class="btn-perplexity">
+            🔮 שאל את המערכת (Perplexity AI)
+        </button>
 
-        <a href="#" id="whatsapp-link" target="_blank" class="btn-whatsapp">
-            👩‍⚕️ שלח שאלה לד"ר רוני (WhatsApp)
+        <div style="text-align:center; margin: 15px 0; color:#888; font-size:0.9em;">- או -</div>
+
+        <a href="#" id="whatsapp-link" target="_blank" class="btn-whatsapp" onclick="sendToRoni()">
+            👩‍⚕️ שלח להתייעצות (Dr. Roni)
         </a>
-
-        <div style="background:#f5f5f5; padding:15px; border-radius:10px; margin-top:20px;">
-            <h4>🤖 התייעץ עם AI חיצוני:</h4>
-            <p style="font-size:0.8em; color:#666; margin-bottom:10px;">(השאלה הועתקה ללוח באופן אוטומטי)</p>
-            <div class="ai-grid">
-                <button class="ai-btn" style="background: #10a37f" onclick="openAI('chatgpt')">ChatGPT</button>
-                <button class="ai-btn" style="background: #d97757" onclick="openAI('claude')">Claude</button>
-                <button class="ai-btn" style="background: #4285f4" onclick="openAI('gemini')">Gemini</button>
-            </div>
-        </div>
-
-        <div style="text-align:center; margin-top:20px;">
-            <button style="background:#777; width:auto;" onclick="reset()">🔄 שאלה חדשה</button>
-        </div>
     </div>
     
     <div class="box contact-info">
@@ -143,45 +116,49 @@
 <script>
     const DR_PHONE = "972544634923";
 
-    function analyze() {
-        const q = document.getElementById('q').value.trim();
-        if (!q) { alert('נא להקליד שאלה'); return; }
+    // --- VOICE INPUT ---
+    function toggleVoice() {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert("הדפדפן לא תומך בדיבור. נסה ב-Chrome/Android.");
+            return;
+        }
         
-        document.getElementById('input-section').style.display = 'none';
-        document.getElementById('loader').classList.add('show');
-        
-        // Auto-copy to clipboard
-        navigator.clipboard.writeText(q);
-        
-        setTimeout(() => {
-            document.getElementById('loader').classList.remove('show');
-            showResults(q);
-        }, 1000);
-    }
+        const btn = document.querySelector('.mic-btn');
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = 'he-IL';
+        recognition.continuous = false;
+        recognition.interimResults = false;
 
-    function showResults(query) {
-        document.getElementById('results').classList.add('show');
-        document.getElementById('user-query-display').textContent = query;
-        
-        // Build WhatsApp Link
-        const msg = `היי ד"ר רוני, אשמח להתייעצות לגבי המקרה הבא:\n\n*${query}*\n\nתודה!`;
-        const url = `https://wa.me/${DR_PHONE}?text=${encodeURIComponent(msg)}`;
-        document.getElementById('whatsapp-link').href = url;
-    }
+        recognition.onstart = function() { btn.classList.add('listening'); };
+        recognition.onend = function() { btn.classList.remove('listening'); };
 
-    function openAI(type) {
-        const urls = {
-            chatgpt: 'https://chat.openai.com',
-            claude: 'https://claude.ai',
-            gemini: 'https://gemini.google.com'
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            const textarea = document.getElementById('q');
+            textarea.value += (textarea.value ? " " : "") + transcript;
         };
-        window.open(urls[type], '_blank');
+
+        recognition.start();
     }
 
-    function reset() {
-        document.getElementById('results').classList.remove('show');
-        document.getElementById('input-section').style.display = 'block';
-        document.getElementById('q').value = '';
+    // --- PERPLEXITY AUTO-SEARCH ---
+    function askPerplexity() {
+        const q = document.getElementById('q').value.trim();
+        if (!q) { alert("נא להזין שאלה קודם."); return; }
+        
+        // This is the Magic Link that auto-searches
+        const url = `https://www.perplexity.ai/search?q=${encodeURIComponent(q)}`;
+        window.open(url, '_blank');
+    }
+
+    // --- WHATSAPP SEND ---
+    function sendToRoni() {
+        const q = document.getElementById('q').value.trim();
+        if (!q) { alert("נא לכתוב הודעה לד"ר רוני."); return; }
+        
+        const msg = `*שאלה/מקרה חדש:*\n\n${q}`;
+        const url = `https://wa.me/${DR_PHONE}?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
     }
 </script>
 </body>
