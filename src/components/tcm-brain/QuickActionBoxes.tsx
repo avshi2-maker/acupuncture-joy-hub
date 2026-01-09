@@ -297,7 +297,6 @@ export function QuickActionBoxes({ onActionClick, isLoading }: QuickActionBoxesP
 
   const handleBoxClick = useCallback((box: QuickActionBox) => {
     if (isLoading) return;
-    toast.info(`Running: ${box.name}`);
     onActionClick(box.prompt, box.name);
   }, [isLoading, onActionClick]);
 
