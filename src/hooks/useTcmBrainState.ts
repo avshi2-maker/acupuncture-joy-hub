@@ -6,7 +6,6 @@ import { VoiceNote } from '@/components/tcm/VoiceNoteRecorder';
 import { SessionTemplate } from '@/components/tcm/SessionTemplates';
 import { SelectedPatient } from '@/components/crm/PatientSelectorDropdown';
 import { ExternalAIProvider } from '@/components/tcm/ExternalAIFallbackCard';
-import { toast } from 'sonner';
 import { parsePointReferences } from '@/components/acupuncture/BodyFigureSelector';
 import { detectAgeGroup } from '@/utils/ageGroupDetection';
 import {
@@ -19,6 +18,14 @@ import {
   wellnessQuestions,
   sportsQuestions,
 } from '@/data/tcmBrainQuestions';
+
+// Silence all pop-up notices ("sonner" toasts) across TCM Brain flow
+const toast = {
+  success: () => {},
+  info: () => {},
+  error: () => {},
+  warning: () => {},
+} as const;
 
 export interface Message {
   role: 'user' | 'assistant';

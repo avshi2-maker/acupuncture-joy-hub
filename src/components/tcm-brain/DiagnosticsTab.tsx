@@ -44,13 +44,16 @@ export function DiagnosticsTab({
   // Handle external input (from Q&A suggestions)
   useEffect(() => {
     if (externalInput && !isLoading) {
+      // Put the selected question into the Auto-Chain input
       setInput(externalInput);
-      // Auto-trigger the workflow
-      window.dispatchEvent(new CustomEvent('tcm-query-start', { 
-        detail: { query: externalInput } 
+
+      // Trigger the same API flow as "Run Workflow" (but keep the text visible)
+      window.dispatchEvent(new CustomEvent('tcm-query-start', {
+        detail: { query: externalInput }
       }));
       onSendMessage(externalInput);
-      setInput('');
+
+      // Clear the one-time external trigger, but keep the input text
       onExternalInputHandled?.();
     }
   }, [externalInput, isLoading, onSendMessage, onExternalInputHandled]);
