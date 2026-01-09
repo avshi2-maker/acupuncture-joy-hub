@@ -42,6 +42,7 @@ import { EmotionalProcessingPanel } from '@/components/session/EmotionalProcessi
 import { PediatricTCMAssistant } from '@/components/tcm-brain/PediatricTCMAssistant';
 import { HerbalMasterWidget } from '@/components/herbal/HerbalMasterWidget';
 import { HebrewQADropdowns } from '@/components/tcm-brain/HebrewQADropdowns';
+import { HebrewTopicQuestionsDialog } from '@/components/tcm-brain/HebrewTopicQuestionsDialog';
 import { CustomizableToolbar, ToolbarItemId } from '@/components/video/CustomizableToolbar';
 import { AnxietyQADialog } from '@/components/video/AnxietyQADialog';
 import { QuickAppointmentDialog } from '@/components/video/QuickAppointmentDialog';
@@ -71,6 +72,7 @@ export default function TcmBrain() {
   const [showPediatricAssistant, setShowPediatricAssistant] = useState(false);
   const [showHerbEncyclopedia, setShowHerbEncyclopedia] = useState(false);
   const [showHebrewQADropdowns, setShowHebrewQADropdowns] = useState(false);
+  const [showHebrewTopicQuestions, setShowHebrewTopicQuestions] = useState(false);
   const [showEmotionalPanel, setShowEmotionalPanel] = useState(false);
   const [emotionalPanelEmotion, setEmotionalPanelEmotion] = useState<'grief' | 'trauma' | 'fear' | 'anger'>('grief');
   const [qaFavoritesCount, setQaFavoritesCount] = useState(0);
@@ -420,6 +422,15 @@ export default function TcmBrain() {
             <div className="lg:col-span-4 h-full overflow-y-auto bg-slate-50 dark:bg-slate-900/50 p-4 border-l custom-scrollbar">
               <div className="space-y-6">
                 
+                {/* Hebrew Topic Questions Button */}
+                <Button 
+                  onClick={() => setShowHebrewTopicQuestions(true)}
+                  className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-bold py-3 text-base shadow-lg"
+                >
+                  <BookOpen className="h-5 w-5 mr-2" />
+                  שאלות לפי נושאים
+                </Button>
+
                 {/* 1. Quick Actions */}
                 <div className="bg-card rounded-lg border shadow-sm p-3">
                   <h3 className="text-xs font-bold text-muted-foreground uppercase mb-2">Quick Actions</h3>
@@ -533,6 +544,16 @@ export default function TcmBrain() {
         <SessionBriefPanel patientId={selectedPatient?.id || null} patientName={selectedPatient?.name || null} isOpen={showSessionBrief} onClose={() => setShowSessionBrief(false)} onQuestionUsed={(q) => { setPendingQuestion(q); setActiveTab('diagnostics'); }} onQuestionPinned={() => console.log('Pinned')} autoTrigger={true} />
         
         <EmotionalProcessingPanel isOpen={showEmotionalPanel} onClose={() => setShowEmotionalPanel(false)} initialEmotion={emotionalPanelEmotion} onAskQuestion={(q) => { streamChat(q); setShowEmotionalPanel(false); setActiveTab('symptoms'); }} />
+        
+        <HebrewTopicQuestionsDialog 
+          open={showHebrewTopicQuestions} 
+          onOpenChange={setShowHebrewTopicQuestions}
+          onSelectQuestion={(q) => {
+            setPendingQuestion(q);
+            setActiveTab('diagnostics');
+            setShowHebrewTopicQuestions(false);
+          }}
+        />
       </div>
     </>
   );

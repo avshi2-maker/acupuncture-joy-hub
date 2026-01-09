@@ -350,15 +350,24 @@ const questionnairesData: QuestionnaireCategory[] = [
 interface HebrewTopicQuestionsDialogProps {
   onSelectQuestion: (question: string) => void;
   disabled?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function HebrewTopicQuestionsDialog({
   onSelectQuestion,
   disabled = false,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: HebrewTopicQuestionsDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+
+  // Support both controlled and uncontrolled modes
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled ? (controlledOnOpenChange || (() => {})) : setInternalOpen;
 
   const toggleCategory = (id: string) => {
     setExpandedCategories(prev =>
@@ -381,6 +390,100 @@ export function HebrewTopicQuestionsDialog({
   })).filter(cat => searchTerm === '' || cat.questions.length > 0);
 
   const totalQuestions = questionnairesData.reduce((acc, cat) => acc + cat.questions.length, 0);
+
+  // If controlled, don't render the trigger button
+  if (isControlled) {
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] p-0" dir="rtl">
+          <DialogHeader className="p-4 pb-2 border-b">
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <MessageCircleQuestion className="h-5 w-5 text-violet-600" />
+              שאלות לפי נושאים
+              <Badge variant="outline" className="mr-2">
+                {totalQuestions} שאלות ב-{questionnairesData.length} נושאים
+              </Badge>
+            </DialogTitle>
+            <div className="relative mt-2">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="חיפוש שאלות..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pr-10"
+              />
+            </div>
+          </DialogHeader>
+          
+          <ScrollArea className="h-[60vh]">
+            <div className="p-4 space-y-2">
+              {filteredData.map((category) => {
+                const isExpanded = expandedCategories.includes(category.id);
+                const Icon = category.icon;
+                
+                return (
+                  <Collapsible
+                    key={category.id}
+                    open={isExpanded}
+                    onOpenChange={() => toggleCategory(category.id)}
+                  >
+                    <CollapsibleTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className={cn(
+                          "w-full justify-between p-3 h-auto",
+                          category.bgColor,
+                          category.borderColor,
+                          "border hover:opacity-80"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className={cn("h-5 w-5", category.color)} />
+                          <div className="text-right">
+                            <p className="font-medium text-sm">{category.name}</p>
+                            <p className="text-xs text-muted-foreground">{category.nameEn}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary" className="text-xs">
+                            {category.questions.length}
+                          </Badge>
+                          {isExpanded ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
+                          )}
+                        </div>
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="mt-1">
+                      <div className="space-y-1 pr-4 border-r-2 border-muted mr-4">
+                        {category.questions.map((question, idx) => (
+                          <Button
+                            key={question.id}
+                            variant="ghost"
+                            className="w-full justify-start text-right h-auto py-2 px-3 hover:bg-muted/50"
+                            onClick={() => handleSelectQuestion(question.textHe)}
+                          >
+                            <span className="text-xs text-muted-foreground ml-2 shrink-0">
+                              {idx + 1}.
+                            </span>
+                            <span className="text-sm leading-relaxed line-clamp-2">
+                              {question.textHe}
+                            </span>
+                          </Button>
+                        ))}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                );
+              })}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
