@@ -70,12 +70,12 @@ export const AITrustHeader = forwardRef<AITrustHeaderRef, AITrustHeaderProps>(({
     };
   }, []);
 
-  // Processing timer
+  // Processing timer (throttled to reduce UI jitter)
   useEffect(() => {
     if (status === 'processing') {
       timerRef.current = setInterval(() => {
-        setProcessingTime(prev => prev + 0.01);
-      }, 10);
+        setProcessingTime(prev => prev + 0.1);
+      }, 100);
     } else {
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -86,14 +86,14 @@ export const AITrustHeader = forwardRef<AITrustHeaderRef, AITrustHeaderProps>(({
     };
   }, [status]);
 
-  // Asset counter animation
+  // Asset counter animation (throttled to reduce UI jitter)
   useEffect(() => {
     if (isScanning) {
       let count = 0;
       assetTimerRef.current = setInterval(() => {
-        count += Math.floor(Math.random() * 5) + 1;
+        count += Math.floor(Math.random() * 3) + 1;
         setAssetsScanned(count);
-      }, 100);
+      }, 250);
     } else {
       if (assetTimerRef.current) {
         clearInterval(assetTimerRef.current);
@@ -197,8 +197,9 @@ window.dispatchEvent(new CustomEvent('tcm-query-end', {
 }));`;
 
   // Mini collapsed version
-  const MiniHeader = () => (
+  const MiniHeader = forwardRef<HTMLDivElement>((_props, miniRef) => (
     <motion.div
+      ref={miniRef}
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 32 }}
       exit={{ opacity: 0, height: 0 }}
@@ -247,11 +248,13 @@ window.dispatchEvent(new CustomEvent('tcm-query-end', {
         <ChevronDown className="h-3 w-3 text-slate-500" />
       </div>
     </motion.div>
-  );
+  ));
+  MiniHeader.displayName = 'AITrustHeaderMini';
 
   // Full expanded version
-  const FullHeader = () => (
+  const FullHeader = forwardRef<HTMLDivElement>((_props, fullRef) => (
     <motion.div
+      ref={fullRef}
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 60 }}
       exit={{ opacity: 0, height: 0 }}
@@ -271,15 +274,9 @@ window.dispatchEvent(new CustomEvent('tcm-query-end', {
           <div className="text-[0.7rem] text-slate-400 uppercase tracking-wider">
             נכסים נסרקים
           </div>
-          <motion.div 
-            className="text-lg font-bold text-sky-400"
-            key={assetsScanned}
-            initial={{ scale: 1.2 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.1 }}
-          >
+          <div className="text-lg font-bold text-sky-400">
             {assetsScanned}
-          </motion.div>
+          </div>
         </div>
 
         <div className="text-center border-l border-slate-600 pl-4">
@@ -287,7 +284,7 @@ window.dispatchEvent(new CustomEvent('tcm-query-end', {
             זמן עיבוד
           </div>
           <div className="text-lg font-bold text-sky-400">
-            {processingTime.toFixed(2)}s
+            {processingTime.toFixed(1)}s
           </div>
         </div>
 
@@ -381,7 +378,8 @@ window.dispatchEvent(new CustomEvent('tcm-query-end', {
         )}
       </div>
     </motion.div>
-  );
+  ));
+  FullHeader.displayName = 'AITrustHeaderFull';
 
   return (
     <TooltipProvider>

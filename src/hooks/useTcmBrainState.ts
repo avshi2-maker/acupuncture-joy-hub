@@ -48,6 +48,7 @@ export interface RagStats {
   auditLogged?: boolean;
   auditLogId?: string | null;
   auditLoggedAt?: string | null;
+  tokensUsed?: number;
 }
 
 export interface ChainedWorkflow {
@@ -105,6 +106,7 @@ export function useTcmBrainState() {
     auditLogged: false,
     auditLogId: null,
     auditLoggedAt: null,
+    tokensUsed: 0,
   });
 
   // External AI fallback (only offered when proprietary KB has 0 matches)
@@ -380,6 +382,7 @@ export function useTcmBrainState() {
           auditLogged: false,
           auditLogId: null,
           auditLoggedAt: null,
+          tokensUsed: 0,
         });
 
         if (!isExternal && chunksFound === 0) {
@@ -457,6 +460,7 @@ export function useTcmBrainState() {
                 auditLogged: false,
                 auditLogId: null,
                 auditLoggedAt: null,
+                tokensUsed: 0,
               });
 
               const alertType = parsed.isExternal 
@@ -500,12 +504,18 @@ export function useTcmBrainState() {
                 return updated;
               });
             } else if (parsed.type === 'done') {
-              // Update audit info
+              const totalTokens =
+                typeof parsed?.tokenUsage?.totalTokens === 'number'
+                  ? parsed.tokenUsage.totalTokens
+                  : 0;
+
+              // Update audit + token info
               setLastRagStats(prev => prev ? {
                 ...prev,
                 auditLogged: !!parsed.auditLogId,
                 auditLogId: parsed.auditLogId ?? null,
                 auditLoggedAt: parsed.auditLoggedAt ?? null,
+                tokensUsed: totalTokens,
               } : null);
               setSourceAlert(prev => ({
                 ...prev,
