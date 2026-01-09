@@ -70,12 +70,12 @@ export const AITrustHeader = forwardRef<AITrustHeaderRef, AITrustHeaderProps>(({
     };
   }, []);
 
-  // Processing timer (throttled to reduce UI jitter)
+  // Processing timer (heavily throttled to prevent shaking)
   useEffect(() => {
     if (status === 'processing') {
       timerRef.current = setInterval(() => {
-        setProcessingTime(prev => prev + 0.1);
-      }, 100);
+        setProcessingTime(prev => prev + 0.5);
+      }, 500); // Update every 500ms instead of 100ms
     } else {
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -86,14 +86,14 @@ export const AITrustHeader = forwardRef<AITrustHeaderRef, AITrustHeaderProps>(({
     };
   }, [status]);
 
-  // Asset counter animation (throttled to reduce UI jitter)
+  // Asset counter animation (heavily throttled to prevent shaking)
   useEffect(() => {
     if (isScanning) {
       let count = 0;
       assetTimerRef.current = setInterval(() => {
-        count += Math.floor(Math.random() * 3) + 1;
+        count += Math.floor(Math.random() * 5) + 3;
         setAssetsScanned(count);
-      }, 250);
+      }, 800); // Update every 800ms instead of 250ms
     } else {
       if (assetTimerRef.current) {
         clearInterval(assetTimerRef.current);
