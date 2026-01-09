@@ -379,9 +379,14 @@ export default function TcmBrain() {
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
                   <TabsList className="grid grid-cols-6 w-full mb-2 shrink-0">
                     {tabItems.map((tab) => (
-                      <TabsTrigger key={tab.id} value={tab.id} className="flex flex-col gap-0.5 py-2 data-[state=active]:bg-jade/10 data-[state=active]:text-jade">
+                      <TabsTrigger key={tab.id} value={tab.id} className="flex flex-col gap-0.5 py-2 data-[state=active]:bg-jade/10 data-[state=active]:text-jade relative">
                         <tab.icon className="h-4 w-4" />
                         <span className="text-xs font-medium hidden sm:block">{tab.label}</span>
+                        {tab.id === 'bodymap' && highlightedPoints.length > 0 && (
+                          <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-[10px] font-bold">
+                            {highlightedPoints.length}
+                          </Badge>
+                        )}
                       </TabsTrigger>
                     ))}
                   </TabsList>
@@ -398,7 +403,7 @@ export default function TcmBrain() {
                       <TreatmentTab messages={messages} isLoading={isLoading} onSendMessage={streamChat} onClear={clearChat} selectedPatient={selectedPatient} sessionSeconds={sessionSeconds} questionsAsked={questionsAsked} formatSessionTime={formatSessionTime} quickActionsRef={quickActionsRef} />
                     </TabsContent>
                     <TabsContent value="bodymap" className="m-0 h-full p-0">
-                      <BodyMapTab highlightedPoints={highlightedPoints} aiResponseText={messages.filter(m => m.role === 'assistant').slice(-1)[0]?.content || ''} streamChat={streamChat} onTabChange={setActiveTab} />
+                      <BodyMapTab highlightedPoints={highlightedPoints} aiResponseText={messages.filter(m => m.role === 'assistant').slice(-1)[0]?.content || ''} streamChat={streamChat} onTabChange={setActiveTab} onClearPoints={() => setHighlightedPoints([])} />
                     </TabsContent>
                     <TabsContent value="session" className="m-0 h-full p-0">
                       <SessionNotesTab sessionStatus={sessionStatus} sessionSeconds={sessionSeconds} formatSessionTime={formatSessionTime} questionsAsked={questionsAsked} messages={messages} voiceNotes={voiceNotes} activeTemplate={activeTemplate} startSession={startSession} pauseSession={pauseSession} continueSession={continueSession} endSession={endSession} handleAddVoiceNote={handleAddVoiceNote} handleDeleteVoiceNote={handleDeleteVoiceNote} handleApplyTemplate={handleApplyTemplate} openGmailWithSession={openGmailWithSession} openWhatsAppWithSession={openWhatsAppWithSession} />
