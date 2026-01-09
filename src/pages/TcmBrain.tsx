@@ -439,7 +439,7 @@ export default function TcmBrain() {
                 <div className="bg-card rounded-lg border shadow-sm">
                    <Button variant="ghost" className="w-full flex justify-between p-3" onClick={() => setShowHebrewQADropdowns(!showHebrewQADropdowns)}>
                       <div className="flex items-center gap-2 font-bold text-violet-700">
-                        <MessageCircleQuestion className="h-5 w-5" /> שאלות מוכנות בעברית
+                        <MessageCircleQuestion className="h-5 w-5" /> יין יאנג + חמשת האלמנטים
                       </div>
                       {showHebrewQADropdowns ? <ChevronUp className="h-4 w-4"/> : <ChevronDown className="h-4 w-4"/>}
                    </Button>
