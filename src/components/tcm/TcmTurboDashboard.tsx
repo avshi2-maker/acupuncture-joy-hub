@@ -86,17 +86,21 @@ export function TcmTurboDashboard({
   // Animate tokens when processing
   useEffect(() => {
     if (isProcessing) {
-      // Start token counting animation
+      // Start token counting animation (throttled to reduce UI jitter)
       tokenIntervalRef.current = setInterval(() => {
-        setDisplayTokens(prev => prev + Math.floor(Math.random() * 150));
-      }, 100);
+        setDisplayTokens(prev => prev + Math.floor(Math.random() * 120));
+      }, 250);
 
-      // Animate RPM gauge
-      const animateRpm = () => {
-        setRpmProgress(prev => {
-          const next = prev + Math.random() * 15;
-          return next > 95 ? 90 : next;
-        });
+      // Animate RPM gauge (throttled to reduce UI jitter)
+      let lastUpdate = 0;
+      const animateRpm = (t: number) => {
+        if (t - lastUpdate > 120) {
+          lastUpdate = t;
+          setRpmProgress(prev => {
+            const next = prev + Math.random() * 12;
+            return next > 95 ? 90 : next;
+          });
+        }
         animationRef.current = requestAnimationFrame(animateRpm);
       };
       animationRef.current = requestAnimationFrame(animateRpm);
@@ -112,10 +116,9 @@ export function TcmTurboDashboard({
         animationRef.current = null;
       }
       
-      // Set final values from meta
-      if (meta?.tokensUsed !== undefined) {
-        setDisplayTokens(meta.tokensUsed);
-      }
+      // Set final values from meta (fallback to 0 to avoid "random huge" numbers)
+      setDisplayTokens(meta?.tokensUsed ?? 0);
+
       if (meta?.scorePercent !== undefined) {
         setRpmProgress(meta.scorePercent);
       } else if (meta?.hybridScore) {

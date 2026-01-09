@@ -305,6 +305,7 @@ export default function TcmBrain() {
               chunksFound: lastRagStats?.chunksFound || 0,
               documentsSearched: lastRagStats?.documentsSearched || 0,
               isExternal: lastRagStats?.isExternal,
+              tokensUsed: lastRagStats?.tokensUsed ?? 0,
               scorePercent: lastRagStats?.chunksFound ? Math.min(100, lastRagStats.chunksFound * 20) : 0,
               auditLogId: lastRagStats?.auditLogId,
             }}

@@ -12,7 +12,9 @@ interface BodyMapTabProps {
 }
 
 export function BodyMapTab({ highlightedPoints, aiResponseText = '', streamChat, onTabChange }: BodyMapTabProps) {
-  const [viewMode, setViewMode] = useState<'ai' | 'browse'>('ai');
+  const [viewMode, setViewMode] = useState<'ai' | 'browse'>(() => (
+    highlightedPoints.length > 0 || aiResponseText.length > 0 ? 'ai' : 'browse'
+  ));
 
   const handleGenerateProtocol = (points: string[]) => {
     const prompt = `Generate a detailed TCM treatment protocol for the following acupuncture points: ${points.join(', ')}. 
