@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BodyFigureSelector } from '@/components/acupuncture/BodyFigureSelector';
 import { RAGBodyFigureDisplay } from '@/components/acupuncture/RAGBodyFigureDisplay';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,9 +12,15 @@ interface BodyMapTabProps {
 }
 
 export function BodyMapTab({ highlightedPoints, aiResponseText = '', streamChat, onTabChange }: BodyMapTabProps) {
-  const [viewMode, setViewMode] = useState<'ai' | 'browse'>(() => (
-    highlightedPoints.length > 0 || aiResponseText.length > 0 ? 'ai' : 'browse'
-  ));
+  // Always default to browse if no AI points, switch to ai when points available
+  const [viewMode, setViewMode] = useState<'ai' | 'browse'>('browse');
+  
+  // Auto-switch to AI tab when points become available
+  useEffect(() => {
+    if (highlightedPoints.length > 0) {
+      setViewMode('ai');
+    }
+  }, [highlightedPoints.length]);
 
   const handleGenerateProtocol = (points: string[]) => {
     const prompt = `Generate a detailed TCM treatment protocol for the following acupuncture points: ${points.join(', ')}. 

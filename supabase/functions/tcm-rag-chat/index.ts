@@ -1505,11 +1505,11 @@ serve(async (req) => {
     const LITE_CAF_LIMIT = 1;          // Single CAF match
     const LITE_TRIALS_LIMIT = 1;       // Single trial
     
-    // BALANCED MODE (default): Optimized for quality + cost
-    const NORMAL_HYBRID_CHUNKS = 5;    // Confidence check (reduced from 8)
-    const NORMAL_PILLAR_CHUNKS = 3;    // 3 per pillar = 12 total (reduced from 4)
-    const NORMAL_FALLBACK_LIMIT = 6;   // Reduced from 10
-    const NORMAL_CAF_LIMIT = 2;        // Keep clinical framework
+    // DEEP MODE (default): Comprehensive multi-condition answers
+    const NORMAL_HYBRID_CHUNKS = 8;    // Full confidence check
+    const NORMAL_PILLAR_CHUNKS = 5;    // 5 per pillar = 20 total for deep answers
+    const NORMAL_FALLBACK_LIMIT = 10;  // More fallback for complex queries
+    const NORMAL_CAF_LIMIT = 3;        // More clinical framework data
     const NORMAL_TRIALS_LIMIT = 1;     // Single best trial
     
     // Helper: Truncate chunk content while preserving key info
