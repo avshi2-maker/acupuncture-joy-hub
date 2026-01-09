@@ -167,13 +167,13 @@ export function VoiceCommandCheatSheet({
           <span className="hidden sm:inline">Voice Commands</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:w-[450px] p-0">
+      <SheetContent side="right" className="w-full sm:w-[450px] p-0" aria-describedby="voice-command-description">
         <SheetHeader className="p-4 border-b bg-muted/50">
           <SheetTitle className="flex items-center gap-2">
             <Mic className={cn("h-5 w-5", isListening && "text-green-500 animate-pulse")} />
             Voice Command Cheat Sheet
           </SheetTitle>
-          <p className="text-sm text-muted-foreground">
+          <p id="voice-command-description" className="text-sm text-muted-foreground">
             Say any command to control the session
           </p>
           {onToggleVoice && (
