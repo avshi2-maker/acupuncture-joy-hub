@@ -75,6 +75,9 @@ import { BaZiDashboardCard } from '@/components/dashboard/BaZiDashboardCard';
 import { HerbEncyclopediaCard } from '@/components/dashboard/HerbEncyclopediaCard';
 import { PediatricAssistantCard } from '@/components/dashboard/PediatricAssistantCard';
 import { KnowledgeBaseCard } from '@/components/dashboard/KnowledgeBaseCard';
+import { DashboardThreeColumnLayout, GlassCard } from '@/components/dashboard/DashboardThreeColumnLayout';
+import { DashboardGuide, useDashboardGuide } from '@/components/dashboard/DashboardGuide';
+import { Compass } from 'lucide-react';
 
 
 // Phosphor-style glowing clock component (mobile - small version)
@@ -274,6 +277,7 @@ export default function Dashboard() {
   const { progress, hasProgress, resetProgress } = useWorkflowProgress();
   const { lock, isPaused, pauseReason, pauseLock, resumeLock } = useSessionLock();
   const { hasPin } = usePinAuth();
+  const { isGuideOpen, startGuide, closeGuide } = useDashboardGuide();
 
   // Check therapist disclaimer status
   useEffect(() => {
@@ -961,13 +965,13 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* Main Content - 3-Column Layout */}
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        {/* Welcome Section with Guide Button */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="font-display text-3xl mb-2 opacity-0 animate-fade-in" style={{ animationDelay: '250ms', animationFillMode: 'forwards' }}>{getGreeting()}! 👋</h2>
-            <p className="text-muted-foreground opacity-0 animate-fade-in" style={{ animationDelay: '350ms', animationFillMode: 'forwards' }}>
+            <h2 className="font-display text-3xl mb-2">{getGreeting()}! 👋</h2>
+            <p className="text-muted-foreground">
               {tier === 'trial' && daysRemaining !== null && (
                 <>נותרו לכם {daysRemaining} ימי ניסיון. <Link to="/pricing" className="text-jade hover:underline">שדרגו עכשיו</Link></>
               )}
@@ -975,321 +979,273 @@ export default function Dashboard() {
               {tier === 'premium' && 'אתם בתוכנית פרימיום. כל הפיצ׳רים זמינים עבורכם!'}
             </p>
           </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={startGuide}
+            className="gap-2 border-jade/30 hover:bg-jade/10"
+          >
+            <Compass className="h-4 w-4 text-jade" />
+            מדריך
+          </Button>
         </div>
 
-        {/* Onboarding Progress Tracker - shows until all steps complete */}
-        <div className="mb-8 opacity-0 animate-fade-in" style={{ animationDelay: '380ms', animationFillMode: 'forwards' }}>
-          <OnboardingProgress />
-        </div>
+        {/* 3-Column Dashboard Layout */}
+        <DashboardThreeColumnLayout
+          /* RIGHT COLUMN: Action - Workflow, Feature Cards, Assessment */
+          rightColumn={
+            <div id="dashboard-right-column" className="space-y-4">
+              {/* 3-Step Workflow Stepper */}
+              <GlassCard className="p-4">
+                <h3 className="text-sm font-semibold mb-4 text-center">
+                  💡 3 שלבים להתחלת טיפול
+                </h3>
+                <div className="flex flex-col items-center gap-3">
+                  {/* Step 1: Schedule */}
+                  <Link to="/crm/calendar" className="w-full">
+                    <div className={`flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-jade/10 ${
+                      stats.appointmentsToday > 0 ? 'bg-jade/5 border border-jade/20' : 'border border-border'
+                    }`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        stats.appointmentsToday > 0 ? 'bg-jade text-white' : 'bg-jade/10'
+                      }`}>
+                        {stats.appointmentsToday > 0 ? <CheckCircle2 className="h-5 w-5" /> : <Calendar className="h-5 w-5 text-jade" />}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">1. קביעת תור</p>
+                        <p className="text-xs text-muted-foreground">
+                          {stats.appointmentsToday > 0 ? `${stats.appointmentsToday} תורים היום ✓` : 'התחילו כאן'}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
 
-        {/* Workflow Stepper Guide */}
-        <Card className="mb-8 border-jade/20 bg-gradient-to-l from-jade/5 to-transparent opacity-0 animate-fade-in" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
-          <CardContent className="py-6">
-            {/* Onboarding tip */}
-            <div className="text-center mb-4 text-sm text-muted-foreground">
-              <span className="inline-flex items-center gap-1 bg-jade/10 px-3 py-1 rounded-full">
-                💡 עקבו אחר 3 השלבים להתחלת טיפול מוצלח
-              </span>
-            </div>
-            
-            {/* Progress persistence indicator */}
-            {hasProgress && (
-              <div className="text-center mb-4">
-                <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-full text-sm">
-                  <span>📍</span>
-                  <span>
-                    {progress.selectedPatientName 
-                      ? `מטופל נבחר: ${progress.selectedPatientName}` 
-                      : progress.selectedDate 
-                        ? `תאריך נבחר: ${new Date(progress.selectedDate).toLocaleDateString('he-IL')}` 
-                        : `אתם בשלב ${progress.currentStep}`}
-                  </span>
-                  <button 
-                    onClick={resetProgress}
-                    className="mr-2 text-xs underline hover:no-underline"
-                  >
-                    איפוס
-                  </button>
+                  {/* Step 2: Consent */}
+                  <Link to="/crm/patients" className="w-full">
+                    <div className={`flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-jade/10 ${
+                      stats.hasAppointmentWithConsent ? 'bg-jade/5 border border-jade/20' : 'border border-border'
+                    }`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        stats.hasAppointmentWithConsent ? 'bg-jade text-white' : 'bg-jade/10'
+                      }`}>
+                        {stats.hasAppointmentWithConsent ? <CheckCircle2 className="h-5 w-5" /> : <Users className="h-5 w-5 text-jade" />}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">2. הסכמת מטופל</p>
+                        <p className="text-xs text-muted-foreground">
+                          {stats.hasAppointmentWithConsent ? 'מוכן ✓' : 'חתימה על טופס'}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+
+                  {/* Step 3: Start Session */}
+                  <Link to="/crm/calendar" className="w-full">
+                    <div className={`flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-jade/10 border border-border ${
+                      stats.hasAppointmentWithConsent ? 'ring-2 ring-jade/30' : 'opacity-60'
+                    }`}>
+                      <div className="w-10 h-10 rounded-full bg-jade/10 flex items-center justify-center">
+                        <Video className="h-5 w-5 text-jade" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">3. התחלת טיפול</p>
+                        <p className="text-xs text-muted-foreground">
+                          {stats.hasAppointmentWithConsent ? 'לחץ להתחלה! 🎉' : 'מהיומן'}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
                 </div>
-              </div>
-            )}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-0">
-              {/* Step 1: Schedule */}
-              <Link to="/crm/calendar" className="flex flex-col items-center group cursor-pointer relative">
-                {/* Current step indicator */}
-                {stats.appointmentsToday === 0 && (
-                  <div className="absolute -top-2 -right-2 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center animate-bounce">
-                    <span className="text-white text-xs font-bold">!</span>
-                  </div>
-                )}
-                <div className={`w-14 h-14 rounded-full border-2 flex items-center justify-center group-hover:scale-110 transition-all duration-300 ${
-                  stats.appointmentsToday > 0 
-                    ? 'bg-jade border-jade' 
-                    : 'bg-jade/10 border-jade group-hover:bg-jade ring-2 ring-amber-400 ring-offset-2'
-                }`}>
-                  {stats.appointmentsToday > 0 ? (
-                    <CheckCircle2 className="h-6 w-6 text-white" />
-                  ) : (
-                    <Calendar className="h-6 w-6 text-jade group-hover:text-white transition-colors" />
-                  )}
-                </div>
-                <span className={`mt-2 text-sm font-medium ${stats.appointmentsToday > 0 ? 'text-jade' : 'text-jade'}`}>
-                  1. קביעת תור
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {stats.appointmentsToday > 0 ? `${stats.appointmentsToday} תורים היום ✓` : 'התחילו כאן →'}
-                </span>
-              </Link>
+              </GlassCard>
 
-              {/* Arrow 1 */}
-              <div className="hidden sm:flex items-center px-4">
-                <div className={`w-16 h-0.5 ${stats.appointmentsToday > 0 ? 'bg-jade' : 'bg-gradient-to-l from-jade/60 to-jade/20'}`}></div>
-                <div className={`w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] ${stats.appointmentsToday > 0 ? 'border-r-jade' : 'border-r-jade/60'}`}></div>
-              </div>
-              <div className={`sm:hidden h-6 w-0.5 ${stats.appointmentsToday > 0 ? 'bg-jade' : 'bg-gradient-to-b from-jade/60 to-jade/20'}`}></div>
-
-              {/* Step 2: Patient Consent */}
-              <Link to="/crm/patients" className="flex flex-col items-center group cursor-pointer relative">
-                {/* Current step indicator */}
-                {stats.appointmentsToday > 0 && !stats.hasAppointmentWithConsent && (
-                  <div className="absolute -top-2 -right-2 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center animate-bounce">
-                    <span className="text-white text-xs font-bold">!</span>
-                  </div>
-                )}
-                <div className={`w-14 h-14 rounded-full border-2 flex items-center justify-center group-hover:scale-110 transition-all duration-300 ${
-                  stats.hasAppointmentWithConsent 
-                    ? 'bg-jade border-jade' 
-                    : stats.appointmentsToday > 0
-                      ? 'bg-jade/10 border-jade group-hover:bg-jade ring-2 ring-amber-400 ring-offset-2'
-                      : 'bg-jade/10 border-jade/60 group-hover:bg-jade group-hover:border-jade'
-                }`}>
-                  {stats.hasAppointmentWithConsent ? (
-                    <CheckCircle2 className="h-6 w-6 text-white" />
-                  ) : (
-                    <Users className="h-6 w-6 text-jade/80 group-hover:text-white transition-colors" />
-                  )}
-                </div>
-                <span className={`mt-2 text-sm font-medium ${stats.hasAppointmentWithConsent ? 'text-jade' : 'text-jade/80'}`}>
-                  2. הסכמת מטופל
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {stats.hasAppointmentWithConsent ? 'מוכן לטיפול ✓' : stats.appointmentsToday > 0 ? 'השלב הבא →' : 'חתימה על טופס'}
-                </span>
-              </Link>
-
-              {/* Arrow 2 */}
-              <div className="hidden sm:flex items-center px-4">
-                <div className={`w-16 h-0.5 ${stats.hasAppointmentWithConsent ? 'bg-jade' : 'bg-gradient-to-l from-jade/60 to-jade/20'}`}></div>
-                <div className={`w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] ${stats.hasAppointmentWithConsent ? 'border-r-jade' : 'border-r-jade/60'}`}></div>
-              </div>
-              <div className={`sm:hidden h-6 w-0.5 ${stats.hasAppointmentWithConsent ? 'bg-jade' : 'bg-gradient-to-b from-jade/60 to-jade/20'}`}></div>
-
-              {/* Step 3: Start Session */}
-              <Link to="/crm/calendar" className={`flex flex-col items-center relative ${stats.hasAppointmentWithConsent ? 'group cursor-pointer' : ''}`}>
-                {/* Current step indicator */}
-                {stats.hasAppointmentWithConsent && (
-                  <div className="absolute -top-2 -right-2 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center animate-bounce">
-                    <span className="text-white text-xs font-bold">!</span>
-                  </div>
-                )}
-                <div className={`w-14 h-14 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                  stats.hasAppointmentWithConsent 
-                    ? 'bg-jade/10 border-jade group-hover:bg-jade group-hover:scale-110 ring-2 ring-amber-400 ring-offset-2' 
-                    : 'bg-jade/10 border-jade/40'
-                }`}>
-                  <Video className={`h-6 w-6 transition-colors ${stats.hasAppointmentWithConsent ? 'text-jade group-hover:text-white' : 'text-jade/60'}`} />
-                </div>
-                <span className={`mt-2 text-sm font-medium ${stats.hasAppointmentWithConsent ? 'text-jade' : 'text-jade/60'}`}>
-                  3. התחלת טיפול
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {stats.hasAppointmentWithConsent ? 'לחץ להתחלה! 🎉' : 'מהיומן'}
-                </span>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8 opacity-0 animate-fade-in" style={{ animationDelay: '450ms', animationFillMode: 'forwards' }}>
-          <Link to="/crm/patients" className="block">
-            <Card className="border-border/50 hover:border-jade/50 hover:shadow-md transition-all cursor-pointer h-full">
-              <CardContent className="pt-4 pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-jade/10 flex items-center justify-center">
+              {/* Feature Cards */}
+              <GlassCard className="p-4">
+                <h4 className="text-xs font-medium text-muted-foreground mb-3">כלי ניהול</h4>
+                <div className="space-y-2">
+                  <Link to="/crm/calendar" className="flex items-center gap-3 p-2 rounded-lg hover:bg-jade/10 transition-colors">
+                    <Calendar className="h-5 w-5 text-jade" />
+                    <span className="text-sm">יומן תורים</span>
+                  </Link>
+                  <Link to="/crm/patients" className="flex items-center gap-3 p-2 rounded-lg hover:bg-jade/10 transition-colors">
                     <Users className="h-5 w-5 text-jade" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{isLoadingStats ? '-' : stats.totalPatients}</p>
-                    <p className="text-xs text-muted-foreground">סה״כ מטופלים</p>
-                  </div>
+                    <span className="text-sm">ניהול מטופלים</span>
+                  </Link>
+                  <Link to={disclaimerStatus.isSigned ? '/therapist-profile/edit' : '/therapist-intake'} className="flex items-center gap-3 p-2 rounded-lg hover:bg-jade/10 transition-colors">
+                    <ClipboardCheck className="h-5 w-5 text-jade" />
+                    <span className="text-sm">קליטת מטפל</span>
+                    {disclaimerStatus.isSigned && <span className="text-xs text-jade">✓</span>}
+                  </Link>
                 </div>
-              </CardContent>
-            </Card>
-          </Link>
-          
-          <Link to="/crm/calendar" className="block">
-            <Card className="border-border/50 hover:border-blue-500/50 hover:shadow-md transition-all cursor-pointer h-full">
-              <CardContent className="pt-4 pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                    <Clock className="h-5 w-5 text-blue-500" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{isLoadingStats ? '-' : stats.appointmentsToday}</p>
+              </GlassCard>
+
+              {/* Session Tools */}
+              <GlassCard className="p-4">
+                <h4 className="text-xs font-medium text-muted-foreground mb-3">כלי טיפול</h4>
+                <div className="space-y-2">
+                  <Link to="/video-session" className="flex items-center gap-3 p-2 rounded-lg hover:bg-jade/10 transition-colors">
+                    <Video className="h-5 w-5 text-jade" />
+                    <span className="text-sm">פגישת וידאו</span>
+                  </Link>
+                  <Link to="/tcm-brain" className="flex items-center gap-3 p-2 rounded-lg hover:bg-jade/10 transition-colors">
+                    <Brain className="h-5 w-5 text-jade" />
+                    <span className="text-sm">טיפול סטנדרטי</span>
+                  </Link>
+                  <Link to="/knowledge-registry" className="flex items-center gap-3 p-2 rounded-lg hover:bg-jade/10 transition-colors">
+                    <Database className="h-5 w-5 text-jade" />
+                    <span className="text-sm">מאגר ידע</span>
+                  </Link>
+                </div>
+              </GlassCard>
+
+              {/* Assessment Center */}
+              <AssessmentCenterCard />
+            </div>
+          }
+
+          /* CENTER COLUMN: Intelligence Hub - Stats, AI, Knowledge */
+          centerColumn={
+            <div id="dashboard-center-column" className="space-y-4">
+              {/* Statistics Cards Row */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                <Link to="/crm/patients">
+                  <GlassCard className="p-3 text-center">
+                    <p className="text-2xl font-bold text-jade">{isLoadingStats ? '-' : stats.totalPatients}</p>
+                    <p className="text-xs text-muted-foreground">מטופלים</p>
+                  </GlassCard>
+                </Link>
+                <Link to="/crm/calendar">
+                  <GlassCard className="p-3 text-center">
+                    <p className="text-2xl font-bold text-blue-500">{isLoadingStats ? '-' : stats.appointmentsToday}</p>
                     <p className="text-xs text-muted-foreground">תורים היום</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-          
-          <Link to="/crm/patients" className="block">
-            <Card className="border-border/50 hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer h-full">
-              <CardContent className="pt-4 pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                    <UserCheck className="h-5 w-5 text-emerald-500" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{isLoadingStats ? '-' : stats.patientsWithConsent}</p>
+                  </GlassCard>
+                </Link>
+                <Link to="/crm/patients">
+                  <GlassCard className="p-3 text-center">
+                    <p className="text-2xl font-bold text-emerald-500">{isLoadingStats ? '-' : stats.patientsWithConsent}</p>
                     <p className="text-xs text-muted-foreground">חתמו הסכמה</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-          
-          <Link to="/crm/patients" className="block">
-            <Card className="border-border/50 hover:border-amber-500/50 hover:shadow-md transition-all cursor-pointer h-full">
-              <CardContent className="pt-4 pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                    <FileCheck className="h-5 w-5 text-amber-500" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{isLoadingStats ? '-' : stats.pendingConsents}</p>
-                    <p className="text-xs text-muted-foreground">ממתינים לחתימה</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link to="/crm/calendar" className="block">
-            <Card className="border-border/50 hover:border-purple-500/50 hover:shadow-md transition-all cursor-pointer h-full">
-              <CardContent className="pt-4 pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                    <Video className="h-5 w-5 text-purple-500" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{isLoadingStats ? '-' : stats.sessionsThisWeek}</p>
+                  </GlassCard>
+                </Link>
+                <Link to="/crm/patients">
+                  <GlassCard className="p-3 text-center">
+                    <p className="text-2xl font-bold text-amber-500">{isLoadingStats ? '-' : stats.pendingConsents}</p>
+                    <p className="text-xs text-muted-foreground">ממתינים</p>
+                  </GlassCard>
+                </Link>
+                <Link to="/crm/calendar">
+                  <GlassCard className="p-3 text-center">
+                    <p className="text-2xl font-bold text-purple-500">{isLoadingStats ? '-' : stats.sessionsThisWeek}</p>
                     <p className="text-xs text-muted-foreground">טיפולים השבוע</p>
-                  </div>
+                  </GlassCard>
+                </Link>
+              </div>
+
+              {/* Diagnosis & AI Widgets */}
+              <GlassCard className="p-4">
+                <CombinedDiagnosisCard />
+              </GlassCard>
+
+              {/* Knowledge Tools Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <GlassCard className="p-0 overflow-hidden">
+                  <HerbEncyclopediaCard />
+                </GlassCard>
+                <GlassCard className="p-0 overflow-hidden">
+                  <PediatricAssistantCard />
+                </GlassCard>
+              </div>
+
+              {/* Knowledge Base */}
+              <GlassCard className="p-0 overflow-hidden">
+                <KnowledgeBaseCard />
+              </GlassCard>
+
+              {/* Additional Widgets */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <GlassCard className="p-0 overflow-hidden">
+                  <HebrewQuestionsCard />
+                </GlassCard>
+                <GlassCard className="p-0 overflow-hidden">
+                  <AssetInventoryCard />
+                </GlassCard>
+              </div>
+
+              {/* Herbal Master Widget */}
+              <GlassCard className="p-4">
+                <HerbalMasterWidget className="w-full" />
+              </GlassCard>
+            </div>
+          }
+
+          /* LEFT COLUMN: Visual/Status - Clock, Galleries, Wallet */
+          leftColumn={
+            <div id="dashboard-left-column" className="space-y-4">
+              {/* Clock & Progress */}
+              <GlassCard className="p-4">
+                <div className="flex items-center justify-center mb-4">
+                  <ThemedClockWidget theme={clockTheme} />
                 </div>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
+                <OnboardingProgress />
+              </GlassCard>
 
-        {/* Clinic Wallet + Token Calculator + Usage Widget + Widgets */}
-        <div className="mb-8 grid md:grid-cols-9 gap-4 opacity-0 animate-fade-in" style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}>
-          <div className="md:col-span-2">
-            <ClinicWalletCard />
-          </div>
-          <div className="md:col-span-2">
-            <DashboardTokenCalculator />
-          </div>
-          <UsageWidget backgroundImage={roiWidgetBg} />
-          <PatientEducationWidget />
-          <PediatricInfographicCard animationDelay={550} />
-          <PediatricProtocolCard animationDelay={575} />
-          <VagusNerveCard />
-          <AssessmentCenterCard animationDelay={650} />
-          <TongueGalleryCard animationDelay={700} />
-          <PulseGalleryCard animationDelay={750} />
-          <CombinedDiagnosisCard animationDelay={800} />
-          <HebrewQuestionsCard animationDelay={850} />
-          <AssetInventoryCard animationDelay={900} />
-          <BaZiDashboardCard animationDelay={950} />
-          <HerbEncyclopediaCard animationDelay={1000} />
-          <PediatricAssistantCard animationDelay={1050} />
-          <KnowledgeBaseCard animationDelay={1100} />
-        </div>
+              {/* Visual Galleries */}
+              <GlassCard className="p-0 overflow-hidden">
+                <TongueGalleryCard />
+              </GlassCard>
+              
+              <GlassCard className="p-0 overflow-hidden">
+                <PulseGalleryCard />
+              </GlassCard>
 
-        {/* Herbal Master Widget - Encyclopedia, Safety & Quiz */}
-        <div className="mb-8 opacity-0 animate-fade-in" style={{ animationDelay: '530ms', animationFillMode: 'forwards' }}>
-          <HerbalMasterWidget className="max-w-lg" />
-        </div>
+              {/* Economy Monitor - z-[9999] */}
+              <div className="sticky top-20 z-[9999] space-y-4">
+                <GlassCard className="p-0 overflow-hidden">
+                  <ClinicWalletCard />
+                </GlassCard>
+                
+                <GlassCard className="p-0 overflow-hidden">
+                  <DashboardTokenCalculator />
+                </GlassCard>
 
-        {/* Row 1: Calendar, Patient Management, Therapist Intake */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          {row1Features.map((feature, index) => (
-            <FeatureCard
-              key={feature.id}
-              title={feature.title}
-              description={feature.description}
-              icon={feature.icon}
-              available={hasFeature(feature.feature)}
-              href={feature.href}
-              backgroundImage={feature.backgroundImage}
-              animationDelay={index * 100}
-              statusBadge={'statusBadge' in feature ? feature.statusBadge : undefined}
-            />
-          ))}
-        </div>
+                <GlassCard className="p-0 overflow-hidden">
+                  <UsageWidget backgroundImage={roiWidgetBg} />
+                </GlassCard>
+              </div>
 
-        {/* Row 2: Session cards - LOCKED (start from calendar) */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          {row2Features.map((feature, index) => (
-            <FeatureCard
-              key={feature.id}
-              title={feature.title}
-              description={feature.description}
-              icon={feature.icon}
-              available={hasFeature(feature.feature)}
-              href={feature.href}
-              highlighted={feature.highlighted}
-              backgroundImage={feature.backgroundImage}
-              animationDelay={300 + index * 100}
-              locked={feature.locked}
-              lockMessage={feature.lockMessage}
-            />
-          ))}
-        </div>
+              {/* Additional Cards */}
+              <GlassCard className="p-0 overflow-hidden">
+                <BaZiDashboardCard />
+              </GlassCard>
 
-        {/* Row 3: Knowledge Registry */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {row3Features.map((feature, index) => (
-            <FeatureCard
-              key={feature.id}
-              title={feature.title}
-              description={feature.description}
-              icon={feature.icon}
-              available={true}
-              href={feature.href}
-              backgroundImage={feature.backgroundImage}
-              animationDelay={600 + index * 100}
-            />
-          ))}
-        </div>
+              {/* Pediatric & Vagus */}
+              <GlassCard className="p-0 overflow-hidden">
+                <PediatricInfographicCard />
+              </GlassCard>
+              
+              <GlassCard className="p-0 overflow-hidden" onClick={() => setShowVagusStimulation(true)}>
+                <VagusNerveCard />
+              </GlassCard>
+            </div>
+          }
+        />
 
         {/* Upgrade CTA for non-premium */}
         {tier !== 'premium' && (
-          <Card className="mt-8 bg-gradient-to-r from-jade to-jade-dark text-primary-foreground">
-            <CardContent className="py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <GlassCard className="mt-8 bg-gradient-to-r from-jade/20 to-jade/5 p-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
                 <h3 className="font-display text-xl mb-1">רוצים גישה לכל הפיצ׳רים?</h3>
-                <p className="opacity-90">שדרגו לתוכנית פרימיום וקבלו גישה מלאה כולל פגישות וידאו</p>
+                <p className="text-muted-foreground">שדרגו לתוכנית פרימיום וקבלו גישה מלאה כולל פגישות וידאו</p>
               </div>
-              <Button asChild variant="secondary" className="shrink-0">
+              <Button asChild className="bg-jade hover:bg-jade/90 shrink-0">
                 <Link to="/pricing">צפו בתוכניות</Link>
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         )}
       </main>
+      
+      {/* Dashboard Guide Teleprompter */}
+      <DashboardGuide isOpen={isGuideOpen} onClose={closeGuide} />
       
       {/* First-time tutorial overlay */}
       <WorkflowTutorial />
