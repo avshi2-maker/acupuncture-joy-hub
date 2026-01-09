@@ -8,7 +8,7 @@ import {
   Stethoscope, Brain, Pill, User as UserIcon, FileText, Clock, Save, 
   Database, ChevronDown, ChevronUp, MessageCircleQuestion, Play, Pause, 
   Square, RotateCcw, Printer, MessageCircle, Mail, ArrowRight, HelpCircle, 
-  BookOpen, Heart, Mic, Baby, Sparkles, Apple, Activity, Wind, Leaf
+  BookOpen, Heart, Mic, Baby, Sparkles, Apple, Activity, Wind, Leaf, Layers
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { APIUsageMeter } from '@/components/tcm-brain/APIUsageMeter';
@@ -43,6 +43,9 @@ import { PediatricTCMAssistant } from '@/components/tcm-brain/PediatricTCMAssist
 import { HerbalMasterWidget } from '@/components/herbal/HerbalMasterWidget';
 import { HebrewQADropdowns } from '@/components/tcm-brain/HebrewQADropdowns';
 import { HebrewTopicQuestionsDialog } from '@/components/tcm-brain/HebrewTopicQuestionsDialog';
+import { ClinicalStackingDialog } from '@/components/tcm-brain/ClinicalStackingDialog';
+import { EconomyMonitor } from '@/components/tcm-brain/EconomyMonitor';
+import { useClinicalSession } from '@/hooks/useClinicalSession';
 import { CustomizableToolbar, ToolbarItemId } from '@/components/video/CustomizableToolbar';
 import { AnxietyQADialog } from '@/components/video/AnxietyQADialog';
 import { QuickAppointmentDialog } from '@/components/video/QuickAppointmentDialog';
@@ -73,12 +76,28 @@ export default function TcmBrain() {
   const [showHerbEncyclopedia, setShowHerbEncyclopedia] = useState(false);
   const [showHebrewQADropdowns, setShowHebrewQADropdowns] = useState(false);
   const [showHebrewTopicQuestions, setShowHebrewTopicQuestions] = useState(false);
+  const [showClinicalStacking, setShowClinicalStacking] = useState(false);
   const [showEmotionalPanel, setShowEmotionalPanel] = useState(false);
   const [emotionalPanelEmotion, setEmotionalPanelEmotion] = useState<'grief' | 'trauma' | 'fear' | 'anger'>('grief');
   const [qaFavoritesCount, setQaFavoritesCount] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
   const quickActionsRef = useRef<QuickActionsRef>(null);
   
+  // Clinical Session Stacking Hook
+  const {
+    stackedQueries,
+    addToStack,
+    removeFromStack,
+    isInStack,
+    clearStack,
+    buildCombinedPrompt,
+    sessionMetrics,
+    updateMetrics,
+    isAnalyzing,
+    setIsAnalyzing,
+    stackCount
+  } = useClinicalSession();
+
   // New states for shared asset boxes
   const [showTcmBrainPanel, setShowTcmBrainPanel] = useState(false);
   const [showAnxietyQA, setShowAnxietyQA] = useState(false);
@@ -253,6 +272,37 @@ export default function TcmBrain() {
     });
   }, [setHighlightedPoints]);
 
+  // Handler for stacked clinical analysis
+  const handleAnalyzeStackedQueries = useCallback(async () => {
+    if (stackedQueries.length === 0) return;
+    
+    setIsAnalyzing(true);
+    const startTime = performance.now();
+    
+    try {
+      const combinedPrompt = buildCombinedPrompt();
+      await streamChat(combinedPrompt);
+      
+      const endTime = performance.now();
+      const timeMs = Math.round(endTime - startTime);
+      
+      // Estimate tokens (rough estimate based on prompt + response length)
+      const estimatedTokens = Math.round(combinedPrompt.length / 4);
+      updateMetrics(estimatedTokens, timeMs);
+      
+      toast.success('✨ Unified Analysis Complete', {
+        description: `${stackedQueries.length} queries analyzed in ${timeMs}ms`,
+      });
+      
+      clearStack();
+      setActiveTab('diagnostics');
+    } catch (error) {
+      toast.error('Analysis failed');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }, [stackedQueries, buildCombinedPrompt, streamChat, updateMetrics, clearStack, setIsAnalyzing]);
+
   return (
     <>
       <Helmet>
@@ -422,13 +472,28 @@ export default function TcmBrain() {
             <div className="lg:col-span-4 h-full overflow-y-auto bg-slate-50 dark:bg-slate-900/50 p-4 border-l custom-scrollbar">
               <div className="space-y-6">
                 
+                {/* Clinical Stacking Button - Multi-Query System */}
+                <Button 
+                  onClick={() => setShowClinicalStacking(true)}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-3 text-base shadow-lg relative"
+                >
+                  <Layers className="h-5 w-5 mr-2" />
+                  בניית שאילתה מורכבת
+                  {stackCount > 0 && (
+                    <Badge className="absolute -top-2 -right-2 bg-violet-500 text-white">
+                      {stackCount}
+                    </Badge>
+                  )}
+                </Button>
+
                 {/* Hebrew Topic Questions Button */}
                 <Button 
                   onClick={() => setShowHebrewTopicQuestions(true)}
-                  className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-bold py-3 text-base shadow-lg"
+                  variant="outline"
+                  className="w-full border-violet-400/50 hover:bg-violet-500/10 text-violet-700 dark:text-violet-300 font-bold py-3 text-base"
                 >
                   <BookOpen className="h-5 w-5 mr-2" />
-                  שאלות לפי נושאים
+                  שאלות לפי נושאים (450+)
                 </Button>
 
                 {/* 1. Quick Actions */}
@@ -553,6 +618,26 @@ export default function TcmBrain() {
             setActiveTab('diagnostics');
             setShowHebrewTopicQuestions(false);
           }}
+        />
+        
+        {/* Clinical Stacking Dialog */}
+        <ClinicalStackingDialog
+          open={showClinicalStacking}
+          onOpenChange={setShowClinicalStacking}
+          stackedQueries={stackedQueries}
+          onAddToStack={addToStack}
+          onRemoveFromStack={removeFromStack}
+          onClearStack={clearStack}
+          onAnalyze={handleAnalyzeStackedQueries}
+          isAnalyzing={isAnalyzing}
+          isInStack={isInStack}
+        />
+        
+        {/* Economy Monitor - Fixed Position */}
+        <EconomyMonitor
+          metrics={sessionMetrics}
+          stackedQueries={stackedQueries}
+          isVisible={stackCount > 0 || sessionMetrics.tokensUsed > 0}
         />
       </div>
     </>
