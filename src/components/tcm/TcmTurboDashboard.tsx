@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Activity, Zap, Shield, AlertTriangle, Gauge, Database, 
   BookCheck, ExternalLink, Eye, Volume2, VolumeX
@@ -45,7 +44,7 @@ export function TcmTurboDashboard({
   isProcessing = false,
   variant = 'standard',
   className,
-  enableAudio = true
+  enableAudio = false
 }: TcmTurboDashboardProps) {
   const [displayTokens, setDisplayTokens] = useState(0);
   const [rpmProgress, setRpmProgress] = useState(0);
@@ -236,14 +235,9 @@ export function TcmTurboDashboard({
                   </span>
                 </div>
                 <div className="relative h-3 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50">
-                  <motion.div
-                    className={cn("absolute inset-y-0 left-0 rounded-full bg-gradient-to-r", getRpmColor())}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${rpmProgress}%` }}
-                    transition={{ 
-                      duration: isProcessing ? 0.1 : 0.5,
-                      ease: "easeOut"
-                    }}
+                  <div
+                    className={cn("absolute inset-y-0 left-0 rounded-full bg-gradient-to-r transition-all duration-300", getRpmColor())}
+                    style={{ width: `${rpmProgress}%` }}
                   />
                   {/* Tick marks */}
                   <div className="absolute inset-0 flex justify-between px-0.5">
@@ -286,18 +280,14 @@ export function TcmTurboDashboard({
                     Tokens
                   </span>
                 </div>
-                <motion.span 
+              <span 
                   className={cn(
                     "font-mono font-bold text-amber-400",
                     isCompact ? "text-sm" : "text-lg"
                   )}
-                  key={displayTokens}
-                  initial={{ scale: 1.1 }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 0.1 }}
                 >
                   {displayTokens.toString().padStart(4, '0')}
-                </motion.span>
+                </span>
               </div>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="bg-slate-900 border-slate-700">
@@ -314,35 +304,19 @@ export function TcmTurboDashboard({
                 config.borderColor,
                 isCompact ? "px-2 py-1.5" : "px-3 py-2"
               )}>
-                {/* LED Light */}
+              {/* LED Light */}
                 <div className="relative">
-                  <motion.div
+                  <div
                     className={cn(
                       "rounded-full",
                       config.lightColor,
                       isCompact ? "w-3 h-3" : "w-4 h-4"
                     )}
-                    animate={config.pulse ? {
-                      opacity: [0.5, 1, 0.5],
-                      scale: [1, 1.1, 1]
-                    } : {}}
-                    transition={{
-                      duration: 1,
-                      repeat: config.pulse ? Infinity : 0,
-                      ease: "easeInOut"
-                    }}
                   />
                   {/* Glow effect */}
-                  <AnimatePresence>
-                    {status === 'locked' && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 0.5, scale: 1.5 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute inset-0 rounded-full bg-green-400 blur-md"
-                      />
-                    )}
-                  </AnimatePresence>
+                  {status === 'locked' && (
+                    <div className="absolute inset-0 rounded-full bg-green-400 blur-md opacity-50" />
+                  )}
                 </div>
                 
                 {/* Status Text */}
@@ -365,7 +339,7 @@ export function TcmTurboDashboard({
                 {status === 'locked' && <Shield className="w-4 h-4 text-green-400 ml-1" />}
                 {status === 'external' && <ExternalLink className="w-4 h-4 text-purple-400 ml-1" />}
                 {status === 'fail' && <AlertTriangle className="w-4 h-4 text-red-400 ml-1" />}
-                {status === 'scanning' && <Activity className="w-4 h-4 text-amber-400 ml-1 animate-pulse" />}
+                {status === 'scanning' && <Activity className="w-4 h-4 text-amber-400 ml-1" />}
               </div>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="bg-slate-900 border-slate-700 max-w-[250px]">

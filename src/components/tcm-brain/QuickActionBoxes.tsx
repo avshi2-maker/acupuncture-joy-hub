@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { motion, Reorder, useDragControls } from 'framer-motion';
+import { Reorder, useDragControls } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -230,18 +230,16 @@ function DraggableActionBox({
           <GripVertical className="h-3 w-3 text-muted-foreground" />
         </div>
 
-        <motion.button
+        <button
           onClick={onActionClick}
           disabled={isLoading}
           className={cn(
             'w-full flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all',
-            'hover:shadow-lg active:scale-95',
+            'hover:shadow-lg',
             box.bgColor,
             box.borderColor,
             isLoading && 'opacity-50 cursor-not-allowed'
           )}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
           <div className={cn(
             'w-10 h-10 rounded-full flex items-center justify-center',
@@ -257,7 +255,7 @@ function DraggableActionBox({
               {box.nameHe}
             </p>
           </div>
-        </motion.button>
+        </button>
       </div>
     </Reorder.Item>
   );

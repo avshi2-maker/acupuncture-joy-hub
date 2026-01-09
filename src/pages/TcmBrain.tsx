@@ -309,6 +309,7 @@ export default function TcmBrain() {
               auditLogId: lastRagStats?.auditLogId,
             }}
             variant="standard"
+            enableAudio={false}
           />
         </div>
 
