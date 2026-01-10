@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { 
@@ -6,12 +6,14 @@ import {
   MapPin, 
   FileCheck, 
   Sparkles,
-  AlertCircle 
+  AlertCircle,
+  CheckCircle2
 } from 'lucide-react';
 
 /**
  * Live Assistant Teleprompter - Phase 7: Contextual Nudges
  * Displays real-time guidance based on session state
+ * Updated: Includes "ready for finish" nudge after 10 seconds
  */
 
 interface LiveAssistantTeleprompterProps {
@@ -20,6 +22,7 @@ interface LiveAssistantTeleprompterProps {
   pointCount: number;
   isSessionEnding?: boolean;
   hasContradictions?: boolean;
+  lastPointSelectedAt?: number; // Timestamp of last point selection
   className?: string;
 }
 
@@ -37,8 +40,24 @@ export function LiveAssistantTeleprompter({
   pointCount,
   isSessionEnding = false,
   hasContradictions = false,
+  lastPointSelectedAt,
   className,
 }: LiveAssistantTeleprompterProps) {
+  // Track if 10 seconds have passed since last point selection
+  const [showFinishNudge, setShowFinishNudge] = useState(false);
+  
+  // Timer for "ready for finish" nudge after 10 seconds
+  useEffect(() => {
+    if (hasPoints && pointCount > 0 && lastPointSelectedAt) {
+      const timer = setTimeout(() => {
+        setShowFinishNudge(true);
+      }, 10000); // 10 seconds
+      
+      return () => clearTimeout(timer);
+    } else {
+      setShowFinishNudge(false);
+    }
+  }, [hasPoints, pointCount, lastPointSelectedAt]);
   
   // Generate contextual nudges based on session state
   const nudges = useMemo<NudgeMessage[]>(() => {
@@ -55,13 +74,13 @@ export function LiveAssistantTeleprompter({
       });
     }
     
-    // Points selected nudge (medium priority)
-    if (hasPoints && pointCount > 0) {
+    // Ready for finish nudge after 10 seconds (high priority) - Phase 7 Task 1 Step 4
+    if (showFinishNudge && hasPoints && pointCount > 0) {
       messages.push({
-        id: 'points-selected',
-        icon: <MapPin className="h-4 w-4" />,
-        message: `${pointCount} נקודות מוצגות על מפת הגוף. לחץ עליהן למידע טכני (עומק/זווית).`,
-        priority: 'medium',
+        id: 'ready-for-finish',
+        icon: <CheckCircle2 className="h-4 w-4" />,
+        message: "הנקודות מוכנות. לחץ על 'סיום' להפקת דוח.",
+        priority: 'high',
         color: 'text-jade',
       });
     }
@@ -88,6 +107,17 @@ export function LiveAssistantTeleprompter({
       });
     }
     
+    // Points selected nudge (medium priority) - only if not showing finish nudge
+    if (hasPoints && pointCount > 0 && !showFinishNudge) {
+      messages.push({
+        id: 'points-selected',
+        icon: <MapPin className="h-4 w-4" />,
+        message: `${pointCount} נקודות מוצגות על מפת הגוף. לחץ עליהן למידע טכני (עומק/זווית).`,
+        priority: 'medium',
+        color: 'text-jade',
+      });
+    }
+    
     // AI ready nudge (low priority - default state)
     if (hasPulse && !hasPoints && !isSessionEnding) {
       messages.push({
@@ -103,7 +133,7 @@ export function LiveAssistantTeleprompter({
       const priorityOrder = { high: 0, medium: 1, low: 2 };
       return priorityOrder[a.priority] - priorityOrder[b.priority];
     });
-  }, [hasPulse, hasPoints, pointCount, isSessionEnding, hasContradictions]);
+  }, [hasPulse, hasPoints, pointCount, isSessionEnding, hasContradictions, showFinishNudge]);
   
   // Show only the highest priority nudge
   const activeNudge = nudges[0];

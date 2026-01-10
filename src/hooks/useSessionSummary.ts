@@ -50,6 +50,7 @@ export interface SessionSummaryData {
   protocolPoints: ProtocolPoint[];
   contradictions: ClinicalContradiction[];
   sessionStartedAt: number;
+  lastPointSelectedAt: number | null; // Phase 7: Track for teleprompter nudge timing
   notes: string[];
   pendingPulseChange: PulseChangeRequest | null;
 }
@@ -79,6 +80,7 @@ export function useSessionSummary() {
     protocolPoints: [],
     contradictions: [],
     sessionStartedAt: Date.now(),
+    lastPointSelectedAt: null,
     notes: [],
     pendingPulseChange: null,
   });
@@ -95,16 +97,18 @@ export function useSessionSummary() {
       }
 
       const technicalInfo = getPointTechnicalInfo(code);
+      const now = Date.now();
       const newPoint: ProtocolPoint = {
         code,
         source,
         technicalInfo,
-        addedAt: Date.now(),
+        addedAt: now,
       };
 
       return {
         ...prev,
         protocolPoints: [...prev.protocolPoints, newPoint],
+        lastPointSelectedAt: now, // Phase 7: Track timing for teleprompter nudge
       };
     });
   }, []);
@@ -415,6 +419,7 @@ export function useSessionSummary() {
       protocolPoints: [],
       contradictions: [],
       sessionStartedAt: Date.now(),
+      lastPointSelectedAt: null,
       notes: [],
       pendingPulseChange: null,
     });
