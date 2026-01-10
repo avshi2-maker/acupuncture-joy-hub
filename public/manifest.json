@@ -1,0 +1,110 @@
+{
+  "name": "CCMA Nexus - Chinese Medicine Clinical Assistant",
+  "short_name": "CCMA Nexus",
+  "description": "AI-powered clinical decision support for Traditional Chinese Medicine practitioners",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#00A896",
+  "background_color": "#00A896",
+  "scope": "/",
+  "lang": "he",
+  "dir": "rtl",
+  "categories": ["medical", "health", "productivity"],
+  "icons": [
+    {
+      "src": "/pwa-icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icons/maskable-icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/pwa-icons/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/pwa-icons/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "CCMA Nexus Dashboard"
+    },
+    {
+      "src": "/pwa-icons/screenshot-narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "CCMA Nexus Mobile View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "לוח בקרה",
+      "short_name": "דאשבורד",
+      "description": "Open the main dashboard",
+      "url": "/dashboard",
+      "icons": [{ "src": "/pwa-icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "גלריית דפקים",
+      "short_name": "דפקים",
+      "description": "Open the Pulse Gallery",
+      "url": "/pulse-gallery",
+      "icons": [{ "src": "/pwa-icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
