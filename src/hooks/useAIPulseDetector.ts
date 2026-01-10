@@ -39,15 +39,22 @@ const PULSE_KEYWORDS: Record<string, { pulseId: string; pulseName: string; chine
   'ליחה': { pulseId: 'P-HUA-03', pulseName: 'Slippery/Rolling Pulse (Hua Mai)', chineseName: '滑脉 Huá Mài', suggestedPoints: ['ST40', 'SP9', 'CV12', 'PC6', 'ST36'] },
   'phlegm': { pulseId: 'P-HUA-03', pulseName: 'Slippery/Rolling Pulse (Hua Mai)', chineseName: '滑脉 Huá Mài', suggestedPoints: ['ST40', 'SP9', 'CV12', 'PC6', 'ST36'] },
   
-  // Wiry pulse variants
+  // Wiry pulse variants - multiple descriptions
   'wiry': { pulseId: 'P-XIAN-01', pulseName: 'Wiry/String-like Pulse (Xian Mai)', chineseName: '弦脉 Xián Mài', suggestedPoints: ['LV3', 'GB34', 'LV14', 'PC6', 'GB20'] },
   'string-like': { pulseId: 'P-XIAN-01', pulseName: 'Wiry/String-like Pulse (Xian Mai)', chineseName: '弦脉 Xián Mài', suggestedPoints: ['LV3', 'GB34', 'LV14', 'PC6', 'GB20'] },
+  'guitar string': { pulseId: 'P-XIAN-01', pulseName: 'Wiry/String-like Pulse (Xian Mai)', chineseName: '弦脉 Xián Mài', suggestedPoints: ['LV3', 'GB34', 'LV14', 'PC6', 'GB20'] },
+  'like a guitar': { pulseId: 'P-XIAN-01', pulseName: 'Wiry/String-like Pulse (Xian Mai)', chineseName: '弦脉 Xián Mài', suggestedPoints: ['LV3', 'GB34', 'LV14', 'PC6', 'GB20'] },
+  'taut': { pulseId: 'P-XIAN-01', pulseName: 'Wiry/String-like Pulse (Xian Mai)', chineseName: '弦脉 Xián Mài', suggestedPoints: ['LV3', 'GB34', 'LV14', 'PC6', 'GB20'] },
   'xian mai': { pulseId: 'P-XIAN-01', pulseName: 'Wiry/String-like Pulse (Xian Mai)', chineseName: '弦脉 Xián Mài', suggestedPoints: ['LV3', 'GB34', 'LV14', 'PC6', 'GB20'] },
   'שיאן מאי': { pulseId: 'P-XIAN-01', pulseName: 'Wiry/String-like Pulse (Xian Mai)', chineseName: '弦脉 Xián Mài', suggestedPoints: ['LV3', 'GB34', 'LV14', 'PC6', 'GB20'] },
   'מיתרי': { pulseId: 'P-XIAN-01', pulseName: 'Wiry/String-like Pulse (Xian Mai)', chineseName: '弦脉 Xián Mài', suggestedPoints: ['LV3', 'GB34', 'LV14', 'PC6', 'GB20'] },
   'דופק מיתרי': { pulseId: 'P-XIAN-01', pulseName: 'Wiry/String-like Pulse (Xian Mai)', chineseName: '弦脉 Xián Mài', suggestedPoints: ['LV3', 'GB34', 'LV14', 'PC6', 'GB20'] },
   'כבד': { pulseId: 'P-XIAN-01', pulseName: 'Wiry/String-like Pulse (Xian Mai)', chineseName: '弦脉 Xián Mài', suggestedPoints: ['LV3', 'GB34', 'LV14', 'PC6', 'GB20'] },
   'liver': { pulseId: 'P-XIAN-01', pulseName: 'Wiry/String-like Pulse (Xian Mai)', chineseName: '弦脉 Xián Mài', suggestedPoints: ['LV3', 'GB34', 'LV14', 'PC6', 'GB20'] },
+  
+  // Slippery pulse with additional Hebrew variant
+  'מחליק': { pulseId: 'P-HUA-03', pulseName: 'Slippery/Rolling Pulse (Hua Mai)', chineseName: '滑脉 Huá Mài', suggestedPoints: ['ST40', 'SP9', 'CV12', 'PC6', 'ST36'] },
+  'hua mai': { pulseId: 'P-HUA-03', pulseName: 'Slippery/Rolling Pulse (Hua Mai)', chineseName: '滑脉 Huá Mài', suggestedPoints: ['ST40', 'SP9', 'CV12', 'PC6', 'ST36'] },
   
   // Choppy pulse variants
   'choppy': { pulseId: 'P-SE-04', pulseName: 'Choppy/Rough Pulse (Se Mai)', chineseName: '涩脉 Sè Mài', suggestedPoints: ['SP10', 'BL17', 'LV3', 'SP6', 'ST36'] },
@@ -107,6 +114,40 @@ const PULSE_HEBREW_EXPLANATIONS: Record<string, string> = {
   'P-RUO-08': 'המערכת זיהתה דופק חלש. זה מעיד על חוסר צ׳י משמעותי. הנקודות ST36 ו-CV6 מוכנות לחיזוק הצ׳י.',
   'P-JIN-09': 'המערכת זיהתה דופק מתוח. זה מעיד על קור או כאב. הנקודות GB20 ו-LI4 מוכנות לפיזור הקור.',
 };
+
+// Contradiction patterns for contextual logic
+const CONTRADICTION_PATTERNS: Array<{
+  heatKeywords: string[];
+  coldKeywords: string[];
+  hebrewWarning: string;
+}> = [
+  {
+    heatKeywords: ['מהיר', 'rapid', 'fast', 'חום', 'heat'],
+    coldKeywords: ['קור', 'cold', 'גפיים קרות', 'cold limbs', 'קור בגפיים'],
+    hebrewWarning: '⚠️ שימו לב: זוהתה סתירה אבחנתית! הדופק מצביע על חום אך יש סימני קור בגפיים. יתכן מדובר בחום כוזב (False Heat) או חוסר יין עם חום ריק. מומלץ לבדוק את הלשון ולהעמיק את האבחון.',
+  },
+  {
+    heatKeywords: ['צף', 'floating', 'superficial'],
+    coldKeywords: ['עמוק', 'deep', 'sinking', 'פנימי', 'interior'],
+    hebrewWarning: '⚠️ שימו לב: זוהה ערבוב בין דפוס חיצוני לפנימי. יתכן שהפתוגן עובר משטח לעומק.',
+  },
+];
+
+// Detect contradictions in transcription
+function detectContradictions(text: string): string | null {
+  const lowerText = text.toLowerCase();
+  
+  for (const pattern of CONTRADICTION_PATTERNS) {
+    const hasHeat = pattern.heatKeywords.some(k => lowerText.includes(k.toLowerCase()));
+    const hasCold = pattern.coldKeywords.some(k => lowerText.includes(k.toLowerCase()));
+    
+    if (hasHeat && hasCold) {
+      return pattern.hebrewWarning;
+    }
+  }
+  
+  return null;
+}
 
 interface UseAIPulseDetectorOptions {
   enabled?: boolean;
@@ -169,27 +210,38 @@ export function useAIPulseDetector(
     }, 8000);
   }, []);
 
-  // Detect pulse keywords in transcription
+  // Detect pulse keywords in transcription with contextual logic
   const detectPulseKeywords = useCallback((text: string) => {
     if (!enabled || !text) return;
     
     const lowerText = text.toLowerCase();
     const detectedSuggestions: PulseSuggestion[] = [];
     
+    // Check for contradictions first
+    const contradictionWarning = detectContradictions(text);
+    
     Object.entries(PULSE_KEYWORDS).forEach(([keyword, pulseData]) => {
       // Check if keyword exists in text and hasn't been processed
       if (lowerText.includes(keyword.toLowerCase()) && !processedKeywordsRef.current.has(keyword)) {
         processedKeywordsRef.current.add(keyword);
+        
+        // Build the explanation with possible contradiction warning
+        let explanation = PULSE_HEBREW_EXPLANATIONS[pulseData.pulseId] || '';
+        if (contradictionWarning) {
+          explanation = contradictionWarning + ' ' + explanation;
+        }
         
         const suggestion: PulseSuggestion = {
           action: 'SUGGEST_PULSE',
           pulseId: pulseData.pulseId,
           pulseName: pulseData.pulseName,
           chineseName: pulseData.chineseName,
-          confidence: 0.85,
-          clinicalContext: `Detected keyword: "${keyword}"`,
+          confidence: contradictionWarning ? 0.65 : 0.85, // Lower confidence if contradiction
+          clinicalContext: contradictionWarning 
+            ? `Detected keyword: "${keyword}" with contradiction` 
+            : `Detected keyword: "${keyword}"`,
           suggestedPoints: pulseData.suggestedPoints,
-          hebrewExplanation: PULSE_HEBREW_EXPLANATIONS[pulseData.pulseId] || '',
+          hebrewExplanation: explanation,
         };
         
         detectedSuggestions.push(suggestion);
@@ -215,13 +267,21 @@ export function useAIPulseDetector(
         // Notify callback
         onPulseSuggested?.(newSuggestion);
         
-        // Show toast notification
-        toast.info('🎯 זוהה דופק בתמלול', {
-          description: newSuggestion.pulseName,
-          duration: 4000,
-        });
+        // Show toast with warning if contradiction detected
+        if (contradictionWarning) {
+          toast.warning('⚠️ זוהתה סתירה אבחנתית', {
+            description: newSuggestion.pulseName,
+            duration: 6000,
+          });
+        } else {
+          toast.info('🎯 זוהה דופק בתמלול', {
+            description: newSuggestion.pulseName,
+            duration: 4000,
+          });
+        }
         
-        console.log('[AI Pulse Detector] Suggested pulse:', newSuggestion);
+        console.log('[AI Pulse Detector] Suggested pulse:', newSuggestion, 
+          contradictionWarning ? '(with contradiction)' : '');
       }
     }
   }, [enabled, lastSuggestedPulse, triggerGoldGlow, speakClinicalWhisper, onPulseSuggested]);
