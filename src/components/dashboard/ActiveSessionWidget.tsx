@@ -145,6 +145,7 @@ export function ActiveSessionWidget({
             pointCount={counts.pointCount}
             hasContradictions={counts.contradictionCount > 0}
             isSessionEnding={canGenerateReport}
+            lastPointSelectedAt={sessionData.lastPointSelectedAt ?? undefined}
             className="mb-4"
           />
         )}
