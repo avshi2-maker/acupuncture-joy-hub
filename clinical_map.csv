@@ -1,0 +1,25 @@
+Asset_FileName,Point_Code,Hebrew_Name,Clinical_Function,X_Percentage,Y_Percentage
+chest.png,Entry,מרכז החזה,חיזוק הצ'י המגן ותמיכה בנשימה עמוקה,50,40
+abdomen_female.png,CV-12,Zhongwan,נקודת התראה של הקיבה וויסות עיכול,50,30
+abdomen_female.png,ST-25,Tianshu,ויסות המעיים והפסקת כאב,35,50
+abdomen_zoomed.png,CV-12,Zhongwan,טיפול ממוקד במחמם האמצעי,50,25
+abdomen_zoomed.png,ST-25,Tianshu,איזון מערכת העיכול וניקוז לחות,40,44
+hand_dorsum.png,LI-4,Hegu (אדיר),שחרור רוח ושיכוך כאב,38,42
+hand_dorsum.png,TH-5,Waiguan,סילוק רוח-חום ופתיחת המרידיאן,45,60
+lower_leg.png,ST-36,Zusanli (שלושת המיילים),חיזוק צ'י ודם וויסות קיבה,42,35
+lower_leg.png,SP-6,Sanyinjiao,הזנת יין ודם והרגעת הנפש,48,75
+knee_medial.png,SP-9,Yinlingquan,ניקוז לחות וחיזוק הטחול,55,28
+foot_top.png,LV-3,Taichong (צומת גדולה),הנעת צ'י הכבד והרגעת נפש,45,65
+face_front.png,LI-20,Yingxiang,פתיחת מעברי אף וסילוק רוח,50,45
+head_lateral.png,GB-20,Fengchi,סילוק רוח וניקוי הראש,70,20
+neck_posterior.png,GV-14,Dazhui,צומת ה-Yang וחיזוק מערכת חיסון,50,40
+lower_back.png,BL-23,Shenshu,חיזוק הכליות והזנת גב תחתון,40,55
+tongue.png,Center,מרכז הלשון,מצב הטחול והקיבה (מערכת העיכול),50,50
+tongue.png,Tip,קצה הלשון,מצב הלב והריאות,50,20
+tongue.png,Sides,צדדי הלשון,מצב הכבד וכיס המרה,25,50
+ear.png,Shen-Men,שן מן (Ear),הרגעת הנפש והורדת סטרס,45,35
+ear.png,Kidney,כליות (Ear),חיזוק אנרגיית הבסיס והגב,55,45
+ear.png,Liver,כבד (Ear),ניקוי רעלים והנעת צ'י,60,55
+wrist.png,Pulse-Pos,מיקום הדופק,אבחנת דופק קלינית,50,50
+child_front.png,Pediatric,מבט קדמי ילדים,טיפול במערכת העיכול והנשימה,50,50
+child_back.png,Pediatric,מבט אחורי ילדים,חיזוק עמוד השדרה ומערכת החיסון,50,40
