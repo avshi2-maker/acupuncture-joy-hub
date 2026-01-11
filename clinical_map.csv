@@ -1,0 +1,16 @@
+Asset_FileName,Point_Code,Hebrew_Name,Clinical_Function,X_Percentage,Y_Percentage
+hand_dorsum.png,LI-4,Hegu (אדיר),שחרור רוח ושיכוך כאב,38,42
+hand_dorsum.png,TH-5,Waiguan,סילוק רוח-חום ופתיחת המרידיאן,45,60
+lower_leg.png,ST-36,Zusanli (שלושת המיילים),חיזוק צ'י ודם וויסות קיבה,42,35
+lower_leg.png,SP-6,Sanyinjiao,הזנת יין ודם והרגעת הנפש,48,75
+knee_medial.png,SP-9,Yinlingquan,ניקוז לחות וחיזוק הטחול,55,28
+foot_top.png,LV-3,Taichong (צומת גדולה),הנעת צ'י הכבד והרגעת נפש,45,65
+abdomen_female.png,CV-12,Zhongwan,נקודת התראה של הקיבה,50,30
+abdomen_female.png,ST-25,Tianshu,ויסות המעיים והפסקת כאב,35,50
+abdomen_zoomed.png,CV-12,Zhongwan,טיפול ממוקד במחמם האמצעי,50,25
+face_front.png,LI-20,Yingxiang,פתיחת מעברי אף וסילוק רוח,50,45
+head_lateral.png,GB-20,Fengchi,סילוק רוח וניקוי הראש,70,20
+neck_posterior.png,GV-14,Dazhui,צומת ה-Yang וחיזוק מערכת חיסון,50,40
+lower_back.png,BL-23,Shenshu,חיזוק הכליות והזנת גב תחתון,40,55
+child_front.png,Pediatric,מבט קדמי ילדים,טיפול במערכת העיכול והנשימה,50,50
+child_back.png,Pediatric,מבט אחורי ילדים,חיזוק עמוד השדרה ומערכת החיסון,50,40
